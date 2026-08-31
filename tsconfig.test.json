@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "module": "CommonJS",
+    "outDir": ".build",
+    "declaration": false,
+    "sourceMap": true,
+    "rootDir": "."
+  },
+  "include": [
+    "Scripts/SpatialisCore.ts",
+    "Scripts/SurfaceAnchorEngine.ts",
+    "Scripts/PBRMaterialSwapper.ts",
+    "Scripts/VoiceCommandController.ts",
+    "types/**/*.d.ts"
+  ]
+}

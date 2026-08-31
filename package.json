@@ -1,0 +1,19 @@
+{
+  "name": "spatialis",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build:test": "tsc -p tsconfig.test.json",
+    "test": "npm run build:test && node Tests/voice-parser.test.js",
+    "clean": "rm -rf .build"
+  },
+  "dependencies": {
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16"
+  },
+  "description": "Voice & gesture 3D spatial interior design tool for Snap Spectacles (Lens Studio 5.22+).",
+  "license": "Apache-2.0"
+}

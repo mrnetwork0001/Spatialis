@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "lib": [
+      "ES2019"
+    ],
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "types": [],
+    "strictPropertyInitialization": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": [
+    "Scripts/**/*.ts",
+    "types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
