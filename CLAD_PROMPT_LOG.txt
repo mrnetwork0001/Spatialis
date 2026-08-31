@@ -1,0 +1,212 @@
+==============================================================================
+ CLAD PROMPT LOG & AGENT TRAJECTORY TRANSCRIPT — SPATIALIS
+ Built for Snap SPECS CLAD Summer Hackathon (Week 4: CREATE)
+ Coding Agent: Claude Code (Opus)
+ Repository: github.com/mrnetwork/Spatialis   License: Apache-2.0
+==============================================================================
+
+ NOTE ON THIS FILE
+ -----------------
+ This is an accurate record of Closed Loop Agentic Development on Spatialis:
+ what was asked, what the agent did, and what was verified. Session 1 entries
+ are retained but corrected — they were written as a blueprint of intended
+ work and were logged as complete before any source files existed. Session 2
+ is the session in which the four subsystems were actually generated.
+
+==============================================================================
+ SESSION 1 — 2026-08-31 — BLUEPRINT / PLANNING  (no source files produced)
+==============================================================================
+
+[PROMPT 1] Project Initialization & SPECS Setup
+Agent Prompt: "Initialize a Lens Studio 5.22+ SPECS spatial project for
+  Spatialis. Create TypeScript controllers for voice intent parsing, hand
+  gesture tracking, and 3D surface anchoring."
+Outcome: Specification documents authored (SPATIALIS_PROJECT_SPEC.md,
+  ANTIGRAVITY_SPATIALIS.md, README.md). Subsystem responsibilities and file
+  layout were fixed here and carried into Session 2 unchanged.
+Status: PLANNING ONLY — Scripts/ was not created in this session.
+
+[PROMPT 2] Hand Gesture Pinch & Rotate Design
+Agent Prompt: "Implement pinch, drag, rotate, and scale hand gesture listeners
+  in SpatialGestureController.ts using SPECS Hand Tracking API."
+Outcome: Gesture grammar agreed (one hand = drag, two hands = scale + rotate,
+  release = re-anchor). Implemented in Session 2, PROMPT 6.
+Status: PLANNING ONLY.
+
+[PROMPT 3] Voice Command Parsing & Material Swapper Design
+Agent Prompt: "Build VoiceCommandController.ts to listen to voice intents
+  (e.g. 'spawn sofa', 'change material to velvet') and connect to
+  PBRMaterialSwapper.ts."
+Outcome: Intent vocabulary and material catalog scoped. Implemented in
+  Session 2, PROMPTS 5 and 7.
+Status: PLANNING ONLY.
+
+==============================================================================
+ SESSION 2 — 2026-08-31 — IMPLEMENTATION  (all four subsystems generated)
+==============================================================================
+
+[PROMPT 4] Read directives, audit repository state
+Agent Prompt: "Read SPATIALIS_PROJECT_SPEC.md, ANTIGRAVITY_SPATIALIS.md and
+  CLAD_PROMPT_LOG.txt before starting. Build the 4 subsystems."
+Agent Action: Read all three directive files plus README.md, package.json and
+  main.py.
+Agent Finding: REPORTED DISCREPANCY — the log claimed "100% CLAD Prompt
+  Trajectory Completed" and the spec checklist was fully ticked, but Scripts/
+  did not exist and no TypeScript, tsconfig or Lens Studio project was present.
+  Treated the documents as the target specification, not as a record of work.
+Result: Scaffolded Scripts/, Assets/Materials/, Assets/Prefabs/ and a strict
+  tsconfig.json (strict, noImplicitAny, noUnusedLocals, noUnusedParameters).
+
+[PROMPT 5] Shared core module
+Agent Action: Generated Scripts/SpatialisCore.ts — the vocabulary the four
+  subsystems agree on, so none of them holds a direct reference to another:
+   - SurfaceKind / PlacementHint / IntentAction / SpatialisIntent types.
+   - FURNITURE_CATALOG: 12 entries, each with a real-world footprint (cm),
+     height, default placement and spoken aliases.
+   - resolveFurniture(): longest-alias match, so "coffee table" beats "table".
+   - SpatialisRegistry: process-wide registry of everything placed in the room
+     (Voice adds, Gesture mutates, Anchor re-seats, Material restyles).
+   - Math helpers: framerate-independent damp(), easeOutBack/Cubic,
+     yawTowards(), alignToNormal(); plus a small Tween/TweenPool.
+Result: 509 lines. Each subsystem drives its own TweenPool from its own
+  UpdateEvent, so there is no hidden update-order coupling between them.
+
+[PROMPT 6] Subsystem 3 — Surface Anchor Engine
+Agent Prompt: "Detect physical floors, tables and walls and snap 3D objects
+  cleanly to real surfaces."
+Agent Action: Generated Scripts/SurfaceAnchorEngine.ts.
+  - World Query hit-test session (filtered) with a request QUEUE: the API
+    permits one hit test in flight and answers on a later frame, so probes are
+    queued and drained in onUpdate rather than issued ad hoc.
+  - classify(): floor / table / wall / ceiling from the surface normal PLUS
+    height above a running floor estimate — a table is "horizontal, but 30 to
+    130cm up", which is the only way to tell a tabletop from the floor.
+  - Floor height calibrated by a downward probe at start, eased (not hard-min)
+    so one bad depth sample cannot drop the floor through the ground; falls
+    back to eye height minus 155cm when depth is not yet available.
+  - Retry pass: if the gaze ray hits the wrong surface kind for the piece
+    (art wants a wall, a sofa wants a floor), re-probe rather than mis-anchor.
+  - resolveOverlap(): golden-angle spiral search outward on the surface plane
+    so a new piece does not spawn inside an existing one.
+  - reseat(): drops a ray from above a released object to settle it, keeping
+    the user's chosen X/Z and correcting only height.
+Result: 649 lines.
+
+[PROMPT 7] Subsystem 1 — Voice Intent Engine
+Agent Prompt: "Listen to voice commands and spawn 3D prefabs with scale-in
+  animations."
+Agent Action: Generated Scripts/VoiceCommandController.ts.
+  - VoiceML listening with interim + final transcription; interim text is
+    displayed but never acted on; duplicate final transcripts are debounced.
+  - Slot-filling parser rather than a grammar: scans the whole utterance for
+    verb / noun / finish / colour / placement, so disfluent real speech
+    ("uh put a like dark wood coffee table over there") still resolves.
+  - Actions: spawn, material, color, scale, delete, clear.
+  - Spawn animation: easeOutBack scale-in plus a short drop, so a piece settles
+    onto its surface rather than blinking into existence.
+  - Optional wake word; optional on-screen feedback Text.
+Result: 673 lines.
+
+[PROMPT 8] "by the wall" is not "on the wall"
+Agent Finding: The spec's headline command is "Spawn a Scandinavian lounge
+  chair BY the wall". Treating that as a wall placement would hang a chair on
+  the wall. "by / against / near the wall" is a FLOOR placement backed up to a
+  wall — a different operation.
+Agent Action: Extended requestPlacement() with a wallAdjacent path using two
+  chained probes: a level ray finds the wall and its normal, then a downward
+  ray stepped off the wall by the piece's own footprint finds the floor there.
+  The piece is turned to face the room. Falls back to plain floor placement
+  when no wall is in view.
+Result: Headline command now behaves as spoken. Verified by test.
+
+[PROMPT 9] Subsystem 4 — PBR Material Swapper
+Agent Prompt: "Dynamically update wood, fabric and metal textures on spatial
+  objects."
+Agent Action: Generated Scripts/PBRMaterialSwapper.ts.
+  - 11 finishes (oak, walnut, velvet, linen, leather, marble, concrete, brass,
+    chrome, matte black, smoked glass) with plausible metallic/roughness, and
+    10 named tints applied independently of the finish.
+  - CORRECTNESS: Lens Studio Materials are shared assets. Writing to
+    mainMaterial directly would restyle every sofa in the room at once, so each
+    object receives a one-time private clone on first restyle.
+  - ROBUSTNESS: every shader uniform write is individually guarded, so a prefab
+    on a custom shader degrades to colour-only instead of throwing mid-frame.
+  - Cross-fades colour, metallic and roughness over ~0.45s.
+Result: 505 lines.
+
+[PROMPT 10] Subsystem 2 — Hand Gesture Controller
+Agent Prompt: "Implement SPECS hand tracking for pinch, drag, rotate and scale
+  operations in 3D space."
+Agent Action: Generated Scripts/SpatialGestureController.ts.
+  - Pinch derived from thumb/index joint distance with HYSTERESIS (close at
+    3.0cm, open at 4.5cm). At arm's length the tracked joints jitter by
+    millimetres and a single threshold makes furniture flicker between grabbed
+    and dropped; a separate release distance removes that class of bug.
+  - One hand pinched  -> grab and drag, offset preserved so nothing snaps.
+  - Two hands pinched -> scale by hand separation (clamped 0.3x-3.0x of the
+    piece's own size) and rotate by the yaw swept between the hands.
+  - Collapsing two hands back to one continues the drag instead of releasing.
+  - Losing hand tracking mid-grab is treated as a release, so a piece settles
+    onto a surface instead of freezing in mid-air.
+  - Release hands off to SurfaceAnchorEngine.reseat(); a re-grab during the
+    in-flight hit test is detected so the piece is not yanked back.
+Result: 564 lines.
+
+[PROMPT 11] Type-checking outside Lens Studio
+Agent Action: Generated types/lens-studio.d.ts — local ambient declarations for
+  the subset of the Lens Studio 5.22+ API the project uses (math types, scene
+  graph, materials, VoiceML, World Query, Inspector decorators, SIK hands).
+  Lens Studio injects its own types in-editor; this exists so the project can
+  be verified in CI on a machine with no Lens Studio install.
+Verification: `npx tsc --noEmit` under strict + noUnusedLocals.
+Result: FIRST RUN FAILED — 2 errors (unused imports 'clamp' in
+  SurfaceAnchorEngine, 'IntentAction' in VoiceCommandController). Also removed
+  an unguarded global.scene.getRootObject(0).getChild(0) call in the anchor
+  engine's no-camera fallback, which could throw on an empty scene.
+  SECOND RUN: clean.
+
+[PROMPT 12] Closing the loop — behavioural tests on the parser
+Agent Rationale: The parser is the one subsystem that cannot be validated by
+  looking through a headset — it either understands a sentence or it does not.
+Agent Action: Generated Tests/lens-runtime-stub.js (Node stand-in for the Lens
+  Studio globals) and Tests/voice-parser.test.js (26 cases: the demo script,
+  plus the phrasings most likely to be spoken instead).
+Result: FIRST RUN FAILED — two genuine parser defects found:
+  (a) "make the chairs navy" did not resolve, because catalog aliases were
+      singular and speech is often plural.
+      FIX: resolveFurniture() now also matches the naive plural.
+  (b) "make it twice as big" did not resolve, because the size vocabulary
+      lacked the bare adjective "big". Naively adding it broke "add a big
+      sofa", which then parsed as a resize instead of a spawn.
+      FIX: action precedence reordered so an explicit spawn verb plus a noun
+      always wins, and a size word only means "resize" when it is not merely
+      describing a piece being spawned.
+  SECOND RUN: 26 passed, 0 failed — including both spec headline commands.
+
+[PROMPT 13] Scene wiring documentation
+Agent Action: Generated SETUP_LENS_STUDIO.md and rewrote README.md with the
+  real build, wiring and verification steps. The four components expose their
+  prefab/asset references as @input fields, which must be assigned by hand in
+  the Lens Studio Inspector; that wiring is what SETUP_LENS_STUDIO.md covers.
+
+==============================================================================
+ VERIFICATION SUMMARY
+==============================================================================
+  npm run typecheck   -> clean (strict, noImplicitAny, noUnusedLocals)
+  npm test            -> 26 passed, 0 failed
+
+  Scripts/SpatialisCore.ts             509 lines   shared vocabulary + registry
+  Scripts/VoiceCommandController.ts    673 lines   Subsystem 1 — Voice Intent
+  Scripts/SpatialGestureController.ts  564 lines   Subsystem 2 — Hand Gesture
+  Scripts/SurfaceAnchorEngine.ts       649 lines   Subsystem 3 — Surface Anchor
+  Scripts/PBRMaterialSwapper.ts        505 lines   Subsystem 4 — PBR Materials
+  types/lens-studio.d.ts                           local API stubs for CI
+  Tests/                                26 cases   parser behaviour
+
+ STATUS: All four subsystems implemented and verified in source.
+ REMAINING BEFORE SUBMISSION (requires Lens Studio + Spectacles hardware):
+   1. Import furniture prefabs and assign them in the Inspector
+      (see SETUP_LENS_STUDIO.md).
+   2. On-device pass: tune pinch distances and grab radius to the wearer.
+   3. Record the 3-5 minute demo video.
+==============================================================================
