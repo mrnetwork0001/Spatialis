@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spatialis — Desk Simulator</title>
+<style>
+  :root {
+    --bg: #0b0d11;  --panel: #12151c;  --panel-2: #171b24;
+    --line: #232936; --line-2: #2f3746;
+    --ink: #e8ecf4;  --ink-dim: #9aa4b6; --ink-faint: #626d80;
+    --accent: #ffd84d; --accent-dim: #6b5a15;
+    --real: #4ade80;  --sim: #60a5fa;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 14px; overflow: hidden;
+  }
+  header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 20px; border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: .2px; }
+  header .sub { color: var(--ink-faint); font-size: 12px; }
+  .spacer { flex: 1; }
+  .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .4px;
+    padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-2);
+    color: var(--ink-dim); white-space: nowrap;
+  }
+  .tag.real { color: var(--real); border-color: #1e4b32; background: #0e1f17; }
+  .tag.sim  { color: var(--sim);  border-color: #1e3a5c; background: #0d1826; }
+
+  main { display: grid; grid-template-columns: 1fr 380px; height: calc(100% - 53px); }
+
+  /* ---- room ---- */
+  #stage { position: relative; display: grid; place-items: center; overflow: hidden; }
+  canvas { display: block; border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.55); cursor: crosshair; }
+  #hud {
+    position: absolute; left: 20px; bottom: 16px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    pointer-events: none; line-height: 1.7;
+  }
+  #hud b { color: var(--ink-dim); font-weight: 500; }
+
+  /* ---- panel ---- */
+  aside {
+    border-left: 1px solid var(--line); background: var(--panel);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .sec { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .sec h2 {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: .9px;
+    color: var(--ink-faint); margin: 0 0 10px; font-weight: 600;
+  }
+  .row { display: flex; gap: 8px; }
+  input[type=text] {
+    flex: 1; min-width: 0; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line-2); border-radius: 7px;
+    padding: 9px 11px; font-family: var(--sans); font-size: 13px; outline: none;
+  }
+  input[type=text]:focus { border-color: var(--accent-dim); }
+  button {
+    background: var(--panel-2); color: var(--ink); border: 1px solid var(--line-2);
+    border-radius: 7px; padding: 9px 12px; font-size: 13px; cursor: pointer;
+    font-family: var(--sans); white-space: nowrap;
+  }
+  button:hover { border-color: #414c60; background: #1c212c; }
+  button.primary { background: var(--accent); color: #191400; border-color: var(--accent); font-weight: 600; }
+  button.primary:hover { background: #ffe172; }
+  button.mic { width: 100%; margin-top: 8px; }
+  button.mic.live { background: #3a1414; border-color: #7f1d1d; color: #fca5a5; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip {
+    font-size: 11.5px; padding: 5px 9px; border-radius: 999px;
+    background: var(--panel-2); border: 1px solid var(--line);
+    color: var(--ink-dim); cursor: pointer;
+  }
+  .chip:hover { color: var(--ink); border-color: var(--line-2); }
+
+  /* ---- intent inspector ---- */
+  #heard {
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+    background: #16150c; border: 1px solid var(--accent-dim);
+    border-radius: 6px; padding: 8px 10px; margin-bottom: 10px;
+    min-height: 33px; word-break: break-word;
+  }
+  #heard.interim { color: var(--ink-faint); border-color: var(--line-2); background: var(--panel-2); }
+  table.slots { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11.5px; }
+  table.slots td { padding: 3px 0; vertical-align: top; }
+  table.slots td:first-child { color: var(--ink-faint); width: 84px; }
+  table.slots td:last-child { color: var(--ink); }
+  td.empty { color: var(--ink-faint) !important; }
+  .bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+  .bar > i { display: block; height: 100%; background: var(--real); width: 0; transition: width .25s; }
+
+  /* ---- object list ---- */
+  #objects { flex: none; }
+  .obj {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 16px; border-bottom: 1px solid var(--line); cursor: pointer;
+  }
+  .obj:hover { background: var(--panel-2); }
+  .obj.sel { background: #1b1a10; box-shadow: inset 2px 0 0 var(--accent); }
+  .sw { width: 22px; height: 22px; border-radius: 5px; flex: none; border: 1px solid rgba(255,255,255,.14); }
+  .obj .nm { font-size: 12.5px; }
+  .obj .meta { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); }
+  .empty-note { padding: 16px; color: var(--ink-faint); font-size: 12.5px; line-height: 1.6; }
+
+  footer {
+    padding: 10px 16px; border-top: 1px solid var(--line);
+    font-size: 11px; color: var(--ink-faint); line-height: 1.7;
+  }
+  footer .k { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Spatialis</h1>
+  <span class="sub">desk simulator — no headset required</span>
+  <span class="spacer"></span>
+  <span class="tag real">● real subsystem code</span>
+  <span class="tag sim">● simulated scene</span>
+</header>
+
+<main>
+  <div id="stage">
+    <canvas id="room" width="760" height="620"></canvas>
+    <div id="hud">
+      <div><b>drag</b> a piece to move it &nbsp; <b>scroll</b> over it to scale &nbsp; <b>backspace</b> to delete</div>
+      <div><b>floor</b> — plan view, 1px = 1cm &nbsp;·&nbsp; grid 50cm</div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="sec">
+      <h2>Command</h2>
+      <div class="row">
+        <input type="text" id="cmd" placeholder="Add a floating marble coffee table" autocomplete="off">
+        <button class="primary" id="run">Run</button>
+      </div>
+      <button class="mic" id="mic">🎙 Hold to speak (Web Speech API)</button>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="sec">
+      <h2>Parsed intent <span style="color:var(--real)">· real parser</span></h2>
+      <div id="heard">—</div>
+      <table class="slots">
+        <tr><td>action</td><td id="s-action" class="empty">—</td></tr>
+        <tr><td>furniture</td><td id="s-furniture" class="empty">—</td></tr>
+        <tr><td>material</td><td id="s-material" class="empty">—</td></tr>
+        <tr><td>colour</td><td id="s-color" class="empty">—</td></tr>
+        <tr><td>placement</td><td id="s-placement" class="empty">—</td></tr>
+        <tr><td>style</td><td id="s-style" class="empty">—</td></tr>
+        <tr><td>surface</td><td id="s-surface" class="empty">—</td></tr>
+      </table>
+      <div class="bar"><i id="s-conf"></i></div>
+    </div>
+
+    <div class="sec" style="border-bottom:none;padding-bottom:6px">
+      <h2>In the room <span id="count" style="color:var(--ink-faint)"></span></h2>
+    </div>
+    <div id="objects"></div>
+
+    <footer>
+      <div><span class="k" style="background:var(--real)"></span>Parser, furniture catalog, object registry, material presets and surface classification are the shipped <code>Scripts/*.ts</code>, compiled to ES modules.</div>
+      <div style="margin-top:5px"><span class="k" style="background:var(--sim)"></span>The room, hit tests, rendering and mouse-as-pinch are simulator scaffolding. On device, World Query and SIK hand tracking replace them.</div>
+    </footer>
+  </aside>
+</main>
+
+<!-- Classic script: runs during parsing, so the Lens Studio globals exist
+     before the deferred ES modules below are evaluated. Same file the Node
+     test harness uses, so the two cannot drift apart. -->
+<script src="../Tests/lens-runtime-stub.js"></script>
+<script type="module" src="./simulator.js"></script>
+</body>
+</html>
