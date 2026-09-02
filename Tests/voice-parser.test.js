@@ -13,9 +13,7 @@
 
 const path = require("path");
 const assert = require("assert");
-const { install } = require("./lens-runtime-stub");
-
-install(globalThis);
+const { suite, test } = require("./harness");
 
 const BUILD = path.join(__dirname, "..", ".build", "Scripts");
 const { VoiceCommandController } = require(path.join(BUILD, "VoiceCommandController.js"));
@@ -23,9 +21,6 @@ const { VoiceCommandController } = require(path.join(BUILD, "VoiceCommandControl
 // parse() only reads its arguments and pure private helpers, so a bare
 // prototype instance is enough — no Lens Studio component lifecycle needed.
 const parser = Object.create(VoiceCommandController.prototype);
-
-let passed = 0;
-const failures = [];
 
 function check(utterance, expected) {
   const normalized = parser.normalize(utterance);
@@ -47,21 +42,12 @@ function check(utterance, expected) {
     actual.wallAdjacent = parser.parseWallAdjacent(" " + normalized + " ");
   }
 
-  try {
+  test("“" + utterance + "”", () => {
     assert.deepStrictEqual(actual, expected);
-    passed++;
-    console.log("  ok   “" + utterance + "”");
-  } catch (e) {
-    failures.push({ utterance, expected, actual });
-    console.log("  FAIL “" + utterance + "”");
-    console.log("       expected " + JSON.stringify(expected));
-    console.log("       actual   " + JSON.stringify(actual));
-  }
+  });
 }
 
-console.log("\nSpatialis — voice intent parser\n");
-
-console.log("Spec demo commands");
+suite("VoiceCommandController — spec demo commands");
 check("Spawn a Scandinavian lounge chair by the wall", {
   action: "spawn", furniture: "chair", material: "", color: "",
   placement: "auto", style: "scandinavian", wallAdjacent: true,
@@ -71,7 +57,7 @@ check("Add a floating marble coffee table", {
   placement: "float",
 });
 
-console.log("\nSpawning");
+suite("VoiceCommandController — spawning");
 check("put a dark wood side table on the table", {
   action: "spawn", furniture: "coffeeTable", material: "walnut", color: "",
   placement: "table",
@@ -93,7 +79,7 @@ check("drop a brass floor lamp against the wall", {
   placement: "auto", wallAdjacent: true,
 });
 
-console.log("\nRestyling");
+suite("VoiceCommandController — restyling");
 check("make the sofa velvet", {
   action: "material", furniture: "sofa", material: "velvet", color: "", placement: "auto",
 });
@@ -110,7 +96,7 @@ check("turn the coffee table into carrara marble", {
   action: "material", furniture: "coffeeTable", material: "marble", color: "", placement: "auto",
 });
 
-console.log("\nResizing");
+suite("VoiceCommandController — resizing");
 check("make it a bit bigger", {
   action: "scale", furniture: "", material: "", color: "", placement: "auto", scaleFactor: 1.15,
 });
@@ -125,7 +111,7 @@ check("make the sofa smaller", {
   scaleFactor: Number((1 / 1.3).toFixed(3)),
 });
 
-console.log("\nRemoving");
+suite("VoiceCommandController — removing");
 check("remove the lamp", {
   action: "delete", furniture: "lamp", material: "", color: "", placement: "auto",
 });
@@ -139,7 +125,7 @@ check("remove everything", {
   action: "clear", furniture: "", material: "", color: "", placement: "auto",
 });
 
-console.log("\nAmbiguity guards");
+suite("VoiceCommandController — ambiguity guards");
 // "big" describes the sofa here, so this must spawn rather than resize.
 check("add a big sofa", {
   action: "spawn", furniture: "sofa", material: "", color: "", placement: "auto",
@@ -160,8 +146,3 @@ check("uh put a like dark wood coffee table over there", {
 check("nonsense words with no intent", {
   action: "unknown", furniture: "", material: "", color: "", placement: "auto",
 });
-
-console.log(
-  "\n" + passed + " passed, " + failures.length + " failed, " + (passed + failures.length) + " total\n"
-);
-process.exit(failures.length === 0 ? 0 : 1);
