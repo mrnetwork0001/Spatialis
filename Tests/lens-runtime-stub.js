@@ -2,7 +2,12 @@
  * lens-runtime-stub.js
  * -----------------------------------------------------------------------------
  * Minimal stand-in for the Lens Studio runtime so Spatialis logic can be run
- * and asserted under plain Node, with no Lens Studio install and no headset.
+ * with no Lens Studio install and no headset.
+ *
+ * Dual use, deliberately one file so the two harnesses cannot drift apart:
+ *   - Node  (Tests/voice-parser.test.js) requires it and calls install().
+ *   - Browser (Simulator/) loads it as a classic script; it self-installs on
+ *     window before the ES modules that need those globals are evaluated.
  *
  * Covers the globals the scripts touch at module-eval and parse time: the math
  * types, the Inspector decorators, and the handful of free functions.
@@ -87,7 +92,7 @@ function install(target) {
     widget: noopDecoratorFactory,
     showIf: noopDecoratorFactory,
     typeName: () => noopClassDecorator,
-    print: (m) => process.env.SPATIALIS_QUIET ? undefined : console.log(m),
+    print: (m) => console.log(m),
     getTime: () => Date.now() / 1000,
     getDeltaTime: () => 1 / 60,
     isNull: (v) => v === null || v === undefined,
@@ -95,4 +100,13 @@ function install(target) {
   });
 }
 
-module.exports = { install, vec3, vec4, quat };
+// Node: the test harness requires this and installs explicitly.
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { install, vec3, vec4, quat };
+}
+
+// Browser: self-install. This file must be a classic <script>, which runs
+// during parsing, so the globals exist before any deferred module body runs.
+if (typeof window !== "undefined") {
+  install(window);
+}

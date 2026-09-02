@@ -9,10 +9,7 @@
     "rootDir": "."
   },
   "include": [
-    "Scripts/SpatialisCore.ts",
-    "Scripts/SurfaceAnchorEngine.ts",
-    "Scripts/PBRMaterialSwapper.ts",
-    "Scripts/VoiceCommandController.ts",
+    "Scripts/**/*.ts",
     "types/**/*.d.ts"
   ]
 }

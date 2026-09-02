@@ -1,0 +1,69 @@
+/**
+ * Tools/patch-build.js
+ * -----------------------------------------------------------------------------
+ * Post-processes TypeScript output so it can be loaded outside Lens Studio.
+ *
+ * Two things Lens Studio does for us that neither Node nor a browser will:
+ *   esm — browsers require a file extension on relative specifiers; tsc emits
+ *         them exactly as written in the source, which has none.
+ *   cjs — "SpectaclesInteractionKit.lspkg/SIK" is a Lens Studio package
+ *         specifier that resolves to nothing under Node, so it is redirected
+ *         to the test stub.
+ *
+ * Usage: node Tools/patch-build.js --mode=esm|cjs --dir=<outDir>
+ * License: Apache-2.0
+ */
+
+const fs = require("fs");
+const path = require("path");
+
+const args = Object.fromEntries(
+  process.argv.slice(2).map((a) => {
+    const [k, v] = a.replace(/^--/, "").split("=");
+    return [k, v];
+  })
+);
+
+const mode = args.mode;
+const dir = args.dir;
+if (!mode || !dir) {
+  console.error("usage: node Tools/patch-build.js --mode=esm|cjs --dir=<outDir>");
+  process.exit(2);
+}
+
+const SIK_SPECIFIER = "SpectaclesInteractionKit.lspkg/SIK";
+
+function walk(d, out = []) {
+  for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+    const p = path.join(d, entry.name);
+    if (entry.isDirectory()) walk(p, out);
+    else if (p.endsWith(".js")) out.push(p);
+  }
+  return out;
+}
+
+let patched = 0;
+for (const file of walk(dir)) {
+  const before = fs.readFileSync(file, "utf8");
+  let after = before;
+
+  if (mode === "esm") {
+    after = after.replace(/(from\s+")(\.\/[^"]+?)(")/g, (m, a, spec, c) =>
+      a + spec + (spec.endsWith(".js") ? "" : ".js") + c
+    );
+  } else {
+    // Point the Lens Studio package specifier at the controllable test stub.
+    const rel = path
+      .relative(path.dirname(file), path.join(process.cwd(), "Tests", "stubs", "SIK.js"))
+      .split(path.sep)
+      .join("/");
+    after = after.split(`"${SIK_SPECIFIER}"`).join(`"${rel.startsWith(".") ? rel : "./" + rel}"`);
+  }
+
+  if (after !== before) {
+    fs.writeFileSync(file, after);
+    patched++;
+  }
+}
+
+console.log(`patch-build(${mode}): rewrote ${patched} file(s) in ${dir}`);

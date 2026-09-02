@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build:test": "tsc -p tsconfig.test.json",
-    "test": "npm run build:test && node Tests/voice-parser.test.js",
-    "clean": "rm -rf .build"
+    "build:test": "tsc -p tsconfig.test.json && node Tools/patch-build.js --mode=cjs --dir=.build",
+    "build:web": "tsc -p tsconfig.web.json && node Tools/patch-build.js --mode=esm --dir=Simulator/build",
+    "test": "npm run build:test && node Tests/run.js",
+    "sim": "npm run build:web && python3 -m http.server 8777",
+    "clean": "rm -rf .build Simulator/build"
   },
   "dependencies": {
     "typescript": "^5.3.3"
