@@ -63,12 +63,17 @@ Instead of navigating complex 3D software on a desktop, the user stands in their
 
 ## 📋 Required Submission Package Checklist
 
-- [x] Public GitHub repository (`mrnetwork/Spatialis`).
 - [x] `CLAD_PROMPT_LOG.txt` (Claude Code prompt transcript proving CLAD execution).
-- [x] Project description & source (`Scripts/` — all four subsystems, type-checked, 26 parser tests passing).
+- [x] Project description & source (`Scripts/` — all four subsystems, type-checked under `strict`).
+- [x] Test suite — 68 behavioural cases across all four subsystems, runnable from a clone.
+- [x] Desk simulator — runs the real subsystem code in a browser, no headset required.
+- [x] Apache-2.0 licence (complete text; the earlier file was truncated and GitHub read the repo as unlicensed).
+- [x] CI — typecheck, test and simulator build on every push.
+- [ ] **GitHub repository set to public** (currently private; the checklist requires public).
 - [ ] Lens Studio scene wiring — prefabs imported and assigned (see `SETUP_LENS_STUDIO.md`).
 - [ ] On-device pass on Spectacles — tune pinch distances and grab radius.
 - [ ] Demo video walkthrough link (Google Drive / Dropbox).
+- [ ] Submission form filed on `lenslist.co/clad-summer-hackathon`.
 
 ---
 

@@ -190,10 +190,82 @@ Agent Action: Generated SETUP_LENS_STUDIO.md and rewrote README.md with the
   the Lens Studio Inspector; that wiring is what SETUP_LENS_STUDIO.md covers.
 
 ==============================================================================
+ SESSION 3 — 2026-09-02 — HARDENING & SUBMISSION READINESS
+==============================================================================
+
+[PROMPT 14] "Launch the frontend, let me see"
+Agent Finding: REPORTED — Spatialis has no frontend. It is a Lens Studio AR
+  project; the display is the Spectacles headset, and Lens Studio is not
+  installed on this machine. No .lsproj, no server, no HTML, nothing to launch.
+Agent Action: Built Simulator/ — a browser desk simulator that imports the REAL
+  compiled subsystems as ES modules and drives them against a simulated room.
+  Real: the parser, FURNITURE_CATALOG, SpatialisRegistry, the material presets,
+  SurfaceAnchorEngine.classify(). Simulated: the room, hit tests, rendering,
+  and mouse-as-pinch. The distinction is labelled in the UI, not just in docs.
+  Voice input uses the Web Speech API, and follows the same rule as the Lens:
+  interim transcripts are shown but only the final one is acted on.
+  Tests/lens-runtime-stub.js was made dual-use (Node + browser) so the two
+  harnesses cannot drift apart. Tools/patch-build.js post-processes tsc output,
+  since browsers require file extensions on relative specifiers.
+Verification: Served the page and screenshotted it under headless Chrome.
+  FIRST RENDER WAS WRONG in three ways, all found by looking at the image:
+   (a) the sofa was drawn nearly square. `footprint` is an overlap RADIUS, not
+       a silhouette; pieces now carry a draw aspect ratio.
+   (b) labels were unreadable where pieces stacked — added backing pills.
+   (c) the physical table sat in the default gaze line, so a floor spawn landed
+       on the tabletop. Moved it off-axis.
+  SECOND RENDER: correct. Both spec headline commands visibly work — the chair
+  anchors "floor · by wall", the coffee table reads "floating".
+
+[PROMPT 15] "What else is remaining for submission?"
+Agent Action: Audited the repository against the submission checklist.
+Agent Findings:
+  - The LICENSE file was TRUNCATED. It ended mid-sentence at "7. Disclaimer of
+    Warranty. Summary: Apache 2.0 License." — sections 7-9 and the appendix
+    were missing, so GitHub reported the repository as unlicensed despite six
+    files declaring Apache-2.0. Replaced with the complete 201-line text.
+  - Test coverage was parser-only. Three of four subsystems were untested.
+  - No CI, no repository description, no screenshot.
+  - Still blocked on hardware: no Lens Studio, no prefabs, no device pass,
+    no demo video, and the repository is still private.
+
+[PROMPT 16] Test coverage for the remaining subsystems
+Agent Action: Added Tests/harness.js (a ~60-line runner — Spatialis carries no
+  test framework dependency on purpose, so `npm test` works from a bare clone),
+  Tests/stubs/SIK.js (controllable fake hands), and three suites:
+   - core.test.js    17 cases: alias resolution incl. plurals and longest-match,
+                     registry semantics, framerate-independent damping.
+   - anchor.test.js   9 cases: floor/table/wall/ceiling classification, the
+                     table band's bounds, and floor-relative (not absolute)
+                     height — an upper-storey room must still see its tables.
+   - gesture.test.js 16 cases: pinch hysteresis, grab reach scaling, two-hand
+                     scale clamping, and the three transitions most likely to
+                     break silently — two hands collapsing to one WITHOUT
+                     releasing, losing tracking mid-grab counting as a release,
+                     and releaseAll.
+Result: FOUND A REAL BUG. SurfaceAnchorEngine.classify() took the raw dot
+  product of the surface normal without normalizing it, so the same surface
+  direction returned different answers depending on the vector's magnitude —
+  a 45-degree ramp with an unnormalized normal classified as a TABLE. Not
+  reachable from the Lens today (the internal probe path normalizes first), but
+  classify() is public and the simulator calls it directly. Fixed, with a
+  regression test naming the defect.
+  Two test-side defects were also found and fixed: an over-strict float
+  comparison on easeOutBack(0), which lands on 2.2e-16 rather than exactly 0,
+  and a fake SceneObject missing destroy().
+
+[PROMPT 17] CI and submission packaging
+Agent Action: Added .github/workflows/ci.yml (typecheck, test, and simulator
+  build on every push), a README demo screenshot with a slot for the video
+  link, a per-suite coverage table, and an honest status table recording that
+  pinch feel is NOT yet validated on hardware.
+
+==============================================================================
  VERIFICATION SUMMARY
 ==============================================================================
   npm run typecheck   -> clean (strict, noImplicitAny, noUnusedLocals)
-  npm test            -> 26 passed, 0 failed
+  npm test            -> 68 passed, 0 failed
+  npm run build:web   -> clean (simulator ES module bundle)
 
   Scripts/SpatialisCore.ts             509 lines   shared vocabulary + registry
   Scripts/VoiceCommandController.ts    673 lines   Subsystem 1 — Voice Intent
