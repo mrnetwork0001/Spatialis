@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Typecheck, test, build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Strict type check of all four subsystems against the local Lens Studio
+      # API declarations. Lens Studio injects its own types in-editor, so this
+      # is the only place the source is checked outside the editor.
+      - name: Typecheck
+        run: npm run typecheck
+
+      # 68 behavioural tests: voice parser, catalog and registry, surface
+      # classification, and the gesture state machine. No headset required.
+      - name: Test
+        run: npm test
+
+      # The simulator bundles the same sources as browser ES modules; building
+      # it here keeps that path from rotting unnoticed.
+      - name: Build simulator
+        run: npm run build:web
