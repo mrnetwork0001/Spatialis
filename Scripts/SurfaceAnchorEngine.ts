@@ -245,7 +245,10 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
    * A table is simply "horizontal, but at sitting-to-standing working height".
    */
   classify(position: vec3, normal: vec3): SurfaceKind {
-    const up = normal.dot(vec3.up());
+    // Normalize defensively. The internal probe path already hands us a unit
+    // normal, but this method is public: an unnormalized vector would scale
+    // the dot product and misread a 45-degree ramp as a horizontal surface.
+    const up = normal.normalize().dot(vec3.up());
     if (up >= HORIZONTAL_DOT) {
       const heightAboveFloor = position.y - this.floorHeight;
       if (heightAboveFloor >= TABLE_MIN_HEIGHT && heightAboveFloor <= TABLE_MAX_HEIGHT) {
