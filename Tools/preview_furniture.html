@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Spatialis furniture contact sheet</title>
+<style>
+  body { margin:0; background:#0e1117; color:#e8ecf4;
+         font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  h1 { font-size:15px; margin:14px 20px 2px; font-weight:600; }
+  p.sub { margin:0 20px 12px; color:#68738a; font-size:12px; }
+  #grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:#1b2130; }
+  .cell { background:#131823; position:relative; }
+  .cap { position:absolute; left:10px; bottom:8px; pointer-events:none; }
+  .cap b { display:block; font-size:12.5px; }
+  .cap span { font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#68738a; }
+  .err { color:#f87171; font-family:ui-monospace,monospace; font-size:11px; padding:10px; }
+</style>
+<h1>Spatialis furniture catalog</h1>
+<p class="sub">Generated .glb, parsed by three.js GLTFLoader — an independent reader, not the generator. Grid squares are 50&nbsp;cm.</p>
+<div id="grid"></div>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const KEYS = ["sofa","chair","table","coffeeTable","lamp","tableLamp",
+              "shelf","plant","rug","artwork","vase","bed"];
+const W = 350, H = 300;
+const grid = document.getElementById('grid');
+const loader = new GLTFLoader();
+let done = 0;
+
+for (const key of KEYS) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.style.height = H + 'px';
+  grid.appendChild(cell);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x131823);
+  const cam = new THREE.PerspectiveCamera(32, W / H, 0.01, 100);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(W, H);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  cell.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x2a2f3a, 2.2));
+  const key1 = new THREE.DirectionalLight(0xffffff, 2.4);
+  key1.position.set(3, 5, 4); scene.add(key1);
+  const key2 = new THREE.DirectionalLight(0x8fb6ff, 0.7);
+  key2.position.set(-4, 2, -3); scene.add(key2);
+
+  // 50cm grid = 0.5 world units, since models are authored in metres.
+  const g = new THREE.GridHelper(6, 12, 0x2f3746, 0x222836);
+  scene.add(g);
+
+  loader.load(`/Assets/Prefabs/${key}.glb`, (gltf) => {
+    const obj = gltf.scene;
+    scene.add(obj);
+    const bb = new THREE.Box3().setFromObject(obj);
+    const size = bb.getSize(new THREE.Vector3());
+    const ctr = bb.getCenter(new THREE.Vector3());
+    const radius = Math.max(size.x, size.y, size.z);
+    cam.position.set(ctr.x + radius * 1.15, bb.max.y * 0.85 + radius * 0.5, ctr.z + radius * 1.7);
+    cam.lookAt(ctr.x, bb.min.y + size.y * 0.45, ctr.z);
+    renderer.render(scene, cam);
+
+    const cap = document.createElement('div');
+    cap.className = 'cap';
+    cap.innerHTML = `<b>${key}</b><span>${(size.x*100).toFixed(0)} × ${(size.z*100).toFixed(0)} × ${(size.y*100).toFixed(0)} cm` +
+                    ` · base y=${(bb.min.y*100).toFixed(1)}</span>`;
+    cell.appendChild(cap);
+    if (++done === KEYS.length) document.title = 'READY';
+  }, undefined, (err) => {
+    cell.innerHTML = `<div class="err">${key}: LOAD FAILED<br>${err}</div>`;
+    if (++done === KEYS.length) document.title = 'READY';
+  });
+}
+</script>
