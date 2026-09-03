@@ -34,12 +34,18 @@ class FakeHand {
   /**
    * Put the hand at `center` with the thumb and index `separation` cm apart,
    * split evenly either side so the pinch midpoint lands exactly on `center`.
+   *
+   * `span` is the wrist-to-middle-fingertip distance, i.e. how big this hand
+   * is. It defaults to 18cm, the nominal adult hand the pinch thresholds are
+   * authored against, so a test that does not care about hand size gets a
+   * scale factor of exactly 1.
    */
-  pinchAt(center, separation) {
+  pinchAt(center, separation, span = 18) {
     const half = separation / 2;
     this.thumbTip.position = new vec3(center.x - half, center.y, center.z);
     this.indexTip.position = new vec3(center.x + half, center.y, center.z);
-    this.wrist.position = new vec3(center.x, center.y - 12, center.z);
+    this.middleTip.position = new vec3(center.x, center.y, center.z);
+    this.wrist.position = new vec3(center.x, center.y - span, center.z);
     return this;
   }
 }

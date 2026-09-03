@@ -25,6 +25,7 @@ function makeController(overrides = {}) {
   Object.assign(g, {
     pinchDownDistance: 3.0,
     pinchUpDistance: 4.5,
+    adaptToHandSize: true,
     grabRadius: 45,
     dragSmoothing: 0,           // follow the hand exactly, so asserts are exact
     minScaleFactor: 0.3,
@@ -85,8 +86,16 @@ function place(kind, x, y, z, scale = 1) {
   });
 }
 
-const RIGHT = (center, separation) => sik.hands.right.pinchAt(center, separation);
-const LEFT = (center, separation) => sik.hands.left.pinchAt(center, separation);
+const RIGHT = (center, separation, span) => sik.hands.right.pinchAt(center, separation, span);
+const LEFT = (center, separation, span) => sik.hands.left.pinchAt(center, separation, span);
+
+/** Settle the running span average by holding a pose for a while. */
+function settleSpan(g, span, frames = 90) {
+  for (let i = 0; i < frames; i++) {
+    RIGHT(new vec3(0, 0, 0), 20, span);
+    g.onUpdate();
+  }
+}
 
 suite("SpatialGestureController — pinch hysteresis");
 
@@ -283,4 +292,70 @@ test("lifting the second hand finally releases the piece", () => {
   g.onUpdate();
   eq(g.reseatCalls, [sofa.id]);
   eq(sofa.isGrabbed, false);
+});
+
+suite("SpatialGestureController — hand-relative thresholds");
+
+test("a nominal hand gets exactly the authored thresholds", () => {
+  const g = makeController();
+  settleSpan(g, 18);
+  near(g.effectivePinchDown("right"), 3.0, 0.05);
+  near(g.effectivePinchUp("right"), 4.5, 0.05);
+});
+
+test("a smaller hand closes its pinch at a proportionally smaller gap", () => {
+  // A 3cm gap is a firm pinch on a large hand and an open grip on a small one.
+  const g = makeController();
+  settleSpan(g, 12);                       // 12/18 = 0.667
+  near(g.effectivePinchDown("right"), 3.0 * (12 / 18), 0.08);
+
+  // 2.4cm would NOT close a nominal hand's pinch... it is below 3.0, so it
+  // would. Use a gap between the two thresholds to show the difference.
+  const gap = 2.6;                          // above 12cm-hand's 2.0 close
+  RIGHT(new vec3(0, 0, 0), gap, 12);
+  g.onUpdate();
+  eq(g.isPinching("right"), false, "2.6cm should not close a small hand's pinch");
+
+  const g2 = makeController();
+  settleSpan(g2, 18);
+  RIGHT(new vec3(0, 0, 0), gap, 18);
+  g2.onUpdate();
+  eq(g2.isPinching("right"), true, "the same 2.6cm closes a nominal hand's pinch");
+});
+
+test("a larger hand closes its pinch at a proportionally larger gap", () => {
+  const g = makeController();
+  settleSpan(g, 24);                       // 24/18 = 1.333
+  near(g.effectivePinchDown("right"), 3.0 * (24 / 18), 0.1);
+  RIGHT(new vec3(0, 0, 0), 3.6, 24);
+  g.onUpdate();
+  eq(g.isPinching("right"), true, "3.6cm closes a large hand's pinch");
+});
+
+test("scaling is clamped so one bad tracking frame cannot distort the feel", () => {
+  const g = makeController();
+  settleSpan(g, 200);                      // absurd span from bad tracking
+  const scaled = g.effectivePinchDown("right");
+  ok(scaled <= 3.0 * 1.6 + 0.01, "must not exceed the max span scale, got " + scaled);
+});
+
+test("adaptToHandSize=false restores exact absolute thresholds", () => {
+  const g = makeController({ adaptToHandSize: false });
+  settleSpan(g, 30);
+  near(g.effectivePinchDown("right"), 3.0, 0.001);
+  near(g.effectivePinchUp("right"), 4.5, 0.001);
+});
+
+test("hysteresis still holds once thresholds are scaled", () => {
+  const g = makeController();
+  settleSpan(g, 24);                       // close 4.0, open 6.0
+  RIGHT(new vec3(0, 0, 0), 3.5, 24);
+  g.onUpdate();
+  eq(g.isPinching("right"), true);
+  RIGHT(new vec3(0, 0, 0), 5.2, 24);       // between the scaled thresholds
+  g.onUpdate();
+  eq(g.isPinching("right"), true, "must not open between scaled thresholds");
+  RIGHT(new vec3(0, 0, 0), 6.1, 24);
+  g.onUpdate();
+  eq(g.isPinching("right"), false, "must open at the scaled up-threshold");
 });

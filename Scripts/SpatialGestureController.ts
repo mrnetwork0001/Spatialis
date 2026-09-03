@@ -37,6 +37,9 @@ interface HandState {
   hand: any;
   tracked: boolean;
   isPinching: boolean;
+  /** This hand's size relative to REFERENCE_HAND_SPAN, smoothed over frames. */
+  spanScale: number;
+  spanSamples: number;
   /** Midpoint of thumb and index tips — the point the user thinks they hold. */
   pinchPoint: vec3;
   grabbed: SpatialisObject | null;
@@ -55,6 +58,19 @@ interface TwoHandAnchor {
   startPosition: vec3;
 }
 
+/**
+ * Wrist-to-middle-fingertip distance of a nominal adult hand, cm. Pinch
+ * distances are authored against this hand and scaled to the wearer's.
+ */
+const REFERENCE_HAND_SPAN = 18.0;
+
+/** Bounds on that scaling, so one bad tracking frame cannot distort the feel. */
+const MIN_SPAN_SCALE = 0.6;
+const MAX_SPAN_SCALE = 1.6;
+
+/** Frames the running span average converges over. */
+const SPAN_SAMPLE_WINDOW = 60;
+
 @component
 export class SpatialGestureController extends BaseScriptComponent {
   @input
@@ -71,6 +87,13 @@ export class SpatialGestureController extends BaseScriptComponent {
   @hint("Thumb-to-index distance that opens it again, cm. Keep above Pinch Down.")
   @widget(new SliderWidget(1.5, 9.0, 0.1))
   pinchUpDistance: number = 4.5;
+
+  @input
+  @hint(
+    "Scale the pinch distances by the wearer's own hand size. " +
+    "The two distances above then describe a nominal adult hand."
+  )
+  adaptToHandSize: boolean = true;
 
   @input
   @hint("How far from a piece a pinch still counts as grabbing it, cm.")
@@ -161,6 +184,8 @@ export class SpatialGestureController extends BaseScriptComponent {
       hand: hand,
       tracked: false,
       isPinching: false,
+      spanScale: 1.0,
+      spanSamples: 0,
       pinchPoint: vec3.zero(),
       grabbed: null,
       grabOffset: vec3.zero(),
@@ -223,11 +248,80 @@ export class SpatialGestureController extends BaseScriptComponent {
     state.pinchPoint = vec3.lerp(thumb, index, 0.5);
     const separation = thumb.distance(index);
 
-    if (!state.isPinching && separation <= this.pinchDownDistance) {
+    this.updateSpanScale(state, hand);
+    const down = this.pinchDownDistance * state.spanScale;
+    const up = this.pinchUpDistance * state.spanScale;
+
+    if (!state.isPinching && separation <= down) {
       this.beginPinch(state);
-    } else if (state.isPinching && separation >= this.pinchUpDistance) {
+    } else if (state.isPinching && separation >= up) {
       this.endPinch(state);
     }
+  }
+
+  /**
+   * Track how large this wearer's hand is, so the pinch thresholds mean the
+   * same GESTURE rather than the same number of centimetres.
+   *
+   * A 3cm gap is a firm pinch on a large hand and an open grip on a small one.
+   * Authoring the thresholds against a nominal hand and scaling to the wearer
+   * is what keeps the feel consistent without a per-user tuning pass — which
+   * matters here because the defaults have never been tuned on hardware.
+   *
+   * The scale is a running mean rather than an instantaneous ratio: hand
+   * tracking drops and jitters, and a threshold that moved every frame would
+   * be worse than a wrong constant.
+   */
+  private updateSpanScale(state: HandState, hand: any): void {
+    if (!this.adaptToHandSize) {
+      state.spanScale = 1.0;
+      return;
+    }
+    const span = this.measureHandSpan(hand);
+    if (span === null || span <= 0.001) {
+      return; // Keep the last good estimate rather than snapping to 1.
+    }
+    const ratio = clamp(span / REFERENCE_HAND_SPAN, MIN_SPAN_SCALE, MAX_SPAN_SCALE);
+    state.spanSamples = Math.min(state.spanSamples + 1, SPAN_SAMPLE_WINDOW);
+    state.spanScale += (ratio - state.spanScale) / state.spanSamples;
+  }
+
+  /** Wrist to middle fingertip, the most stable single measure of hand size. */
+  private measureHandSpan(hand: any): number | null {
+    const wrist = this.jointPosition(hand, "wrist");
+    if (!wrist) {
+      return null;
+    }
+    const middle = this.jointPosition(hand, "middleTip");
+    if (middle) {
+      return wrist.distance(middle);
+    }
+    const index = this.jointPosition(hand, "indexTip");
+    if (index) {
+      // An index fingertip sits at roughly 92% of the middle fingertip's reach.
+      return wrist.distance(index) / 0.92;
+    }
+    return null;
+  }
+
+  /** The distance that actually closes a pinch for this hand, cm. */
+  effectivePinchDown(side: HandSide): number {
+    for (let i = 0; i < this.hands.length; i++) {
+      if (this.hands[i].side === side) {
+        return this.pinchDownDistance * this.hands[i].spanScale;
+      }
+    }
+    return this.pinchDownDistance;
+  }
+
+  /** The distance that actually opens it again for this hand, cm. */
+  effectivePinchUp(side: HandSide): number {
+    for (let i = 0; i < this.hands.length; i++) {
+      if (this.hands[i].side === side) {
+        return this.pinchUpDistance * this.hands[i].spanScale;
+      }
+    }
+    return this.pinchUpDistance;
   }
 
   private isHandTracked(hand: any): boolean {
