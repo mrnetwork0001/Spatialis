@@ -24,6 +24,7 @@ const SUITES = [
   "./voice-parser.test.js",
   "./anchor.test.js",
   "./gesture.test.js",
+  "./material.test.js",
 ];
 
 realLog("\nSpatialis test suite");
