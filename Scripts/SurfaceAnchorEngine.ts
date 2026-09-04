@@ -155,6 +155,10 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     this.hitTestSession = session;
     this.cameraTransform = cameraTransform;
     this.ready = true;
+    // Same as onStart: seed the floor from a downward probe. Without it the
+    // first horizontal hit sets the floor, and if that hit is a tabletop the
+    // table and the floor become indistinguishable for the rest of the session.
+    this.calibrateFloor();
   }
 
   /** Step the probe queue. Lens Studio calls this via UpdateEvent; hosts without one call it directly. */
