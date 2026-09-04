@@ -102,7 +102,7 @@ npm install
 npm run sim          # builds the web bundle and serves on :8777
 ```
 
-Then open **http://localhost:8777/Simulator/**.
+Then open **http://localhost:8777/** — the landing page, with a **Launch app** button.
 
 Type commands, click the examples, or use the mic (Web Speech API — and like
 the Lens, it shows interim text but only acts on the final transcript). Drag a
@@ -128,7 +128,7 @@ npm install
 
 npm run typecheck   # strict type check of all four subsystems
 npm test            # 68 behavioural tests across all four subsystems
-npm run sim         # desk simulator on http://localhost:8777/Simulator/
+npm run sim         # landing page + app on http://localhost:8777/
 ```
 
 The suite covers what cannot be verified by looking through a headset:
