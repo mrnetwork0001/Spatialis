@@ -396,8 +396,12 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
           : inward.normalize().uniformScale(spec.footprint);
       const standAt = wallPos.add(offset);
 
-      const floorRayStart = standAt.add(vec3.up().uniformScale(spec.height + 40));
-      const floorRayEnd = standAt.add(vec3.up().uniformScale(-this.probeDistance));
+      // Drop from EYE height, not from the wall hit plus the piece's height.
+      // The level probe meets the wall at eye level, so wallPos.y is ~155cm;
+      // adding a 150cm lamp and 40cm of clearance started the ray above a
+      // normal ceiling, and the first surface it found was the ceiling.
+      const floorRayStart = new vec3(standAt.x, origin.y, standAt.z);
+      const floorRayEnd = new vec3(standAt.x, origin.y - this.probeDistance, standAt.z);
 
       this.enqueueProbe(floorRayStart, floorRayEnd, (floorPos, floorNormal) => {
         // Face away from the wall, into the room.
