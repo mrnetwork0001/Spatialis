@@ -104,18 +104,26 @@ npm run sim          # builds the web bundle and serves on :8777
 
 Then open **http://localhost:8777/** — the landing page, with a **Launch app** button.
 
-Type commands, click the examples, or use the mic (Web Speech API — and like
-the Lens, it shows interim text but only acts on the final transcript). Drag a
-piece to move it, scroll over it to scale, backspace to delete. Releasing a
-drag re-classifies the surface underneath, exactly as `reseat()` does on device.
+Type commands, click the examples, or use the mic (Web Speech API; the
+interim-versus-final rule is the controller's own). Arrow keys turn your head —
+"put a lamp on the table" only lands on the table if you are looking at it,
+exactly as on device. Drag a piece to move it, scroll to scale, backspace to
+delete. Releasing a drag hands the piece to the real `reseat()`.
 
 A scene can be shared as a link:
 `?cmd=Give me a navy velvet sofa|Make it twice as big`
 
-What is **real**: the parser, `FURNITURE_CATALOG`, `SpatialisRegistry`, the
-material presets, `classify()`.
-What is **simulated**: the room, hit tests, rendering, and mouse-as-pinch. On
-device, World Query and SIK hand tracking replace those.
+What is **real**: `VoiceCommandController`, `SurfaceAnchorEngine` and
+`PBRMaterialSwapper`, instantiated and wired as the Inspector would wire them —
+parsing, placement (probe queue, floor calibration, classify, retry, overlap,
+wall-adjacent, reseat), materials (clone-once, cross-fade, guarded writes), the
+spawn animation, the transcript debounce, feedback text. Plus the catalog, the
+registry and the tween system.
+What is **simulated**: the room and its hit tests (World Query on device); head
+pose via the arrow keys (headset tracking); mouse drag and scroll as pinch and
+scale (SIK hand tracking — **`SpatialGestureController` does not run here**, its
+state machine is covered by tests; release does call the real `reseat()`); Web
+Speech for VoiceML; three.js for the display.
 
 ---
 

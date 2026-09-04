@@ -426,13 +426,12 @@
   <div class="split">
     <div class="box real">
       <h3>● Real shipped code</h3>
-      <p>Imported from <code>Scripts/*.ts</code>, compiled to ES modules. Not a reimplementation.</p>
+      <p>Instances of the shipped <code>Scripts/*.ts</code>, compiled to ES modules and wired as the Inspector would wire them. Not reimplementations.</p>
       <ul>
-        <li>The voice parser, exactly as the Lens runs it</li>
-        <li><code>FURNITURE_CATALOG</code> — sizes, aliases, placement</li>
-        <li><code>SpatialisRegistry</code> — the actual registry object</li>
-        <li>Material and tint presets</li>
-        <li><code>classify()</code> — floor / table / wall / ceiling</li>
+        <li><code>VoiceCommandController</code> — parse, execute, spawn animation, debounce, feedback</li>
+        <li><code>SurfaceAnchorEngine</code> — probe queue, floor calibration, classify, retry, overlap, wall-adjacent, reseat</li>
+        <li><code>PBRMaterialSwapper</code> — clone-once, cross-fade, guarded uniform writes</li>
+        <li><code>FURNITURE_CATALOG</code>, <code>SpatialisRegistry</code>, the tween system</li>
         <li>The 12 <code>.glb</code> models the Lens would load</li>
       </ul>
     </div>
@@ -441,9 +440,10 @@
       <p>Stands in for hardware the browser doesn’t have. Replaced on device.</p>
       <ul>
         <li>The room itself, and ray hit tests against it<br><span style="color:var(--ink-faint)">→ World Query on device</span></li>
-        <li>Mouse drag and scroll as pinch and scale<br><span style="color:var(--ink-faint)">→ SIK hand tracking on device</span></li>
-        <li>three.js rendering<br><span style="color:var(--ink-faint)">→ the Spectacles display on device</span></li>
+        <li>Head pose, from the arrow keys<br><span style="color:var(--ink-faint)">→ the headset’s tracking on device</span></li>
+        <li>Mouse drag and scroll as pinch and scale<br><span style="color:var(--ink-faint)">→ SIK hand tracking on device. <b>SpatialGestureController does not run here</b>; its state machine is covered by tests. Release does call the real <code>reseat()</code>.</span></li>
         <li>Web Speech API<br><span style="color:var(--ink-faint)">→ VoiceML on device</span></li>
+        <li>three.js rendering<br><span style="color:var(--ink-faint)">→ the Spectacles display on device</span></li>
       </ul>
     </div>
   </div>
