@@ -681,7 +681,13 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     if (desired === "wall") {
       return fwd;
     }
-    // Tilt ~20 degrees below the gaze so a level glance still finds the floor.
+    // Tilt ~20 degrees below the gaze so a LEVEL glance still finds the floor.
+    // Only near level: when the wearer is already looking down at something -
+    // a tabletop three metres away - extra tilt makes the probe land short of
+    // what they are actually looking at.
+    if (fwd.y < -0.2) {
+      return fwd;
+    }
     const tilted = fwd.add(vec3.up().uniformScale(-0.36));
     return tilted.normalize();
   }
