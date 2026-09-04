@@ -478,6 +478,8 @@ export class VoiceCommandController extends BaseScriptComponent {
       return;
     }
 
+    // Pass the entry so overlap resolution does not treat this piece - already
+    // registered, parked at the prefab origin - as furniture to step around.
     this.anchorEngine.requestPlacement(spec, intent.placement, wallAdjacent, (result: AnchorResult) => {
       if (isNull(entry.sceneObject)) {
         return; // Deleted while the hit test was in flight.
@@ -492,7 +494,7 @@ export class VoiceCommandController extends BaseScriptComponent {
 
       const where = result.anchored ? " on the " + result.surface : " in front of you";
       this.showFeedback("Added a " + this.describe(intent, spec) + where);
-    });
+    }, entry);
   }
 
   /**

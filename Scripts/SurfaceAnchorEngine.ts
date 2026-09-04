@@ -315,12 +315,20 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
    *
    * `wallAdjacent` handles "by the wall" / "against the wall": the piece still
    * stands on the floor, but backed up to a wall and turned to face the room.
+   *
+   * `exclude` is the registry entry this placement is FOR, when the caller has
+   * already registered it. VoiceCommandController registers a spawn before
+   * asking where it goes - deliberately, so "undo" and a grab can reach it
+   * while the hit test is in flight - which leaves it parked at the prefab
+   * origin. Without exclusion, overlap resolution would find "a sofa" there
+   * and nudge the new sofa away from itself.
    */
   requestPlacement(
     spec: FurnitureSpec,
     hint: PlacementHint,
     wallAdjacent: boolean,
-    callback: AnchorCallback
+    callback: AnchorCallback,
+    exclude: SpatialisObject | null = null
   ): void {
     const desired: PlacementHint = hint === "auto" ? spec.defaultPlacement : hint;
 
@@ -332,7 +340,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     // "by the wall" is a floor placement backed up against a wall, which needs
     // two chained probes rather than the single gaze ray below.
     if (wallAdjacent && desired !== "wall") {
-      this.requestWallAdjacentPlacement(spec, callback);
+      this.requestWallAdjacentPlacement(spec, callback, exclude);
       return;
     }
 
@@ -354,11 +362,11 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
           "Anchor",
           "Gaze hit a " + kind + " but " + spec.label + " wants a " + desired + "; retrying."
         );
-        this.retryForSurface(spec, desired, callback);
+        this.retryForSurface(spec, desired, callback, exclude);
         return;
       }
 
-      callback(this.seat(spec, position, normal, kind));
+      callback(this.seat(spec, position, normal, kind, exclude));
     });
   }
 
@@ -369,7 +377,11 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
    *      finds the floor at that spot.
    * The piece is then turned so its back is to the wall and it faces the room.
    */
-  private requestWallAdjacentPlacement(spec: FurnitureSpec, callback: AnchorCallback): void {
+  private requestWallAdjacentPlacement(
+    spec: FurnitureSpec,
+    callback: AnchorCallback,
+    exclude: SpatialisObject | null
+  ): void {
     const origin = this.eyePosition();
     const fwd = this.gazeForward();
     const level = new vec3(fwd.x, 0, fwd.z);
@@ -384,7 +396,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
       if (!wallPos || !wallNormal || this.classify(wallPos, wallNormal) !== "wall") {
         // No wall in view — fall back to an ordinary floor placement.
         log("Anchor", "No wall found for " + spec.label + "; placing on the floor instead.");
-        this.retryForSurface(spec, "floor", callback);
+        this.retryForSurface(spec, "floor", callback, exclude);
         return;
       }
 
@@ -414,7 +426,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
           callback({
             anchored: true,
             position: this.avoidOverlap
-              ? this.resolveOverlap(fallback, spec.footprint, vec3.up())
+              ? this.resolveOverlap(fallback, spec.footprint, vec3.up(), exclude)
               : fallback,
             rotation: rotation,
             surface: "floor",
@@ -427,7 +439,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
         callback({
           anchored: true,
           position: this.avoidOverlap
-            ? this.resolveOverlap(seated, spec.footprint, floorNormal)
+            ? this.resolveOverlap(seated, spec.footprint, floorNormal, exclude)
             : seated,
           rotation: rotation,
           surface: this.classify(floorPos, floorNormal),
@@ -444,7 +456,8 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
   private retryForSurface(
     spec: FurnitureSpec,
     desired: PlacementHint,
-    callback: AnchorCallback
+    callback: AnchorCallback,
+    exclude: SpatialisObject | null = null
   ): void {
     const origin = this.eyePosition();
     let direction: vec3;
@@ -472,7 +485,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
       }
       const kind = this.classify(position, normal);
       // Second attempt is final — take whatever we got rather than loop.
-      callback(this.seat(spec, position, normal, kind));
+      callback(this.seat(spec, position, normal, kind, exclude));
     });
   }
 
@@ -498,7 +511,8 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     spec: FurnitureSpec,
     hitPosition: vec3,
     normal: vec3,
-    kind: SurfaceKind
+    kind: SurfaceKind,
+    exclude: SpatialisObject | null = null
   ): AnchorResult {
     let position = hitPosition;
     let rotation: quat;
@@ -517,7 +531,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
         rotation = alignToNormal(normal, rotation.multiplyVec3(vec3.forward()));
       }
       if (this.avoidOverlap) {
-        position = this.resolveOverlap(position, spec.footprint, normal);
+        position = this.resolveOverlap(position, spec.footprint, normal, exclude);
       }
     }
 
@@ -535,7 +549,12 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
    * no longer overlaps anything already placed. Gives up after a full turn and
    * accepts the crowded spot rather than flinging furniture across the room.
    */
-  private resolveOverlap(position: vec3, footprint: number, normal: vec3): vec3 {
+  private resolveOverlap(
+    position: vec3,
+    footprint: number,
+    normal: vec3,
+    exclude: SpatialisObject | null = null
+  ): vec3 {
     const existing = SpatialisRegistry.all();
     if (existing.length === 0) {
       return position;
@@ -555,7 +574,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
               .add(tangent.uniformScale(Math.cos(angle) * radius))
               .add(bitangent.uniformScale(Math.sin(angle) * radius));
 
-      if (this.isClear(candidate, footprint, existing)) {
+      if (this.isClear(candidate, footprint, existing, exclude)) {
         if (attempt > 0) {
           log("Anchor", "Nudged placement " + radius.toFixed(0) + "cm to clear existing furniture.");
         }
@@ -565,10 +584,15 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     return position;
   }
 
-  private isClear(candidate: vec3, footprint: number, existing: SpatialisObject[]): boolean {
+  private isClear(
+    candidate: vec3,
+    footprint: number,
+    existing: SpatialisObject[],
+    exclude: SpatialisObject | null
+  ): boolean {
     for (let i = 0; i < existing.length; i++) {
       const other = existing[i];
-      if (isNull(other.sceneObject)) {
+      if (other === exclude || isNull(other.sceneObject)) {
         continue;
       }
       const otherPos = other.transform.getWorldPosition();
