@@ -681,11 +681,30 @@ const BOOT = fromUrl
      "Put a brass table lamp on the table"];
 
 const CATALOG_KEYS = FURNITURE_CATALOG.map((f) => f.key);
-const loaded = await room3d.loadPrefabs(CATALOG_KEYS, "../Assets/Prefabs");
-document.getElementById("loading").classList.add("done");
-console.log(`[Spatialis simulator] ${loaded}/${CATALOG_KEYS.length} prefabs loaded`);
-if (loaded < CATALOG_KEYS.length) {
-  console.warn("[Spatialis simulator] some prefabs failed to load; those keys will not appear in 3D");
+const loadingEl = document.getElementById("loading");
+
+// The app is usable without the 3D models — the plan view, the parser and the
+// whole command pipeline do not need them. So prefab loading never gates the
+// interface: the overlay always clears, and anything that failed is reported.
+let report = { loaded: [], failed: CATALOG_KEYS.slice() };
+try {
+  report = await room3d.loadPrefabs(CATALOG_KEYS, "../Assets/Prefabs");
+} catch (e) {
+  console.error("[Spatialis simulator] prefab loading failed outright:", e);
+}
+loadingEl.classList.add("done");
+
+console.log(`[Spatialis simulator] ${report.loaded.length}/${CATALOG_KEYS.length} prefabs loaded`);
+if (report.failed.length) {
+  console.warn("[Spatialis simulator] missing in 3D:", report.failed.join(", "));
+  const hud = document.getElementById("hud-sub");
+  if (hud) {
+    hud.innerHTML = report.loaded.length
+      ? `⚠ ${report.failed.length} model(s) unavailable — switch to Floor plan to see them`
+      : `⚠ no models loaded — the Floor plan view still works`;
+    hud.style.color = "#fbbf24";
+  }
+  if (!report.loaded.length) setView("plan");
 }
 
 for (const c of BOOT) runCommand(c);

@@ -144,28 +144,59 @@ export class Room3D {
   // Prefab loading
   // ---------------------------------------------------------------------------
 
-  /** Load every catalog .glb once; spawns clone from these. */
-  async loadPrefabs(keys, baseUrl) {
+  /**
+   * Load every catalog .glb once; spawns clone from these.
+   *
+   * Every path out of this settles. A loader that never calls back, or a throw
+   * inside the success callback, would otherwise leave the promise pending and
+   * the app stuck on "loading furniture..." with nothing on screen and no
+   * error — which is exactly what happened before the timeout was added.
+   * Missing models degrade to "that piece does not appear in 3D", never to a
+   * dead page.
+   */
+  async loadPrefabs(keys, baseUrl, timeoutMs = 8000) {
     const loader = new GLTFLoader();
     const load = (key) =>
       new Promise((resolve) => {
+        let settled = false;
+        const finish = (ok) => {
+          if (settled) return;
+          settled = true;
+          resolve(ok ? key : null);
+        };
+        const timer = setTimeout(() => {
+          console.warn(`[Spatialis] ${key}.glb timed out after ${timeoutMs}ms`);
+          finish(false);
+        }, timeoutMs);
+
         loader.load(
           `${baseUrl}/${key}.glb`,
           (gltf) => {
-            const root = gltf.scene;
-            root.traverse((n) => {
-              if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; }
-            });
-            this.prefabs.set(key, root);
-            resolve(true);
+            clearTimeout(timer);
+            try {
+              const root = gltf.scene;
+              root.traverse((n) => {
+                if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; }
+              });
+              this.prefabs.set(key, root);
+              finish(true);
+            } catch (e) {
+              console.warn(`[Spatialis] ${key}.glb loaded but could not be prepared:`, e);
+              finish(false);
+            }
           },
           undefined,
-          () => resolve(false)
+          (err) => {
+            clearTimeout(timer);
+            console.warn(`[Spatialis] ${key}.glb failed to load:`, err && err.message);
+            finish(false);
+          }
         );
       });
+
     const results = await Promise.all(keys.map(load));
     this.ready = true;
-    return results.filter(Boolean).length;
+    return { loaded: results.filter(Boolean), failed: keys.filter((k) => !this.prefabs.has(k)) };
   }
 
   hasPrefab(key) {

@@ -208,11 +208,25 @@
      before the deferred ES modules below are evaluated. Same file the Node
      test harness uses, so the two cannot drift apart. -->
 <script src="../Tests/lens-runtime-stub.js"></script>
+<!-- Vendored, not CDN: the simulator is the only way to see Spatialis without
+     a headset, so it must not depend on a 1.4MB network fetch completing. -->
 <script type="importmap">
 {"imports":{
-  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  "three":"./vendor/three.module.js",
+  "three/addons/":"./vendor/jsm/"
 }}
+</script>
+<script>
+  // A module that throws while loading fails silently — the page just sits
+  // there. Surface it in the overlay instead of showing "loading…" forever.
+  window.addEventListener("error", function (e) {
+    var el = document.getElementById("loading");
+    if (!el || el.classList.contains("done")) return;
+    el.innerHTML = '<div style="max-width:460px;text-align:center;line-height:1.7">' +
+      '<b style="color:#f87171">The app failed to start</b><br>' +
+      '<span style="color:#9aa4b6">' + String(e.message || e.type) + '</span><br>' +
+      '<span style="color:#626d80;font-size:11px">Serve over HTTP (npm run sim), not file://</span></div>';
+  });
 </script>
 <script type="module" src="./simulator.js"></script>
 </body>
