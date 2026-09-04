@@ -138,6 +138,30 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     this.calibrateFloor();
   }
 
+  /**
+   * Attach a hit-test source directly, bypassing World Query.
+   *
+   * The desk simulator and the test suite have no Lens Studio runtime, so they
+   * supply their own — anything with `hitTest(start, end, cb)` where `cb`
+   * receives `{ position, normal }` or `null`. Everything downstream of the
+   * probe (classification, retry, overlap, wall-adjacent, reseat) then runs
+   * unchanged, which is the point: it is the shipped placement logic being
+   * exercised, not a stand-in for it.
+   */
+  attachHitTestSource(
+    session: { hitTest(start: vec3, end: vec3, cb: (hit: any) => void): void },
+    cameraTransform: Transform
+  ): void {
+    this.hitTestSession = session;
+    this.cameraTransform = cameraTransform;
+    this.ready = true;
+  }
+
+  /** Step the probe queue. Lens Studio calls this via UpdateEvent; hosts without one call it directly. */
+  tick(): void {
+    this.pumpProbeQueue();
+  }
+
   private resolveWorldQueryModule(): any {
     if (this.worldQueryAsset) {
       return this.worldQueryAsset as any;
