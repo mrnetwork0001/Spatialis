@@ -449,10 +449,14 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
       const fwd = this.gazeForward();
       direction = new vec3(fwd.x, 0, fwd.z).normalize();
     } else {
-      // Aim at the ground a comfortable pace ahead of the user.
+      // Aim at the point on the floor a comfortable pace ahead of the user.
+      // The target must sit AT floor height: aiming probeDistance below it
+      // instead made the ray so steep that it met the floor at
+      // floatDistance * eyeHeight / probeDistance - about a fifth of the way -
+      // and seated a sofa at the wearer's feet.
       const fwd = this.gazeForward();
       const ahead = new vec3(fwd.x, 0, fwd.z).normalize().uniformScale(this.floatDistance);
-      const target = origin.add(ahead).add(vec3.up().uniformScale(-this.probeDistance));
+      const target = new vec3(origin.x + ahead.x, this.floorHeight, origin.z + ahead.z);
       direction = target.sub(origin).normalize();
     }
 
