@@ -25,6 +25,8 @@ const SUITES = [
   "./anchor.test.js",
   "./gesture.test.js",
   "./material.test.js",
+  "./voice-execute.test.js",
+  "./anchor-placement.test.js",
 ];
 
 realLog("\nSpatialis test suite");
