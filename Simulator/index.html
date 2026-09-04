@@ -41,6 +41,26 @@
   /* ---- room ---- */
   #stage { position: relative; display: grid; place-items: center; overflow: hidden; }
   canvas { display: block; border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.55); cursor: crosshair; }
+  /* An author `display` beats the UA stylesheet's [hidden] rule, so the hidden
+     canvas has to be switched off explicitly or both views stack. */
+  canvas[hidden] { display: none !important; }
+  #views {
+    position: absolute; top: 14px; left: 20px; z-index: 3; display: flex; gap: 6px;
+  }
+  .vbtn {
+    font-size: 11.5px; padding: 5px 11px; border-radius: 999px;
+    background: rgba(18,21,28,.86); border: 1px solid var(--line-2);
+    color: var(--ink-dim); cursor: pointer; backdrop-filter: blur(6px);
+  }
+  .vbtn.on { background: var(--accent); color: #191400; border-color: var(--accent); font-weight: 600; }
+  #loading {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    background: #0d1017; color: var(--ink-faint);
+    font-family: var(--mono); font-size: 12px; z-index: 2;
+  }
+  #loading.done { display: none; }
+  #scene3d { border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.55); cursor: grab; }
+  #scene3d:active { cursor: grabbing; }
   #hud {
     position: absolute; left: 20px; bottom: 16px;
     font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
@@ -133,11 +153,17 @@
 
 <main>
   <div id="stage">
-    <canvas id="room" width="760" height="620"></canvas>
-    <div id="hud">
-      <div><b>drag</b> a piece to move it &nbsp; <b>scroll</b> over it to scale &nbsp; <b>backspace</b> to delete</div>
-      <div><b>floor</b> — plan view, 1px = 1cm &nbsp;·&nbsp; grid 50cm</div>
+    <div id="views">
+      <button id="v-wearer" class="vbtn on">Wearer view</button>
+      <button id="v-plan" class="vbtn">Floor plan</button>
     </div>
+    <canvas id="scene3d" width="900" height="640"></canvas>
+    <canvas id="room" width="760" height="620" hidden></canvas>
+    <div id="hud">
+      <div id="hud-wearer"><b>drag</b> a piece to move it &nbsp; <b>scroll</b> over it to scale &nbsp; <b>backspace</b> to delete</div>
+      <div id="hud-sub">camera at the wearer's eye, 155cm &nbsp;·&nbsp; real .glb from <code>Assets/Prefabs</code></div>
+    </div>
+    <div id="loading">loading furniture…</div>
   </div>
 
   <aside>
@@ -182,6 +208,12 @@
      before the deferred ES modules below are evaluated. Same file the Node
      test harness uses, so the two cannot drift apart. -->
 <script src="../Tests/lens-runtime-stub.js"></script>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
 <script type="module" src="./simulator.js"></script>
 </body>
 </html>

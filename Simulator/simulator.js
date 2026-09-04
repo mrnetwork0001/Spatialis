@@ -28,6 +28,7 @@ import {
 import { PBRMaterialSwapper } from "./build/Scripts/PBRMaterialSwapper.js";
 import { SurfaceAnchorEngine } from "./build/Scripts/SurfaceAnchorEngine.js";
 import { VoiceCommandController } from "./build/Scripts/VoiceCommandController.js";
+import { Room3D } from "./room3d.js";
 
 // Bare prototype instances: parse() and classify() read only their arguments
 // and pure helpers, so no Lens Studio component lifecycle is needed.
@@ -42,10 +43,11 @@ anchor.floorHeight = 0; // the simulated room's floor sits at y = 0
 const ROOM = { w: 520, d: 430 };              // interior floor extents
 const TABLE = { x: 315, z: 95, w: 150, d: 85, top: 75 };   // a physical table,
            // deliberately off the default gaze line so floor spawns stay on the floor
-const WEARER = { x: ROOM.w / 2, z: ROOM.d - 55, yaw: -Math.PI / 2 }; // faces -Z
+const WEARER = { x: ROOM.w / 2, z: ROOM.d - 22, yaw: -Math.PI / 2 }; // faces -Z
 
 const canvas = document.getElementById("room");
 const ctx = canvas.getContext("2d");
+const canvas3d = document.getElementById("scene3d");
 const PAD = 46;
 const SCALE = Math.min((canvas.width - PAD * 2) / ROOM.w, (canvas.height - PAD * 2) / ROOM.d);
 const OX = (canvas.width - ROOM.w * SCALE) / 2;
@@ -173,7 +175,9 @@ function place(spec, placement, wallAdjacent) {
     return { x: ax, z: az, y: TABLE.top, surface: classifyAt(ax, az), anchored: true };
   }
 
-  const reach = desired === "float" ? 150 : 185;
+  // Far enough into the room that a 2.1m sofa does not fill the wearer's view.
+  // Nobody places a couch at arm's length either.
+  const reach = desired === "float" ? 195 : 270;
   const rx = clamp(WEARER.x + dx * reach, 25, ROOM.w - 25);
   const rz = clamp(WEARER.z + dz * reach, 25, ROOM.d - 25);
   if (desired === "float") {
@@ -204,6 +208,7 @@ function runCommand(text) {
     case "scale":   note = doScale(intent); break;
     case "delete":  note = doDelete(intent); break;
     case "clear": {
+      room3d.clear();
       const n = SpatialisRegistry.removeAll();
       selectedId = null;
       note = n ? `cleared ${n}` : "already empty";
@@ -240,6 +245,13 @@ function doSpawn(intent, wallAdjacent) {
   entry.born = performance.now();
   if (intent.material) entry.materialKey = intent.material;
   if (intent.color) entry.tint = colorRgb(intent.color);
+
+  // Yaw: floor pieces turn to face the wearer, wall pieces face into the room.
+  // Mirrors yawTowards() / alignToNormal() in the shipped anchor engine.
+  entry.yaw = Math.atan2(WEARER.x - p.x, WEARER.z - p.z);
+  if (p.onWall) entry.wallYaw = Math.atan2(WEARER.x - p.x, WEARER.z - p.z);
+
+  room3d.add(entry);
   selectedId = entry.id;
   return p.anchored ? `anchored to ${p.surface}` : "floating (no surface)";
 }
@@ -271,6 +283,7 @@ function doRestyle(intent) {
   if (!t) return "nothing to restyle";
   if (intent.material) { t.materialKey = intent.material; t.tint = null; }
   if (intent.color) t.tint = colorRgb(intent.color);
+  room3d.sync(t);
   selectedId = t.id;
   return `${t.spec.label} → ${intent.material ? PBRMaterialSwapper.getPresetLabel(intent.material) : intent.color}`;
 }
@@ -280,6 +293,7 @@ function doScale(intent) {
   if (!t) return "nothing to resize";
   const cur = t.transform.s.x;
   t.transform.setLocalScale(new vec3(1,1,1).uniformScale(clamp(cur * intent.scaleFactor, 0.3, 3.0)));
+  room3d.sync(t);
   selectedId = t.id;
   return `${t.spec.label} ×${t.transform.s.x.toFixed(2)}`;
 }
@@ -288,6 +302,7 @@ function doDelete(intent) {
   const t = targetOf(intent);
   if (!t) return "nothing to remove";
   const label = t.spec.label;
+  room3d.remove(t.id);
   SpatialisRegistry.remove(t.id);
   if (selectedId === t.id) selectedId = null;
   return `removed ${label}`;
@@ -513,6 +528,7 @@ window.addEventListener("mousemove", (e) => {
   const nx = clamp(x + dragOff[0], 15, ROOM.w - 15);
   const nz = clamp(z + dragOff[1], 15, ROOM.d - 15);
   dragging.transform.setWorldPosition(new vec3(nx, dragging.transform.p.y, nz));
+  room3d.sync(dragging);
   render();
 });
 
@@ -528,6 +544,7 @@ window.addEventListener("mouseup", () => {
     o.wallAdjacent = false;
     o.transform.setWorldPosition(new vec3(o.transform.p.x, surface === "table" ? TABLE.top : 0, o.transform.p.z));
   }
+  room3d.sync(o);
   dragging = null;
   render(); renderList();
 });
@@ -540,6 +557,7 @@ canvas.addEventListener("wheel", (e) => {
   // Same clamp the gesture controller applies against the piece's base size.
   const next = clamp(hit.transform.s.x * (e.deltaY < 0 ? 1.08 : 1 / 1.08), 0.3, 3.0);
   hit.transform.setLocalScale(new vec3(1, 1, 1).uniformScale(next));
+  room3d.sync(hit);
   selectedId = hit.id;
   render(); renderList();
 }, { passive: false });
@@ -547,6 +565,7 @@ canvas.addEventListener("wheel", (e) => {
 window.addEventListener("keydown", (e) => {
   if (e.key === "Backspace" && selectedId !== null && document.activeElement.tagName !== "INPUT") {
     e.preventDefault();
+    room3d.remove(selectedId);
     SpatialisRegistry.remove(selectedId);
     selectedId = null; render(); renderList();
   }
@@ -617,15 +636,62 @@ console.log(
   `[Spatialis simulator] real catalog: ${FURNITURE_CATALOG.length} pieces, ` +
   `keys: ${FURNITURE_CATALOG.map((f) => f.key).join(", ")}`
 );
+const room3d = new Room3D(canvas3d, ROOM, TABLE, WEARER);
+
+function fitStage() {
+  const stage = document.getElementById("stage");
+  const w = Math.max(320, stage.clientWidth - 60);
+  const h = Math.max(280, stage.clientHeight - 60);
+  const side = Math.min(w, h * 1.4);
+  canvas3d.style.width = side + "px";
+  canvas3d.style.height = side / 1.4 + "px";
+  room3d.resize(Math.round(side), Math.round(side / 1.4));
+}
+addEventListener("resize", fitStage);
+fitStage();
+
+// View toggle: the wearer's eye, or the plan the anchor engine reasons in.
+const btnWearer = document.getElementById("v-wearer");
+const btnPlan = document.getElementById("v-plan");
+function setView(mode) {
+  const wearer = mode === "wearer";
+  canvas3d.hidden = !wearer;
+  canvas.hidden = wearer;
+  btnWearer.classList.toggle("on", wearer);
+  btnPlan.classList.toggle("on", !wearer);
+  document.getElementById("hud-sub").textContent = wearer
+    ? "camera at the wearer's eye, 155cm · real .glb from Assets/Prefabs"
+    : "floor — plan view, 1px = 1cm · grid 50cm";
+  if (wearer) fitStage();
+  render();
+}
+btnWearer.addEventListener("click", () => setView("wearer"));
+btnPlan.addEventListener("click", () => setView("plan"));
+
 render();
 renderList();
 
 // A scene can be driven from the URL, which makes the simulator scriptable for
-// headless screenshots and lets a arranged room be shared as a link:
+// headless screenshots and lets an arranged room be shared as a link:
 //   ?cmd=Give me a navy velvet sofa|Make it twice as big
 const fromUrl = new URLSearchParams(location.search).get("cmd");
 const BOOT = fromUrl
   ? fromUrl.split("|").map((c) => c.trim()).filter(Boolean)
-  : ["Spawn a Scandinavian lounge chair by the wall", "Add a floating marble coffee table"];
+  : ["Spawn a Scandinavian lounge chair by the wall", "Add a floating marble coffee table",
+     "Put a brass table lamp on the table"];
+
+const CATALOG_KEYS = FURNITURE_CATALOG.map((f) => f.key);
+const loaded = await room3d.loadPrefabs(CATALOG_KEYS, "../Assets/Prefabs");
+document.getElementById("loading").classList.add("done");
+console.log(`[Spatialis simulator] ${loaded}/${CATALOG_KEYS.length} prefabs loaded`);
+if (loaded < CATALOG_KEYS.length) {
+  console.warn("[Spatialis simulator] some prefabs failed to load; those keys will not appear in 3D");
+}
+
 for (const c of BOOT) runCommand(c);
-setInterval(() => { if (SpatialisRegistry.all().some((o) => performance.now() - (o.born || 0) < 600)) render(); }, 1000 / 60);
+
+// One render loop drives the 3D view; the plan view redraws on demand.
+(function tick() {
+  requestAnimationFrame(tick);
+  if (!canvas3d.hidden) room3d.render();
+})();
