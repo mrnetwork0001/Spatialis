@@ -636,6 +636,12 @@ console.log(
   `[Spatialis simulator] real catalog: ${FURNITURE_CATALOG.length} pieces, ` +
   `keys: ${FURNITURE_CATALOG.map((f) => f.key).join(", ")}`
 );
+// A visible build stamp: "loading furniture..." caused by a stale cached
+// module is indistinguishable from a real failure without one.
+const BUILD = "ef6d922";
+const buildEl = document.getElementById("build");
+if (buildEl) buildEl.textContent = "build " + BUILD;
+
 const room3d = new Room3D(canvas3d, ROOM, TABLE, WEARER);
 
 function fitStage() {
