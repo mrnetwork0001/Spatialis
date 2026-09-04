@@ -1,25 +1,35 @@
 /**
  * room3d.js
  * -----------------------------------------------------------------------------
- * First-person 3D room view for the Spatialis simulator.
+ * First-person 3D view for the Spatialis desk simulator. Rendering only.
  *
- * The plan view answers "where did it go". This answers the question that
- * actually matters for an AR tool: what does the WEARER see. The camera sits at
- * eye height in the simulated room and the real furniture .glb files are loaded
- * and placed by the same command pipeline that drives the plan view.
+ * This module knows nothing about furniture semantics, materials, placement or
+ * commands. It loads the .glb prefabs, hands out clones on request, pushes a
+ * registry entry's transform onto its clone each frame, and draws. Every
+ * decision about WHERE a piece goes and WHAT it looks like is made by the
+ * shipped subsystems and arrives here as a position, a quaternion, a scale,
+ * and three.js material properties that PBRMaterialSwapper wrote through the
+ * host's Material adapter.
  *
- * Everything decision-making is still the shipped code: the parser chooses the
- * piece, FURNITURE_CATALOG gives its size, SpatialisRegistry holds it, the
- * PBRMaterialSwapper presets supply its finish. This module only draws.
+ * Two deliberate choices that mirror the Lens:
+ *
+ *   Clones SHARE their source prefab's materials. On device, materials are
+ *   shared assets until something clones them; PBRMaterialSwapper clones
+ *   exactly once per object the first time it restyles it. If this module
+ *   cloned materials itself, that behaviour - and its failure mode, where one
+ *   command repaints every sofa - could never be observed here.
+ *
+ *   Rotation is taken from the entry's quaternion, not from a yaw the
+ *   simulator computed. The anchor engine's yawTowards() and alignToNormal()
+ *   produce it; this module just applies it.
  *
  * License: Apache-2.0
  */
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { PBRMaterialSwapper } from './build/Scripts/PBRMaterialSwapper.js';
 
-const CM = 0.01; // models are authored in metres; the sim thinks in centimetres
+const CM = 0.01; // models are authored in metres; the Lens and the sim think in centimetres
 
 export class Room3D {
   constructor(canvas, room, table, wearer) {
@@ -27,8 +37,7 @@ export class Room3D {
     this.table = table;
     this.wearer = wearer;
     this.prefabs = new Map();
-    this.instances = new Map(); // registry id -> THREE.Object3D
-    this.ready = false;
+    this.selection = null; // THREE.BoxHelper around the selected root, or null
 
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -49,13 +58,13 @@ export class Room3D {
   }
 
   // ---------------------------------------------------------------------------
-  // Static room
+  // Static room — the geometry RoomHitTest in simulator.js raycasts against
   // ---------------------------------------------------------------------------
 
   buildRoom() {
     const W = this.room.w * CM;
     const D = this.room.d * CM;
-    const H = 2.6;
+    const H = this.room.h * CM;
 
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(W, D),
@@ -81,13 +90,13 @@ export class Room3D {
       m.rotation.y = ry;
       m.receiveShadow = true;
       this.scene.add(m);
-      return m;
     };
     wall(W, H, W / 2, H / 2, 0, 0);              // far wall (-Z)
     wall(D, H, 0, H / 2, D / 2, Math.PI / 2);    // left wall
     wall(D, H, W, H / 2, D / 2, -Math.PI / 2);   // right wall
 
-    // The physical table the anchor engine can classify as a table surface.
+    // The physical table: a horizontal surface 75cm up, which is exactly what
+    // the anchor engine's classify() calls a "table".
     const t = this.table;
     const top = new THREE.Mesh(
       new THREE.BoxGeometry(t.w * CM, 0.04, t.d * CM),
@@ -131,28 +140,26 @@ export class Room3D {
 
   /** Camera at the wearer's eye, looking the way they are looking. */
   placeCamera() {
-    const eye = 1.55;
+    const eye = this.wearer.eye * CM;
     const x = this.wearer.x * CM;
     const z = this.wearer.z * CM;
     this.camera.position.set(x, eye, z);
-    const [dx, dz] = [Math.cos(this.wearer.yaw), Math.sin(this.wearer.yaw)];
-    // Look slightly down, the way someone surveying a room does.
-    this.camera.lookAt(x + dx * 3, eye - 0.55, z + dz * 3);
+    const cp = Math.cos(this.wearer.pitch), sp = Math.sin(this.wearer.pitch);
+    const dx = cp * Math.cos(this.wearer.yaw), dz = cp * Math.sin(this.wearer.yaw);
+    this.camera.lookAt(x + dx * 3, eye + sp * 3, z + dz * 3);
   }
 
   // ---------------------------------------------------------------------------
-  // Prefab loading
+  // Prefabs
   // ---------------------------------------------------------------------------
 
   /**
-   * Load every catalog .glb once; spawns clone from these.
+   * Load every catalog .glb once; instantiate() clones from these.
    *
    * Every path out of this settles. A loader that never calls back, or a throw
    * inside the success callback, would otherwise leave the promise pending and
    * the app stuck on "loading furniture..." with nothing on screen and no
-   * error — which is exactly what happened before the timeout was added.
-   * Missing models degrade to "that piece does not appear in 3D", never to a
-   * dead page.
+   * error - which is exactly what happened before the timeout was added.
    */
   async loadPrefabs(keys, baseUrl, timeoutMs = 8000) {
     const loader = new GLTFLoader();
@@ -195,7 +202,6 @@ export class Room3D {
       });
 
     const results = await Promise.all(keys.map(load));
-    this.ready = true;
     return { loaded: results.filter(Boolean), failed: keys.filter((k) => !this.prefabs.has(k)) };
   }
 
@@ -203,90 +209,57 @@ export class Room3D {
     return this.prefabs.has(key);
   }
 
-  // ---------------------------------------------------------------------------
-  // Instances
-  // ---------------------------------------------------------------------------
-
-  add(entry) {
-    const src = this.prefabs.get(entry.kind);
+  /**
+   * A fresh instance of a prefab, added to the scene at the origin, or null if
+   * that model never loaded. Geometry and materials are SHARED with the source
+   * - see the module comment for why that is the faithful choice.
+   */
+  instantiate(key) {
+    const src = this.prefabs.get(key);
     if (!src) return null;
     const obj = src.clone(true);
-    // Clone materials too, or restyling one sofa restyles them all — the same
-    // hazard PBRMaterialSwapper guards against on device.
-    obj.traverse((n) => {
-      if (n.isMesh) n.material = n.material.clone();
-    });
     this.scene.add(obj);
-    this.instances.set(entry.id, obj);
-    this.sync(entry);
     return obj;
   }
 
-  remove(id) {
-    const obj = this.instances.get(id);
+  /** Remove an instance. Nothing is disposed: geometry is shared with the prefab. */
+  release(obj) {
     if (!obj) return;
-    obj.traverse((n) => {
-      if (n.isMesh) { n.geometry.dispose(); n.material.dispose(); }
-    });
+    if (this.selection && this.selection.object === obj) this.setSelected(null);
     this.scene.remove(obj);
-    this.instances.delete(id);
   }
 
-  clear() {
-    for (const id of Array.from(this.instances.keys())) this.remove(id);
-  }
-
-  /** Push a registry entry's transform and finish onto its 3D instance. */
+  /** Push a registry entry's transform onto its instance. Called every frame. */
   sync(entry) {
-    const obj = this.instances.get(entry.id);
+    const obj = entry.sceneObject && entry.sceneObject.obj3d;
     if (!obj) return;
     const p = entry.transform.getWorldPosition();
     obj.position.set(p.x * CM, p.y * CM, p.z * CM);
-    const s = entry.transform.getLocalScale().x;
-    obj.scale.setScalar(s);
-    obj.rotation.y = entry.yaw || 0;
+    const s = entry.transform.getLocalScale();
+    obj.scale.set(s.x, s.y, s.z);
+    const q = entry.transform.getWorldRotation();
+    if (q && typeof q.w === 'number') obj.quaternion.set(q.x, q.y, q.z, q.w);
+  }
 
-    if (entry.onWall) {
-      // Wall art faces into the room and hangs at the height the anchor set.
-      obj.rotation.y = entry.wallYaw || 0;
+  // ---------------------------------------------------------------------------
+  // Selection and picking
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Outline the selected root. A box helper rather than an emissive tint,
+   * because instances share materials until the swapper clones them, and
+   * tinting a shared material would highlight every sibling at once.
+   */
+  setSelected(obj) {
+    if (this.selection) {
+      this.scene.remove(this.selection);
+      this.selection.geometry.dispose();
+      this.selection = null;
     }
-
-    const preset = entry.materialKey ? PBRMaterialSwapper.getPreset(entry.materialKey) : null;
-    const tint = entry.tint;
-    if (!preset && !tint) return;
-    obj.traverse((n) => {
-      if (!n.isMesh) return;
-      const c = tint || (preset && preset.baseColor);
-      if (c) n.material.color.setRGB(c.x, c.y, c.z);
-      if (preset) {
-        n.material.metalness = preset.metallic;
-        n.material.roughness = preset.roughness;
-        const alpha = preset.baseColor.w === undefined ? 1 : preset.baseColor.w;
-        if (alpha < 1) { n.material.transparent = true; n.material.opacity = alpha; }
-      }
-      n.material.needsUpdate = true;
-    });
-  }
-
-  /** Soft highlight on the selected piece. */
-  setSelected(id) {
-    for (const [oid, obj] of this.instances) {
-      obj.traverse((n) => {
-        if (n.isMesh) n.material.emissive
-          ? n.material.emissive.setHex(oid === id ? 0x3a2f00 : 0x000000)
-          : null;
-      });
+    if (obj) {
+      this.selection = new THREE.BoxHelper(obj, 0xffd84d);
+      this.scene.add(this.selection);
     }
-  }
-
-  resize(w, h) {
-    this.renderer.setSize(w, h, false);
-    this.camera.aspect = w / h;
-    this.camera.updateProjectionMatrix();
-  }
-
-  render() {
-    this.renderer.render(this.scene, this.camera);
   }
 
   /** Ray from a screen point onto the floor plane, in centimetres. */
@@ -299,19 +272,26 @@ export class Room3D {
     return { x: hit.x / CM, z: hit.z / CM };
   }
 
-  /** Nearest instance under a screen point, or null. */
-  pickObject(nx, ny) {
+  /** Which of `roots` is under a screen point, or null. */
+  pickObject(nx, ny, roots) {
+    if (!roots.length) return null;
     const ray = new THREE.Raycaster();
     ray.setFromCamera(new THREE.Vector2(nx, ny), this.camera);
-    const hits = ray.intersectObjects(Array.from(this.instances.values()), true);
+    const hits = ray.intersectObjects(roots, true);
     if (!hits.length) return null;
     let node = hits[0].object;
-    while (node && !this.idOf(node)) node = node.parent;
-    return node ? this.idOf(node) : null;
+    while (node && !roots.includes(node)) node = node.parent;
+    return node || null;
   }
 
-  idOf(obj) {
-    for (const [id, o] of this.instances) if (o === obj) return id;
-    return null;
+  resize(w, h) {
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+
+  render() {
+    if (this.selection) this.selection.update();
+    this.renderer.render(this.scene, this.camera);
   }
 }

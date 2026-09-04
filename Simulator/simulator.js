@@ -1,49 +1,68 @@
 /**
  * simulator.js
  * -----------------------------------------------------------------------------
- * A desk simulator for Spatialis: drives the REAL subsystem code from a browser
- * so the voice pipeline can be seen working without Lens Studio or Spectacles.
+ * The Spatialis desk simulator: a HOST for the shipped subsystems.
  *
- * Real, imported from the shipped Scripts/ compiled to ES modules:
- *   - VoiceCommandController.parse / normalize / parseWallAdjacent
- *   - FURNITURE_CATALOG, resolveFurniture, getFurnitureSpec
- *   - SpatialisRegistry (the actual registry, holding actual entries)
- *   - PBRMaterialSwapper material + colour presets and resolvers
- *   - SurfaceAnchorEngine.classify (surface kind from normal + floor height)
+ * Lens Studio provides a scene graph, a hit-test module, a voice module, hand
+ * tracking, a display and a frame loop. This file provides stand-ins for the
+ * first three and the last two, and runs the real code on top of them:
  *
- * Simulated here, because they need hardware:
- *   - the room itself, and ray hit tests against it (World Query on device)
- *   - rendering (the Spectacles display on device)
- *   - mouse drag and scroll standing in for pinch-drag and two-hand scale
- *     (SIK hand tracking on device)
+ *   VoiceCommandController  - instantiated here, wired exactly as it would be
+ *                             in the Inspector, fed transcripts. Its parse(),
+ *                             handleTranscript(), execute paths, spawn
+ *                             animation, debounce and feedback all run.
+ *   SurfaceAnchorEngine     - instantiated here and attached to a hit-test
+ *                             source that raycasts the simulated room. Its
+ *                             probe queue, floor calibration, classify(),
+ *                             retry, overlap resolution, wall-adjacent
+ *                             placement and reseat all run.
+ *   PBRMaterialSwapper      - instantiated here and given SceneObjects whose
+ *                             RenderMeshVisual/Material adapters write through
+ *                             to three.js. Its clone-once, cross-fade and
+ *                             guarded uniform writes all run.
+ *   SpatialisRegistry, FURNITURE_CATALOG, the tween system - the shipped ones.
+ *
+ * What is SIMULATED, because it needs hardware, and how faithfully:
+ *
+ *   The room and hit tests.  A 520x430cm box with one table, raycast
+ *                             analytically. On device: World Query against
+ *                             the real room mesh.
+ *   Voice input.             Web Speech API. On device: VoiceML. The
+ *                             interim/final rule is the shipped one.
+ *   Hand tracking.           Mouse drag and scroll stand in for pinch-drag
+ *                             and two-hand scale. SpatialGestureController is
+ *                             NOT exercised here - it needs SIK hand joints.
+ *                             Its state machine is covered by Tests/gesture.
+ *                             Release does hand the piece to the real
+ *                             anchor engine's reseat(), as the controller
+ *                             would.
+ *   The display.             three.js, in room3d.js.
  *
  * License: Apache-2.0
  */
 
-import {
-  FURNITURE_CATALOG,
-  SpatialisRegistry,
-  getFurnitureSpec,
-} from "./build/Scripts/SpatialisCore.js";
+import { FURNITURE_CATALOG, SpatialisRegistry } from "./build/Scripts/SpatialisCore.js";
 import { PBRMaterialSwapper } from "./build/Scripts/PBRMaterialSwapper.js";
 import { SurfaceAnchorEngine } from "./build/Scripts/SurfaceAnchorEngine.js";
 import { VoiceCommandController } from "./build/Scripts/VoiceCommandController.js";
 import { Room3D } from "./room3d.js";
 
-// Bare prototype instances: parse() and classify() read only their arguments
-// and pure helpers, so no Lens Studio component lifecycle is needed.
-const parser = Object.create(VoiceCommandController.prototype);
-const anchor = Object.create(SurfaceAnchorEngine.prototype);
-anchor.floorHeight = 0; // the simulated room's floor sits at y = 0
-
 // -----------------------------------------------------------------------------
-// The simulated room — centimetres, matching Lens Studio world units
+// The simulated room - centimetres, matching Lens Studio world units
 // -----------------------------------------------------------------------------
 
-const ROOM = { w: 520, d: 430 };              // interior floor extents
-const TABLE = { x: 315, z: 95, w: 150, d: 85, top: 75 };   // a physical table,
-           // deliberately off the default gaze line so floor spawns stay on the floor
-const WEARER = { x: ROOM.w / 2, z: ROOM.d - 22, yaw: -Math.PI / 2 }; // faces -Z
+const ROOM = { w: 520, d: 430, h: 260 };
+// A physical table, off the default gaze line so floor spawns stay on the floor.
+const TABLE = { x: 315, z: 95, w: 150, d: 85, top: 75 };
+// The wearer stands at the back, facing -Z, eyes at 155cm, glancing slightly
+// down the way someone surveying a room does. Yaw and pitch are the head pose
+// - on device the headset's own tracking; here the arrow keys.
+const WEARER = { x: ROOM.w / 2, z: ROOM.d - 22, yaw: -Math.PI / 2, pitch: -8 * Math.PI / 180, eye: 155 };
+const gaze = () => [Math.cos(WEARER.yaw), Math.sin(WEARER.yaw)];
+const gaze3 = () => {
+  const cp = Math.cos(WEARER.pitch);
+  return new vec3(cp * Math.cos(WEARER.yaw), Math.sin(WEARER.pitch), cp * Math.sin(WEARER.yaw));
+};
 
 const canvas = document.getElementById("room");
 const ctx = canvas.getContext("2d");
@@ -52,297 +71,343 @@ const PAD = 46;
 const SCALE = Math.min((canvas.width - PAD * 2) / ROOM.w, (canvas.height - PAD * 2) / ROOM.d);
 const OX = (canvas.width - ROOM.w * SCALE) / 2;
 const OZ = (canvas.height - ROOM.d * SCALE) / 2;
-
 const toPx = (x, z) => [OX + x * SCALE, OZ + z * SCALE];
 const toRoom = (px, pz) => [(px - OX) / SCALE, (pz - OZ) / SCALE];
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
 
-/**
- * Stand-ins for SceneObject and Transform so entries can go into the REAL
- * SpatialisRegistry — which is what makes "make the sofa velvet" resolve
- * through the same lastOfKind() the Lens uses.
- */
+const room3d = new Room3D(canvas3d, ROOM, TABLE, WEARER);
+
+// =============================================================================
+// HOST SHIMS - what Lens Studio would provide
+// =============================================================================
+
+// ---- Scene graph ------------------------------------------------------------
+
+/** Transform. The anchor engine writes real quaternions into it. */
 class SimTransform {
-  constructor(x, y, z) { this.p = new vec3(x, y, z); this.s = new vec3(1, 1, 1); this.yaw = 0; }
+  constructor() {
+    this.p = new vec3(0, 0, 0);
+    this.s = new vec3(1, 1, 1);
+    this.q = quat.quatIdentity();
+  }
   getWorldPosition() { return this.p; }
   setWorldPosition(p) { this.p = p; }
   getLocalScale() { return this.s; }
   setLocalScale(s) { this.s = s; }
-  getWorldRotation() { return quat.quatIdentity(); }
-  setWorldRotation() {}
-}
-class SimSceneObject {
-  constructor(name) { this.name = name; this.destroyed = false; this.enabled = true; }
-  destroy() { this.destroyed = true; }
-}
-// The registry checks isNull() before touching an entry; honour destruction.
-const baseIsNull = window.isNull;
-window.isNull = (v) => baseIsNull(v) || (v instanceof SimSceneObject && v.destroyed);
-
-// -----------------------------------------------------------------------------
-// Colour: presets are linear-space, the canvas is sRGB
-// -----------------------------------------------------------------------------
-
-const toSrgb = (c) => Math.round(255 * Math.pow(Math.max(0, Math.min(1, c)), 1 / 2.2));
-function presetCss(color, alpha = 1) {
-  return `rgba(${toSrgb(color.x)},${toSrgb(color.y)},${toSrgb(color.z)},${alpha})`;
-}
-function objectCss(entry, alpha = 1) {
-  const preset = entry.materialKey ? PBRMaterialSwapper.getPreset(entry.materialKey) : null;
-  if (preset) {
-    const c = entry.tint || preset.baseColor;
-    return presetCss(c, alpha * (preset.baseColor.w ?? 1));
-  }
-  if (entry.tint) return presetCss(entry.tint, alpha);
-  return `rgba(150,156,168,${alpha})`;   // unstyled prefab default
-}
-
-// -----------------------------------------------------------------------------
-// Placement — the simulator's stand-in for World Query hit tests
-// -----------------------------------------------------------------------------
-
-const gazeDir = () => [Math.cos(WEARER.yaw), Math.sin(WEARER.yaw)];
-
-function overTable(x, z) {
-  return x >= TABLE.x && x <= TABLE.x + TABLE.w && z >= TABLE.z && z <= TABLE.z + TABLE.d;
+  getWorldRotation() { return this.q; }
+  setWorldRotation(q) { this.q = q; }
 }
 
 /**
+ * Material.mainPass adapter. PBRMaterialSwapper writes baseColor (a linear
+ * vec4), metallic and roughness through this onto a three.js material. It
+ * deliberately has no baseTex property: the swapper's guarded trySet() skips
+ * uniforms a pass does not expose, and these prefabs carry no textures.
+ */
+class SimPass {
+  constructor(three) { this.three = three; }
+  get baseColor() {
+    const c = this.three.color;
+    return new vec4(c.r, c.g, c.b, this.three.transparent ? this.three.opacity : 1);
+  }
+  set baseColor(v) {
+    this.three.color.setRGB(v.x, v.y, v.z);
+    const a = typeof v.w === "number" ? v.w : 1;
+    this.three.transparent = a < 0.999;
+    this.three.opacity = a;
+    this.three.needsUpdate = true;
+  }
+  get metallic() { return this.three.metalness; }
+  set metallic(v) { this.three.metalness = v; }
+  get roughness() { return this.three.roughness; }
+  set roughness(v) { this.three.roughness = v; }
+}
+
+/** Material. clone() is what makes the swapper's clone-once observable. */
+class SimMaterial {
+  constructor(three) { this.three = three; this.pass = new SimPass(three); }
+  get mainPass() { return this.pass; }
+  clone() { return new SimMaterial(this.three.clone()); }
+}
+
+/** RenderMeshVisual over a three.js Mesh. */
+class SimVisual {
+  constructor(mesh) { this.mesh = mesh; }
+  get mainMaterial() { return new SimMaterial(this.mesh.material); }
+  set mainMaterial(m) { this.mesh.material = m.three; }
+}
+
+/**
+ * SceneObject over a three.js node. The swapper walks getChildrenCount() /
+ * getChild() / getComponents() exactly as it walks a Lens prefab, so it
+ * exercises its real hierarchy traversal on the real .glb structure.
+ */
+class SimSceneObject {
+  constructor(name, obj3d) {
+    this.name = name;
+    this.obj3d = obj3d || null;
+    this.destroyed = false;
+    this.transform = new SimTransform();
+  }
+  getTransform() { return this.transform; }
+  getComponents(type) {
+    if (type === "Component.RenderMeshVisual" && this.obj3d && this.obj3d.isMesh) {
+      return [new SimVisual(this.obj3d)];
+    }
+    return [];
+  }
+  getChildrenCount() { return this.obj3d ? this.obj3d.children.length : 0; }
+  getChild(i) { return new SimSceneObject(this.name + "/" + i, this.obj3d.children[i]); }
+  destroy() {
+    this.destroyed = true;
+    room3d.release(this.obj3d);
+  }
+  /** For the plan view: the first mesh's current three.js material, if any. */
+  firstMaterial() {
+    let found = null;
+    if (this.obj3d) this.obj3d.traverse((n) => { if (!found && n.isMesh) found = n.material; });
+    return found;
+  }
+}
+
+// The registry and the swapper check isNull() before touching a SceneObject.
+const baseIsNull = window.isNull;
+window.isNull = (v) => baseIsNull(v) || (v instanceof SimSceneObject && v.destroyed);
+
+/** ObjectPrefab. instantiate() is the only method the voice controller calls. */
+class SimPrefab {
+  constructor(key) { this.key = key; }
+  instantiate(_parent) {
+    return new SimSceneObject("Spatialis_" + this.key, room3d.instantiate(this.key));
+  }
+}
+
+// ---- Hit testing ------------------------------------------------------------
+
+/**
+ * World Query stand-in: analytic raycast against the room's planes. The
+ * anchor engine treats this exactly as it treats a HitTestSession - one
+ * probe in flight, answered through a callback with {position, normal} or
+ * null - so every placement decision downstream is the shipped code's.
+ */
+class RoomHitTest {
+  hitTest(start, end, cb) {
+    const d = end.sub(start);
+    let best = null;
+    const consider = (t, normal) => {
+      if (t <= 1e-6 || t > 1) return;
+      const p = start.add(d.uniformScale(t));
+      if (p.y < -0.5 || p.y > ROOM.h + 0.5) return;
+      if (p.x < -0.5 || p.x > ROOM.w + 0.5 || p.z < -0.5 || p.z > ROOM.d + 0.5) return;
+      if (!best || t < best.t) best = { t, position: p, normal };
+    };
+    const planeY = (y0, ny, within) => {
+      if (Math.abs(d.y) < 1e-9) return;
+      const t = (y0 - start.y) / d.y;
+      const p = start.add(d.uniformScale(t));
+      if (within && !within(p)) return;
+      consider(t, new vec3(0, ny, 0));
+    };
+    const planeX = (x0, nx) => {
+      if (Math.abs(d.x) < 1e-9) return;
+      consider((x0 - start.x) / d.x, new vec3(nx, 0, 0));
+    };
+    const planeZ = (z0, nz) => {
+      if (Math.abs(d.z) < 1e-9) return;
+      consider((z0 - start.z) / d.z, new vec3(0, 0, nz));
+    };
+
+    planeY(0, 1);                                  // floor
+    planeY(ROOM.h, -1);                            // ceiling
+    planeY(TABLE.top, 1, (p) =>                    // table top, only over the table
+      p.x >= TABLE.x && p.x <= TABLE.x + TABLE.w && p.z >= TABLE.z && p.z <= TABLE.z + TABLE.d);
+    planeX(0, 1); planeX(ROOM.w, -1);              // side walls
+    planeZ(0, 1); planeZ(ROOM.d, -1);              // far wall, wall behind the wearer
+
+    cb(best ? { position: best.position, normal: best.normal } : null);
+  }
+}
+
+/**
+ * The camera transform the anchor engine reads. Lens Studio's transform
+ * reports forward as +Z while the camera looks down -Z, and the engine
+ * negates it, so forward here is the gaze reversed.
+ */
+class SimCameraTransform {
+  getWorldPosition() { return new vec3(WEARER.x, WEARER.eye, WEARER.z); }
+  get forward() { return gaze3().uniformScale(-1); }
+}
+
+// =============================================================================
+// THE REAL COMPONENTS, HOSTED
+// =============================================================================
+
+const CATALOG_KEYS = FURNITURE_CATALOG.map((f) => f.key);
+
+const anchor = new SurfaceAnchorEngine();
+anchor.probeDistance = 700;
+anchor.floatDistance = 190;
+anchor.avoidOverlap = true;
+anchor.attachHitTestSource(new RoomHitTest(), new SimCameraTransform());
+
+const swapper = new PBRMaterialSwapper();
+swapper.blendDuration = 0.45;
+
+const voice = new VoiceCommandController();
+voice.anchorEngine = anchor;
+voice.materialSwapper = swapper;
+voice.spawnParent = {};
+voice.furnitureKeys = CATALOG_KEYS;
+voice.furniturePrefabs = CATALOG_KEYS.map((k) => new SimPrefab(k));
+voice.spawnDuration = 0.55;
+voice.requireWakeWord = false;
+
+// The Text component the controller writes feedback into.
+const heardEl = document.getElementById("heard");
+voice.feedbackText = {
+  _t: "",
+  get text() { return this._t; },
+  set text(v) {
+    this._t = v;
+    const interim = v.startsWith("… ");
+    heardEl.className = interim ? "interim" : "";
+    heardEl.textContent = v;
+  },
+};
+
+// =============================================================================
+// Commands
+// =============================================================================
+
+let selectedId = null;
+
+/** Head pose in degrees: yaw right of straight ahead, pitch up. */
+function lookAt(yawDeg, pitchDeg) {
+  WEARER.yaw = -Math.PI / 2 + (yawDeg * Math.PI) / 180;
+  WEARER.pitch = clamp((pitchDeg * Math.PI) / 180, -60 * Math.PI / 180, 30 * Math.PI / 180);
+  room3d.placeCamera();
+}
+
+function runCommand(text) {
+  // "look:26,-15" turns the wearer's head; it is host input, like the arrow
+  // keys, and never reaches the parser. Lets a shared scene link say where
+  // the wearer was looking when each sentence was spoken.
+  const look = /^look:\s*(-?\d+(?:\.\d+)?)(?:\s*,\s*(-?\d+(?:\.\d+)?))?$/i.exec(text.trim());
+  if (look) {
+    lookAt(parseFloat(look[1]), look[2] !== undefined ? parseFloat(look[2]) : (WEARER.pitch * 180) / Math.PI);
+    return;
+  }
+  // Display the parsed intent. parse() is pure; the controller runs it again
+  // inside handleTranscript, which is the call that actually acts.
+  const normalized = voice.normalize(text);
+  const intent = voice.parse(normalized, text);
+  const wallAdjacent = voice.parseWallAdjacent(" " + normalized + " ");
+  showIntent(intent, wallAdjacent);
+
+  // handleTranscript advances lastTranscriptTime only when it acts; an
+  // identical sentence within two seconds leaves it untouched. That is the
+  // debounce - ASR emits the same final line twice, and the Lens must not
+  // spawn two sofas for it - and it is the only path that gives no feedback.
+  const stamp = voice.lastTranscriptTime;
+  voice.handleTranscript(text);
+  if (voice.lastTranscriptTime === stamp) {
+    heardEl.className = "interim";
+    heardEl.textContent = "(identical transcript within 2s — dropped, as the Lens does for duplicate ASR output)";
+  }
+}
+
+// =============================================================================
+// Frame loop - the UpdateEvent Lens Studio would fire
+// =============================================================================
+
+let lastFrame = performance.now();
+let lastListSig = "";
+
+function frame(now) {
+  const dt = Math.min(0.05, (now - lastFrame) / 1000);
+  lastFrame = now;
+
+  // World Query answers a probe between frames; this hit-test source answers
+  // synchronously, so several probes can complete per frame. Three keeps a
+  // chained placement (calibrate, gaze, retry) inside a single frame without
+  // pretending the queue is not serial.
+  anchor.tick(); anchor.tick(); anchor.tick();
+  voice.tweens.update(dt);
+  swapper.tweens.update(dt);
+
+  const all = SpatialisRegistry.all();
+  for (const e of all) room3d.sync(e);
+
+  if (selectedId !== null && !SpatialisRegistry.byId(selectedId)) {
+    selectedId = null;
+    room3d.setSelected(null);
+  }
+
+  if (canvas3d.hidden) render(); else room3d.render();
+
+  const sig = all.map((o) =>
+    `${o.id}:${o.materialKey}:${o.surface}:${o.transform.s.x.toFixed(2)}:${selectedId === o.id ? 1 : 0}`).join("|");
+  if (sig !== lastListSig) { lastListSig = sig; renderList(); }
+
+  requestAnimationFrame(frame);
+}
+
+// =============================================================================
+// Plan view
+// =============================================================================
+
+const toSrgb = (c) => Math.round(255 * Math.pow(Math.max(0, Math.min(1, c)), 1 / 2.2));
+
+/** What the piece currently looks like: read back from its real material. */
+function look(entry) {
+  const m = entry.sceneObject.firstMaterial && entry.sceneObject.firstMaterial();
+  if (m) {
+    return { r: m.color.r, g: m.color.g, b: m.color.b,
+             a: m.transparent ? m.opacity : 1, metallic: m.metalness, roughness: m.roughness };
+  }
+  const preset = entry.materialKey ? PBRMaterialSwapper.getPreset(entry.materialKey) : null;
+  if (preset) {
+    const c = preset.baseColor;
+    return { r: c.x, g: c.y, b: c.z, a: c.w ?? 1, metallic: preset.metallic, roughness: preset.roughness };
+  }
+  return { r: 0.31, g: 0.33, b: 0.37, a: 1, metallic: 0, roughness: 0.7 };
+}
+const cssOf = (l, alpha = 1) => `rgba(${toSrgb(l.r)},${toSrgb(l.g)},${toSrgb(l.b)},${alpha * l.a})`;
+
+/**
  * Drawn silhouette, rendering only. FURNITURE_CATALOG carries a single
- * `footprint` radius because that is all overlap rejection needs; a plan view
- * also needs a shape, so the width:depth ratios live here rather than bloating
- * the shipped catalog with data the Lens never reads.
+ * footprint radius because that is all overlap rejection needs; a plan view
+ * also needs a shape, so the width:depth ratios live here rather than in the
+ * shipped catalog as data the Lens never reads.
  */
 const ASPECT = {
   sofa: [2.0, 0.86], chair: [1.9, 1.9], table: [2.0, 1.3], coffeeTable: [2.0, 1.25],
   lamp: [1.9, 1.9], tableLamp: [1.9, 1.9], shelf: [2.2, 0.7], plant: [1.9, 1.9],
   rug: [2.2, 1.5], artwork: [2.2, 0.34], vase: [1.9, 1.9], bed: [1.9, 2.1],
 };
-function silhouette(o) {
-  const [aw, ad] = ASPECT[o.kind] || [2.0, 1.5];
-  const r = o.spec.footprint * o.transform.s.x;
-  return [r * aw * SCALE, r * ad * SCALE];
-}
-
-/** Surface kind at a point, decided by the REAL classify() from its normal + height. */
-function classifyAt(x, z) {
-  const y = overTable(x, z) ? TABLE.top : 0;
-  return anchor.classify(new vec3(x, y, z), vec3.up());
-}
-
-/** Golden-angle spiral outward until clear of existing pieces — mirrors resolveOverlap(). */
-function avoidOverlap(x, z, footprint) {
-  const others = SpatialisRegistry.all();
-  for (let attempt = 0; attempt <= 12; attempt++) {
-    const r = attempt === 0 ? 0 : footprint * (0.9 + 0.35 * attempt);
-    const a = attempt * 2.399;
-    const cx = x + Math.cos(a) * r, cz = z + Math.sin(a) * r;
-    let clear = true;
-    for (const o of others) {
-      const gap = (footprint + o.spec.footprint) * 0.75;
-      if (Math.hypot(cx - o.transform.p.x, cz - o.transform.p.z) < gap) { clear = false; break; }
-    }
-    if (clear) return [clamp(cx, 20, ROOM.w - 20), clamp(cz, 20, ROOM.d - 20)];
-  }
-  return [x, z];
-}
-const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
-
-/** Where a spawn lands. Returns { x, z, y, surface, anchored }. */
-function place(spec, placement, wallAdjacent) {
-  const desired = placement === "auto" ? spec.defaultPlacement : placement;
-  const [dx, dz] = gazeDir();
-
-  if (desired === "wall" || wallAdjacent) {
-    // March along the gaze to the first wall, as the level probe would.
-    let t = 0;
-    while (t < 900) {
-      const x = WEARER.x + dx * t, z = WEARER.z + dz * t;
-      if (x < 4 || x > ROOM.w - 4 || z < 4 || z > ROOM.d - 4) break;
-      t += 4;
-    }
-    const wx = clamp(WEARER.x + dx * t, 4, ROOM.w - 4);
-    const wz = clamp(WEARER.z + dz * t, 4, ROOM.d - 4);
-    if (desired === "wall") {
-      return { x: wx, z: wz, y: 150, surface: "wall", anchored: true, onWall: true };
-    }
-    // "by the wall": step into the room by the piece's own footprint.
-    const [ax, az] = avoidOverlap(wx - dx * spec.footprint, wz - dz * spec.footprint, spec.footprint);
-    return { x: ax, z: az, y: 0, surface: "floor", anchored: true, wallAdjacent: true };
-  }
-
-  if (desired === "table") {
-    const [ax, az] = avoidOverlap(TABLE.x + TABLE.w / 2, TABLE.z + TABLE.d / 2, spec.footprint);
-    return { x: ax, z: az, y: TABLE.top, surface: classifyAt(ax, az), anchored: true };
-  }
-
-  // Far enough into the room that a 2.1m sofa does not fill the wearer's view.
-  // Nobody places a couch at arm's length either.
-  const reach = desired === "float" ? 195 : 270;
-  const rx = clamp(WEARER.x + dx * reach, 25, ROOM.w - 25);
-  const rz = clamp(WEARER.z + dz * reach, 25, ROOM.d - 25);
-  if (desired === "float") {
-    const [fx2, fz2] = avoidOverlap(rx, rz, spec.footprint);
-    return { x: fx2, z: fz2, y: 95, surface: "unknown", anchored: false, floating: true };
-  }
-  const [ax, az] = avoidOverlap(rx, rz, spec.footprint);
-  return { x: ax, z: az, y: overTable(ax, az) ? TABLE.top : 0, surface: classifyAt(ax, az), anchored: true };
-}
-
-// -----------------------------------------------------------------------------
-// Command execution
-// -----------------------------------------------------------------------------
-
-let selectedId = null;
-let lastIntent = null;
-
-function runCommand(text) {
-  const normalized = parser.normalize(text);
-  const intent = parser.parse(normalized, text);
-  const wallAdjacent = parser.parseWallAdjacent(" " + normalized + " ");
-  lastIntent = intent;
-
-  let note = "";
-  switch (intent.action) {
-    case "spawn":   note = doSpawn(intent, wallAdjacent); break;
-    case "material":note = doRestyle(intent); break;
-    case "scale":   note = doScale(intent); break;
-    case "delete":  note = doDelete(intent); break;
-    case "clear": {
-      room3d.clear();
-      const n = SpatialisRegistry.removeAll();
-      selectedId = null;
-      note = n ? `cleared ${n}` : "already empty";
-      break;
-    }
-    default: note = "not understood";
-  }
-  showIntent(text, intent, wallAdjacent, note);
-  render();
-  renderList();
-}
-
-function doSpawn(intent, wallAdjacent) {
-  const spec = getFurnitureSpec(intent.furniture);
-  if (!spec) return "no such piece";
-  const p = place(spec, intent.placement, wallAdjacent);
-
-  const entry = SpatialisRegistry.register({
-    sceneObject: new SimSceneObject("Spatialis_" + spec.key),
-    transform: new SimTransform(p.x, p.y, p.z),
-    kind: spec.key,
-    spec,
-    placement: intent.placement,
-    surface: p.surface,
-    surfaceNormal: vec3.up(),
-    baseScale: new vec3(1, 1, 1),
-    materialKey: "",
-    spawnedAtSeconds: performance.now() / 1000,
-    isGrabbed: false,
-  });
-  entry.floating = !!p.floating;
-  entry.onWall = !!p.onWall;
-  entry.wallAdjacent = !!p.wallAdjacent;
-  entry.born = performance.now();
-  if (intent.material) entry.materialKey = intent.material;
-  if (intent.color) entry.tint = colorRgb(intent.color);
-
-  // Yaw: floor pieces turn to face the wearer, wall pieces face into the room.
-  // Mirrors yawTowards() / alignToNormal() in the shipped anchor engine.
-  entry.yaw = Math.atan2(WEARER.x - p.x, WEARER.z - p.z);
-  if (p.onWall) entry.wallYaw = Math.atan2(WEARER.x - p.x, WEARER.z - p.z);
-
-  room3d.add(entry);
-  selectedId = entry.id;
-  return p.anchored ? `anchored to ${p.surface}` : "floating (no surface)";
-}
-
-// COLOR_PRESETS is module-private in PBRMaterialSwapper.ts, so the swatches are
-// mirrored here for rendering only. resolveColor() — the part that decides which
-// colour a sentence means — is still the real one.
-function colorRgb(key) {
-  const swatch = COLOR_SWATCHES[key];
-  return swatch ? new vec3(swatch[0], swatch[1], swatch[2]) : null;
-}
-const COLOR_SWATCHES = {
-  white: [.93,.93,.91], black: [.06,.06,.07], grey: [.48,.49,.50],
-  sage: [.55,.62,.49], forest: [.13,.31,.21], navy: [.11,.17,.34],
-  rust: [.62,.28,.15], blush: [.87,.71,.68], mustard: [.79,.61,.19],
-  burgundy: [.36,.10,.15],
-};
-
-function targetOf(intent) {
-  if (selectedId !== null && !intent.furniture) {
-    const sel = SpatialisRegistry.byId(selectedId);
-    if (sel) return sel;
-  }
-  return intent.furniture ? SpatialisRegistry.lastOfKind(intent.furniture) : SpatialisRegistry.last();
-}
-
-function doRestyle(intent) {
-  const t = targetOf(intent);
-  if (!t) return "nothing to restyle";
-  if (intent.material) { t.materialKey = intent.material; t.tint = null; }
-  if (intent.color) t.tint = colorRgb(intent.color);
-  room3d.sync(t);
-  selectedId = t.id;
-  return `${t.spec.label} → ${intent.material ? PBRMaterialSwapper.getPresetLabel(intent.material) : intent.color}`;
-}
-
-function doScale(intent) {
-  const t = targetOf(intent);
-  if (!t) return "nothing to resize";
-  const cur = t.transform.s.x;
-  t.transform.setLocalScale(new vec3(1,1,1).uniformScale(clamp(cur * intent.scaleFactor, 0.3, 3.0)));
-  room3d.sync(t);
-  selectedId = t.id;
-  return `${t.spec.label} ×${t.transform.s.x.toFixed(2)}`;
-}
-
-function doDelete(intent) {
-  const t = targetOf(intent);
-  if (!t) return "nothing to remove";
-  const label = t.spec.label;
-  room3d.remove(t.id);
-  SpatialisRegistry.remove(t.id);
-  if (selectedId === t.id) selectedId = null;
-  return `removed ${label}`;
-}
-
-// -----------------------------------------------------------------------------
-// Rendering
-// -----------------------------------------------------------------------------
 
 function render() {
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = "#0e1117"; ctx.fillRect(0, 0, W, H);
 
-  // floor
   const [fx, fz] = toPx(0, 0);
   ctx.fillStyle = "#141922";
   ctx.fillRect(fx, fz, ROOM.w * SCALE, ROOM.d * SCALE);
-
-  // 50cm grid
   ctx.strokeStyle = "#1b2130"; ctx.lineWidth = 1;
   for (let x = 0; x <= ROOM.w; x += 50) {
-    const [px] = toPx(x, 0); ctx.beginPath();
-    ctx.moveTo(px, fz); ctx.lineTo(px, fz + ROOM.d * SCALE); ctx.stroke();
+    const [px] = toPx(x, 0); ctx.beginPath(); ctx.moveTo(px, fz); ctx.lineTo(px, fz + ROOM.d * SCALE); ctx.stroke();
   }
   for (let z = 0; z <= ROOM.d; z += 50) {
-    const [, pz] = toPx(0, z); ctx.beginPath();
-    ctx.moveTo(fx, pz); ctx.lineTo(fx + ROOM.w * SCALE, pz); ctx.stroke();
+    const [, pz] = toPx(0, z); ctx.beginPath(); ctx.moveTo(fx, pz); ctx.lineTo(fx + ROOM.w * SCALE, pz); ctx.stroke();
   }
-
-  // walls
   ctx.strokeStyle = "#3a4356"; ctx.lineWidth = 7; ctx.lineJoin = "round";
   ctx.strokeRect(fx, fz, ROOM.w * SCALE, ROOM.d * SCALE);
 
-  // physical table (a real "table" surface for `on the table` to find)
   const [tx, tz] = toPx(TABLE.x, TABLE.z);
   ctx.fillStyle = "#20283a"; ctx.strokeStyle = "#33405c"; ctx.lineWidth = 1.5;
   roundRect(tx, tz, TABLE.w * SCALE, TABLE.d * SCALE, 5); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = "#66748f";
-  ctx.font = "10px ui-monospace, monospace";
+  ctx.fillStyle = "#66748f"; ctx.font = "10px ui-monospace, monospace";
   ctx.fillText("table  ·  75cm", tx + 8, tz + 15);
 
   drawGaze();
@@ -362,7 +427,7 @@ function roundRect(x, y, w, h, r) {
 }
 
 function drawGaze() {
-  const [dx, dz] = gazeDir();
+  const [dx, dz] = gaze();
   const [ox, oz] = toPx(WEARER.x, WEARER.z);
   const spread = 0.42, len = 330 * SCALE;
   const g = ctx.createRadialGradient(ox, oz, 0, ox, oz, len);
@@ -376,7 +441,7 @@ function drawGaze() {
 
 function drawWearer() {
   const [ox, oz] = toPx(WEARER.x, WEARER.z);
-  const [dx, dz] = gazeDir();
+  const [dx, dz] = gaze();
   ctx.fillStyle = "#ffd84d";
   ctx.beginPath(); ctx.arc(ox, oz, 7, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = "#ffd84d"; ctx.lineWidth = 2;
@@ -385,72 +450,59 @@ function drawWearer() {
   ctx.fillText("wearer", ox - 17, oz + 21);
 }
 
+/** A piece's status word for the plan view, from what the Lens actually records. */
+function statusOf(o) {
+  if (o.transform.s.x <= 0.0011) return "placing…";     // hidden until the anchor answers
+  if (o.surface === "unknown") return "no surface";     // the floating fallback
+  return o.surface;
+}
+
 function drawPiece(o) {
   const [cx, cz] = toPx(o.transform.p.x, o.transform.p.z);
-  const [w, h] = silhouette(o);
+  const [aw, ad] = ASPECT[o.kind] || [2.0, 1.5];
+  const r = o.spec.footprint * Math.max(o.transform.s.x, 0.15);
+  const w = r * aw * SCALE, h = r * ad * SCALE;
   const x = cx - w / 2, y = cz - h / 2;
+  const l = look(o);
+  const floating = o.surface === "unknown" && o.transform.s.x > 0.0011;
 
-  // pop-in, standing in for the easeOutBack spawn tween
-  const age = (performance.now() - (o.born || 0)) / 550;
-  const pop = age < 1 ? 1 + 0.16 * Math.sin(Math.min(age, 1) * Math.PI) * (1 - age) : 1;
+  ctx.fillStyle = floating ? "rgba(0,0,0,.38)" : "rgba(0,0,0,.30)";
+  roundRect(x + (floating ? 7 : 2), y + (floating ? 11 : 3), w, h, 7); ctx.fill();
 
-  ctx.save();
-  ctx.translate(cx, cz); ctx.scale(pop, pop); ctx.translate(-cx, -cz);
-
-  const preset = o.materialKey ? PBRMaterialSwapper.getPreset(o.materialKey) : null;
-
-  if (o.floating) {                    // floating: shadow gap + dashed outline
-    ctx.fillStyle = "rgba(0,0,0,.38)";
-    roundRect(x + 7, y + 11, w, h, 7); ctx.fill();
-  } else {
-    ctx.fillStyle = "rgba(0,0,0,.30)";
-    roundRect(x + 2, y + 3, w, h, 7); ctx.fill();
-  }
-
-  ctx.fillStyle = objectCss(o);
+  ctx.fillStyle = cssOf(l);
   roundRect(x, y, w, h, 7); ctx.fill();
 
-  // specular sheen: sharper as roughness drops, tinted by base colour on metals
-  if (preset) {
-    const gloss = 1 - preset.roughness;
-    if (gloss > 0.05) {
-      const g = ctx.createLinearGradient(x, y, x, y + h);
-      const tint = preset.metallic > 0.5 ? objectCss(o, gloss * 0.85) : `rgba(255,255,255,${gloss * 0.55})`;
-      g.addColorStop(0, tint);
-      g.addColorStop(0.42, "rgba(255,255,255,0)");
-      ctx.fillStyle = g; roundRect(x, y, w, h, 7); ctx.fill();
-    }
+  const gloss = 1 - l.roughness;
+  if (gloss > 0.05) {
+    const g = ctx.createLinearGradient(x, y, x, y + h);
+    g.addColorStop(0, l.metallic > 0.5 ? cssOf(l, gloss * 0.85) : `rgba(255,255,255,${gloss * 0.55})`);
+    g.addColorStop(0.42, "rgba(255,255,255,0)");
+    ctx.fillStyle = g; roundRect(x, y, w, h, 7); ctx.fill();
   }
 
   ctx.lineWidth = o.id === selectedId ? 2.5 : 1;
   ctx.strokeStyle = o.id === selectedId ? "#ffd84d" : "rgba(255,255,255,.20)";
-  if (o.floating) { ctx.setLineDash([5, 4]); ctx.strokeStyle = o.id === selectedId ? "#ffd84d" : "#6fa8ff"; }
+  if (floating) { ctx.setLineDash([5, 4]); if (o.id !== selectedId) ctx.strokeStyle = "#6fa8ff"; }
   roundRect(x, y, w, h, 7); ctx.stroke(); ctx.setLineDash([]);
 
-  ctx.restore();
-
-  const sub = o.floating ? "floating" : o.surface + (o.wallAdjacent ? " · by wall" : "");
-  const showSub = o.surface !== "unknown" || o.floating;
+  const sub = statusOf(o);
   ctx.textAlign = "center";
   ctx.font = "11px -apple-system, sans-serif";
-  const lw = Math.max(ctx.measureText(o.spec.label).width, showSub ? sub.length * 5.4 : 0) + 12;
-  const lh = showSub ? 27 : 16;
+  const lw = Math.max(ctx.measureText(o.spec.label).width, sub.length * 5.4) + 12;
   const ly = cz + h / 2 + 5;
   ctx.fillStyle = "rgba(10,13,18,.78)";
-  roundRect(cx - lw / 2, ly, lw, lh, 4); ctx.fill();
+  roundRect(cx - lw / 2, ly, lw, 27, 4); ctx.fill();
   ctx.fillStyle = "#d6dcea";
   ctx.fillText(o.spec.label, cx, ly + 12);
-  if (showSub) {
-    ctx.fillStyle = o.floating ? "#6fa8ff" : "#68738a";
-    ctx.font = "9.5px ui-monospace, monospace";
-    ctx.fillText(sub, cx, ly + 23);
-  }
+  ctx.fillStyle = floating ? "#6fa8ff" : "#68738a";
+  ctx.font = "9.5px ui-monospace, monospace";
+  ctx.fillText(sub, cx, ly + 23);
   ctx.textAlign = "left";
 }
 
-// -----------------------------------------------------------------------------
+// =============================================================================
 // Panel
-// -----------------------------------------------------------------------------
+// =============================================================================
 
 function setSlot(id, value) {
   const el = document.getElementById(id);
@@ -458,17 +510,15 @@ function setSlot(id, value) {
   el.className = value ? "" : "empty";
 }
 
-function showIntent(text, intent, wallAdjacent, note) {
-  const heard = document.getElementById("heard");
-  heard.className = ""; heard.textContent = `“${text}”  →  ${note}`;
+function showIntent(intent, wallAdjacent) {
   setSlot("s-action", intent.action === "unknown" ? "" : intent.action);
   setSlot("s-furniture", intent.furniture);
   setSlot("s-material", intent.material && PBRMaterialSwapper.getPresetLabel(intent.material));
   setSlot("s-color", intent.color);
   setSlot("s-placement", intent.placement + (wallAdjacent ? " + by wall" : ""));
   setSlot("s-style", intent.style);
-  const sel = selectedId !== null ? SpatialisRegistry.byId(selectedId) : null;
-  setSlot("s-surface", sel ? (sel.floating ? "floating" : sel.surface) : "");
+  const last = SpatialisRegistry.last();
+  setSlot("s-surface", last ? statusOf(last) : "");
   document.getElementById("s-conf").style.width = Math.round(intent.confidence * 100) + "%";
 }
 
@@ -482,23 +532,33 @@ function renderList() {
   }
   wrap.innerHTML = all.map((o) => `
     <div class="obj ${o.id === selectedId ? "sel" : ""}" data-id="${o.id}">
-      <div class="sw" style="background:${objectCss(o)}"></div>
+      <div class="sw" style="background:${cssOf(look(o))}"></div>
       <div style="flex:1;min-width:0">
         <div class="nm">${o.spec.label}</div>
-        <div class="meta">${o.materialKey || "default"} · ${o.floating ? "floating" : o.surface} · ×${o.transform.s.x.toFixed(2)}</div>
+        <div class="meta">${o.materialKey || "default"} · ${statusOf(o)} · ×${o.transform.s.x.toFixed(2)}</div>
       </div>
     </div>`).join("");
   wrap.querySelectorAll(".obj").forEach((el) =>
-    el.addEventListener("click", () => { selectedId = +el.dataset.id; render(); renderList(); }));
+    el.addEventListener("click", () => select(+el.dataset.id)));
 }
 
-// -----------------------------------------------------------------------------
-// Mouse as pinch — stands in for SIK hand tracking
-// -----------------------------------------------------------------------------
+function select(id) {
+  selectedId = id;
+  const e = id === null ? null : SpatialisRegistry.byId(id);
+  room3d.setSelected(e ? e.sceneObject.obj3d : null);
+  lastListSig = "";
+}
 
-let dragging = null, dragOff = [0, 0];
+// =============================================================================
+// Mouse as pinch - the one thing here that stands in for a subsystem
+// =============================================================================
+// SpatialGestureController needs SIK hand joints, which a browser does not
+// have, so grab/drag/scale are simulated. Release is not: it hands the piece
+// to the real anchor engine's reseat(), exactly as the controller does.
 
-function pick(px, pz) {
+let dragging = null, dragOff = [0, 0], dragSurface = null;
+
+function pickPlan(px, pz) {
   const [x, z] = toRoom(px, pz);
   let best = null, bestD = Infinity;
   for (const o of SpatialisRegistry.all()) {
@@ -509,71 +569,110 @@ function pick(px, pz) {
   return best;
 }
 
+function beginDrag(entry, x, z) {
+  dragging = entry;
+  dragOff = [entry.transform.p.x - x, entry.transform.p.z - z];
+  entry.isGrabbed = true;
+  select(entry.id);
+}
+
+function moveDrag(x, z) {
+  const nx = clamp(x + dragOff[0], 15, ROOM.w - 15);
+  const nz = clamp(z + dragOff[1], 15, ROOM.d - 15);
+  dragging.transform.setWorldPosition(new vec3(nx, dragging.transform.p.y, nz));
+}
+
+function endDrag() {
+  const o = dragging;
+  dragging = null;
+  o.isGrabbed = false;
+  // The real reseat: a probe from above the piece, keep X/Z, correct height,
+  // reclassify. Answers on a later frame through the anchor's probe queue.
+  anchor.reseat(o, (result) => {
+    if (isNull(o.sceneObject)) return;
+    o.transform.setWorldPosition(result.position);
+    o.transform.setWorldRotation(result.rotation);
+    o.surface = result.surface;
+    o.surfaceNormal = result.normal;
+    lastListSig = "";
+  });
+}
+
 canvas.addEventListener("mousedown", (e) => {
   const r = canvas.getBoundingClientRect();
-  const hit = pick(e.clientX - r.left, e.clientY - r.top);
-  selectedId = hit ? hit.id : null;
-  if (hit) {
-    const [x, z] = toRoom(e.clientX - r.left, e.clientY - r.top);
-    dragging = hit; dragOff = [hit.transform.p.x - x, hit.transform.p.z - z];
-    hit.isGrabbed = true;
-  }
-  render(); renderList();
+  const hit = pickPlan(e.clientX - r.left, e.clientY - r.top);
+  if (!hit) { select(null); return; }
+  const [x, z] = toRoom(e.clientX - r.left, e.clientY - r.top);
+  beginDrag(hit, x, z);
+  dragSurface = "plan";
+});
+
+canvas3d.addEventListener("mousedown", (e) => {
+  const r = canvas3d.getBoundingClientRect();
+  const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+  const ny = -((e.clientY - r.top) / r.height) * 2 + 1;
+  const entries = SpatialisRegistry.all().filter((o) => o.sceneObject.obj3d);
+  const root = room3d.pickObject(nx, ny, entries.map((o) => o.sceneObject.obj3d));
+  const hit = entries.find((o) => o.sceneObject.obj3d === root);
+  if (!hit) { select(null); return; }
+  const f = room3d.pickFloor(nx, ny);
+  beginDrag(hit, f ? f.x : hit.transform.p.x, f ? f.z : hit.transform.p.z);
+  dragSurface = "3d";
 });
 
 window.addEventListener("mousemove", (e) => {
   if (!dragging) return;
-  const r = canvas.getBoundingClientRect();
-  const [x, z] = toRoom(e.clientX - r.left, e.clientY - r.top);
-  const nx = clamp(x + dragOff[0], 15, ROOM.w - 15);
-  const nz = clamp(z + dragOff[1], 15, ROOM.d - 15);
-  dragging.transform.setWorldPosition(new vec3(nx, dragging.transform.p.y, nz));
-  room3d.sync(dragging);
-  render();
-});
-
-window.addEventListener("mouseup", () => {
-  if (!dragging) return;
-  // Release → re-seat, exactly as SurfaceAnchorEngine.reseat() does on device:
-  // keep the chosen X/Z, correct only height, reclassify the surface.
-  const o = dragging;
-  o.isGrabbed = false;
-  if (!o.floating) {
-    const surface = classifyAt(o.transform.p.x, o.transform.p.z);
-    o.surface = surface;
-    o.wallAdjacent = false;
-    o.transform.setWorldPosition(new vec3(o.transform.p.x, surface === "table" ? TABLE.top : 0, o.transform.p.z));
+  if (dragSurface === "plan") {
+    const r = canvas.getBoundingClientRect();
+    const [x, z] = toRoom(e.clientX - r.left, e.clientY - r.top);
+    moveDrag(x, z);
+  } else {
+    const r = canvas3d.getBoundingClientRect();
+    const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+    const ny = -((e.clientY - r.top) / r.height) * 2 + 1;
+    const f = room3d.pickFloor(nx, ny);
+    if (f) moveDrag(f.x, f.z);
   }
-  room3d.sync(o);
-  dragging = null;
-  render(); renderList();
 });
 
-canvas.addEventListener("wheel", (e) => {
-  const r = canvas.getBoundingClientRect();
-  const hit = pick(e.clientX - r.left, e.clientY - r.top);
+window.addEventListener("mouseup", () => { if (dragging) endDrag(); });
+
+function wheelScale(e, hit) {
   if (!hit) return;
   e.preventDefault();
-  // Same clamp the gesture controller applies against the piece's base size.
+  // The same clamp SpatialGestureController applies against the piece's base size.
   const next = clamp(hit.transform.s.x * (e.deltaY < 0 ? 1.08 : 1 / 1.08), 0.3, 3.0);
   hit.transform.setLocalScale(new vec3(1, 1, 1).uniformScale(next));
-  room3d.sync(hit);
-  selectedId = hit.id;
-  render(); renderList();
+  select(hit.id);
+}
+canvas.addEventListener("wheel", (e) => {
+  const r = canvas.getBoundingClientRect();
+  wheelScale(e, pickPlan(e.clientX - r.left, e.clientY - r.top));
+}, { passive: false });
+canvas3d.addEventListener("wheel", (e) => {
+  wheelScale(e, selectedId !== null ? SpatialisRegistry.byId(selectedId) : null);
 }, { passive: false });
 
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Backspace" && selectedId !== null && document.activeElement.tagName !== "INPUT") {
+  if (document.activeElement.tagName === "INPUT") return;
+  const step = 5;
+  const yawDeg = ((WEARER.yaw + Math.PI / 2) * 180) / Math.PI;
+  const pitchDeg = (WEARER.pitch * 180) / Math.PI;
+  if (e.key === "ArrowLeft")  { e.preventDefault(); lookAt(yawDeg - step, pitchDeg); return; }
+  if (e.key === "ArrowRight") { e.preventDefault(); lookAt(yawDeg + step, pitchDeg); return; }
+  if (e.key === "ArrowUp")    { e.preventDefault(); lookAt(yawDeg, pitchDeg + step); return; }
+  if (e.key === "ArrowDown")  { e.preventDefault(); lookAt(yawDeg, pitchDeg - step); return; }
+  if (e.key === "Backspace" && selectedId !== null) {
     e.preventDefault();
-    room3d.remove(selectedId);
-    SpatialisRegistry.remove(selectedId);
-    selectedId = null; render(); renderList();
+    swapper.forget(selectedId);
+    SpatialisRegistry.remove(selectedId);   // -> SceneObject.destroy() -> room3d.release()
+    select(null);
   }
 });
 
-// -----------------------------------------------------------------------------
+// =============================================================================
 // Input
-// -----------------------------------------------------------------------------
+// =============================================================================
 
 const input = document.getElementById("cmd");
 document.getElementById("run").addEventListener("click", submit);
@@ -600,7 +699,8 @@ document.getElementById("chips").innerHTML =
 document.querySelectorAll(".chip").forEach((c) =>
   c.addEventListener("click", () => runCommand(c.textContent)));
 
-// Web Speech API — the browser's stand-in for VoiceML on device.
+// Web Speech API stands in for VoiceML. The interim/final rule is the
+// controller's own: onListeningUpdate shows partials and acts only on finals.
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const mic = document.getElementById("mic");
 if (!SR) {
@@ -617,32 +717,18 @@ if (!SR) {
   rec.onresult = (e) => {
     const res = e.results[e.results.length - 1];
     const text = res[0].transcript.trim();
-    if (res.isFinal) {
-      // Interim text is shown but never acted on — same rule as the real
-      // VoiceCommandController.onListeningUpdate().
-      runCommand(text);
-    } else {
-      const heard = document.getElementById("heard");
-      heard.className = "interim"; heard.textContent = "… " + text;
-    }
+    if (res.isFinal) runCommand(text);
+    else voice.onListeningUpdate({ transcription: text, isFinalTranscription: false });
   };
 }
 
-// -----------------------------------------------------------------------------
+// =============================================================================
 // Boot
-// -----------------------------------------------------------------------------
+// =============================================================================
 
-console.log(
-  `[Spatialis simulator] real catalog: ${FURNITURE_CATALOG.length} pieces, ` +
-  `keys: ${FURNITURE_CATALOG.map((f) => f.key).join(", ")}`
-);
-// A visible build stamp: "loading furniture..." caused by a stale cached
-// module is indistinguishable from a real failure without one.
-const BUILD = "ef6d922";
+const BUILD = "d5bab03";
 const buildEl = document.getElementById("build");
 if (buildEl) buildEl.textContent = "build " + BUILD;
-
-const room3d = new Room3D(canvas3d, ROOM, TABLE, WEARER);
 
 function fitStage() {
   const stage = document.getElementById("stage");
@@ -656,7 +742,6 @@ function fitStage() {
 addEventListener("resize", fitStage);
 fitStage();
 
-// View toggle: the wearer's eye, or the plan the anchor engine reasons in.
 const btnWearer = document.getElementById("v-wearer");
 const btnPlan = document.getElementById("v-plan");
 function setView(mode) {
@@ -669,13 +754,9 @@ function setView(mode) {
     ? "camera at the wearer's eye, 155cm · real .glb from Assets/Prefabs"
     : "floor — plan view, 1px = 1cm · grid 50cm";
   if (wearer) fitStage();
-  render();
 }
 btnWearer.addEventListener("click", () => setView("wearer"));
 btnPlan.addEventListener("click", () => setView("plan"));
-
-render();
-renderList();
 
 // A scene can be driven from the URL, which makes the simulator scriptable for
 // headless screenshots and lets an arranged room be shared as a link:
@@ -686,12 +767,7 @@ const BOOT = fromUrl
   : ["Spawn a Scandinavian lounge chair by the wall", "Add a floating marble coffee table",
      "Put a brass table lamp on the table"];
 
-const CATALOG_KEYS = FURNITURE_CATALOG.map((f) => f.key);
 const loadingEl = document.getElementById("loading");
-
-// The app is usable without the 3D models — the plan view, the parser and the
-// whole command pipeline do not need them. So prefab loading never gates the
-// interface: the overlay always clears, and anything that failed is reported.
 let report = { loaded: [], failed: CATALOG_KEYS.slice() };
 try {
   report = await room3d.loadPrefabs(CATALOG_KEYS, "../Assets/Prefabs");
@@ -699,24 +775,16 @@ try {
   console.error("[Spatialis simulator] prefab loading failed outright:", e);
 }
 loadingEl.classList.add("done");
-
 console.log(`[Spatialis simulator] ${report.loaded.length}/${CATALOG_KEYS.length} prefabs loaded`);
 if (report.failed.length) {
   console.warn("[Spatialis simulator] missing in 3D:", report.failed.join(", "));
   const hud = document.getElementById("hud-sub");
-  if (hud) {
-    hud.innerHTML = report.loaded.length
-      ? `⚠ ${report.failed.length} model(s) unavailable — switch to Floor plan to see them`
-      : `⚠ no models loaded — the Floor plan view still works`;
-    hud.style.color = "#fbbf24";
-  }
+  hud.innerHTML = report.loaded.length
+    ? `⚠ ${report.failed.length} model(s) unavailable — switch to Floor plan to see them`
+    : `⚠ no models loaded — the Floor plan view still works`;
+  hud.style.color = "#fbbf24";
   if (!report.loaded.length) setView("plan");
 }
 
+requestAnimationFrame(frame);
 for (const c of BOOT) runCommand(c);
-
-// One render loop drives the 3D view; the plan view redraws on demand.
-(function tick() {
-  requestAnimationFrame(tick);
-  if (!canvas3d.hidden) room3d.render();
-})();
