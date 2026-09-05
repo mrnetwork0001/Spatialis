@@ -28,8 +28,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      # 68 behavioural tests: voice parser, catalog and registry, surface
-      # classification, and the gesture state machine. No headset required.
+      # 151 behavioural tests across all four subsystems, including an
+      # end-to-end voice -> placement -> material integration. No headset needed.
       - name: Test
         run: npm test
 

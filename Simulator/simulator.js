@@ -726,7 +726,7 @@ if (!SR) {
 // Boot
 // =============================================================================
 
-const BUILD = "d5bab03";
+const BUILD = "65df3e7";
 const buildEl = document.getElementById("build");
 if (buildEl) buildEl.textContent = "build " + BUILD;
 

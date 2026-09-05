@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml/badge.svg)](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-68%20passing-brightgreen.svg)](Tests/)
+[![Tests](https://img.shields.io/badge/tests-151%20passing-brightgreen.svg)](Tests/)
 
 ---
 
@@ -135,7 +135,7 @@ cd Spatialis
 npm install
 
 npm run typecheck   # strict type check of all four subsystems
-npm test            # 68 behavioural tests across all four subsystems
+npm test            # 151 behavioural tests across all four subsystems
 npm run sim         # landing page + app on http://localhost:8777/
 ```
 
@@ -146,7 +146,10 @@ The suite covers what cannot be verified by looking through a headset:
 | `core.test.js` | 17 | Alias resolution, registry, framerate-independent damping |
 | `voice-parser.test.js` | 26 | The demo script plus the phrasings likely spoken instead |
 | `anchor.test.js` | 9 | Floor / table / wall / ceiling classification and its bounds |
-| `gesture.test.js` | 16 | Pinch hysteresis, grab reach, two-hand scale, release transitions |
+| `voice-execute.test.js` | 23 | Every execute path, debounce, wake word, and the end-to-end integration |
+| `anchor-placement.test.js` | 27 | Probe queue, calibration, retry, overlap, wall-adjacent, reseat |
+| `material.test.js` | 27 | Clone-once, isolation, guarded writes, cross-fade, textures |
+| `gesture.test.js` | 22 | Pinch hysteresis, hand-relative thresholds, two-hand scale, release transitions |
 
 Both run on any machine — **no Lens Studio and no headset required**. The
 project ships local ambient type stubs ([`types/lens-studio.d.ts`](types/lens-studio.d.ts))
@@ -170,7 +173,7 @@ Scripts/
   PBRMaterialSwapper.ts        Subsystem 4 — PBR Material Swapper
 Simulator/                     browser desk simulator (real code, simulated room)
 types/lens-studio.d.ts         local Lens Studio API stubs (CI type-checking only)
-Tests/                         68 behavioural tests + Lens runtime and SIK stubs
+Tests/                         151 behavioural tests + Lens runtime and SIK stubs
 Tools/patch-build.js           makes tsc output loadable under Node and browsers
 .github/workflows/ci.yml       typecheck + test + simulator build on every push
 SETUP_LENS_STUDIO.md           scene wiring and on-device tuning
@@ -185,7 +188,7 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 | | |
 |---|---|
 | Four subsystems implemented | ✅ type-checked under `strict` |
-| Behavioural test suite | ✅ 68 passing |
+| Behavioural test suite | ✅ 151 passing |
 | Desk simulator | ✅ runs from a clone, no headset |
 | Lens Studio scene wiring | ⬜ needs prefabs — see [SETUP_LENS_STUDIO.md](SETUP_LENS_STUDIO.md) |
 | On-device pass on Spectacles | ⬜ pinch distances are reasoned defaults, not yet tuned on a hand |

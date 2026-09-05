@@ -65,7 +65,7 @@ Instead of navigating complex 3D software on a desktop, the user stands in their
 
 - [x] `CLAD_PROMPT_LOG.txt` (Claude Code prompt transcript proving CLAD execution).
 - [x] Project description & source (`Scripts/` — all four subsystems, type-checked under `strict`).
-- [x] Test suite — 68 behavioural cases across all four subsystems, runnable from a clone.
+- [x] Test suite — 151 behavioural cases across all four subsystems, runnable from a clone.
 - [x] Desk simulator — runs the real subsystem code in a browser, no headset required.
 - [x] Apache-2.0 licence (complete text; the earlier file was truncated and GitHub read the repo as unlicensed).
 - [x] CI — typecheck, test and simulator build on every push.
