@@ -193,7 +193,8 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 | Behavioural test suite | ✅ 151 passing |
 | Type-checked against Snap's real API (Lens Studio 5.23.2, `StudioLib.d.ts`) | ✅ 0 errors — `npm run typecheck:lens` |
 | Desk simulator | ✅ runs from a clone, no headset |
-| Lens Studio scene wiring | ⬜ needs prefabs — see [SETUP_LENS_STUDIO.md](SETUP_LENS_STUDIO.md) |
+| Lens Studio project (`LensProject/`, SPECS target) | ✅ created; all 5 scripts and 12 models imported and compiled by the editor |
+| Scene wiring | ⬜ scripted in `Tools/lens-editor/`, runs via Lens Studio's MCP — see [SETUP_LENS_STUDIO.md](SETUP_LENS_STUDIO.md) |
 | On-device pass on Spectacles | ⬜ pinch distances are reasoned defaults, not yet tuned on a hand |
 | Demo video | ⬜ |
 

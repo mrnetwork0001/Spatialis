@@ -346,6 +346,23 @@ Result: running the shipped code where the reimplementation used to run
   runtime concern. Everything else the "false green" worry covered is now
   a real green. Repeatable: npm run typecheck:lens (local; needs the app).
 
+[SESSION 5 — 2026-09-05] LENS STUDIO
+  Lens Studio 5.23.2 (macOS arm) installed - the user had been running it
+  from the mounted disk image; the app was copied to /Applications. A SPECS
+  base-template project was created and saved as LensProject/ inside the
+  repository (targetPlatform: Spectacles; SIK and SpectaclesUIKit packages
+  included). The five scripts and twelve centimetre-authored models were
+  copied into Assets/; the running editor imported all seventeen and wrote
+  their .meta sidecars, and its own TypeScript compiler produced module
+  output for all five scripts. Component wrappers (_c.js) appeared for two
+  of four; SIK itself shows 10 wrappers for 22 components, so generation is
+  lazy, not failed.
+  Snap ships an MCP server and AGENTS.md with the SPECS template. Scene
+  wiring is written as an Editor API script (Tools/lens-editor/) to run
+  through ExecuteEditorCode, idempotent, verifying by reading each
+  component's inputNames back. typecheck:lens now checks the gesture
+  controller against the real SIK source from the project cache: clean.
+
 ==============================================================================
  VERIFICATION SUMMARY (as of 2026-09-05)
 ==============================================================================

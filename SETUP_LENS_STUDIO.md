@@ -188,3 +188,12 @@ Everything except the Lens Studio project can be exercised without a headset:
 `npm run sim` serves a landing page and simulator on `http://localhost:8777/`
 that hosts the real `VoiceCommandController`, `SurfaceAnchorEngine` and
 `PBRMaterialSwapper` against a simulated room. See the README.
+
+
+## The project in this repository
+
+`LensProject/` is the Lens Studio 5.23.2 project (SPECS target). Scripts and
+models are import copies of `Scripts/` and `Assets/Prefabs/` — `npm run sync:lens`
+refreshes them and `npm run sync:lens:check` fails on drift. The editor has
+compiled all five scripts. Scene wiring is scripted: see
+[`Tools/lens-editor/README.md`](Tools/lens-editor/README.md).
