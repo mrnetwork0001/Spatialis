@@ -432,7 +432,7 @@
     then acts on whatever it found - no fixed phrasing required. Below: what you might say, and what the parser pulled out of it - the piece, its finish or colour, and where it goes.</p>
   <div class="cmds">
     <div class="cmd">
-      <div class="say"><span class="q">“</span>Spawn a Scandinavian lounge chair by the wall<span class="q">”</span></div>
+      <div class="say"><span class="q">“</span>Put a Scandinavian lounge chair by the wall<span class="q">”</span></div>
       <div class="out"><span class="pill k">chair</span><span class="pill p">floor · by wall</span><span class="pill">scandinavian</span></div>
     </div>
     <div class="cmd">
@@ -515,10 +515,10 @@
         <div class="file">Scripts/SurfaceAnchorEngine.ts</div></div></div>
       <p>Finds real surfaces and seats furniture flush against them.</p>
       <ul>
-        <li><b>Floor estimate eases</b> toward new lows - one bad depth sample can’t drop the floor</li>
-        <li>Re-probes when the gaze hits the wrong surface type</li>
-        <li>Golden-angle spiral to clear existing furniture</li>
-        <li>Wall-adjacent placement via two chained probes</li>
+        <li><b>Floor height is learned gradually</b> - one bad depth reading can’t move the floor</li>
+        <li>Tries again when you were looking at the wrong kind of surface</li>
+        <li>Spirals outward to find a clear spot when the first one is taken</li>
+        <li>“By the wall” finds the wall first, then the floor in front of it</li>
       </ul>
     </div>
     <div class="card">
@@ -551,12 +551,7 @@
 <section id="catalog"><div class="wrap">
   <div class="kicker">Assets</div>
   <h2>Twelve pieces of furniture, built to scale</h2>
-  <p class="sub">
-    Generated rather than downloaded, because the anchor engine depends on two things
-    sourced models never come with: <b>origins at the base</b> (a centre pivot sinks
-    furniture halfway into the floor) and <b>real-world centimetre scale</b>. 1,786
-    triangles for all twelve, no textures.
-  </p>
+  <p class="sub">Made for this project rather than downloaded, because placing furniture correctly depends on two things stock models rarely have: <b>a pivot at the base</b> (wall art at its centre) - a centre pivot on a floor piece sinks it halfway into the floor - and <b>true centimetre scale</b>. All twelve total 1,786 triangles, with no textures.</p>
   <figure class="shot" style="margin-top:0">
     <img src="./docs/furniture.png" alt="All twelve Spatialis furniture models">
     <figcaption>Rendered by three.js - an independent glTF reader, not the generator that wrote them.</figcaption>
@@ -579,7 +574,7 @@
         <li><code>SurfaceAnchorEngine</code> - probe queue, floor calibration, classify, retry, overlap, wall-adjacent, reseat</li>
         <li><code>PBRMaterialSwapper</code> - clone-once, cross-fade, guarded uniform writes</li>
         <li><code>FURNITURE_CATALOG</code>, <code>SpatialisRegistry</code>, the tween system</li>
-        <li>The 12 <code>.glb</code> models the Lens would load</li>
+        <li>The same 12 <code>.glb</code> models the Lens loads (centimetre-authored here; the Lens imports the metre-authored copies)</li>
       </ul>
     </div>
     <div class="box sim">
