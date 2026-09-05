@@ -196,7 +196,8 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 | Lens Studio project (`LensProject/`, SPECS target) | ✅ created; all 5 scripts and 12 models imported and compiled by the editor |
 | Scene wiring | ✅ built through Lens Studio's MCP by `Tools/lens-editor/wire-spatialis.ts`; every input verified by read-back |
 | Runs in Lens Studio Preview | ✅ a spoken *“give me a navy velvet sofa”* spawns a blue sofa in the runtime scene; scale (210 units), materials and spacing verified; speech needs a My Lenses login in Preview; voice input uses Snap's current `AsrModule` |
-| On-device pass on Spectacles | ⬜ not yet — pinch feel untested on a real hand |
+| Gestures on the runtime | ✅ exercised in Lens Studio's SPECS simulation with simulated hands: pinch grabbed the sofa, a 60 cm drag moved it 61 cm, release handed it to `reseat()` |
+| On-device pass on Spectacles | ⬜ not yet — never run on hardware; pinch *feel* untested on a real hand |
 | Demo video | ⬜ |
 
 Pinch thresholds, grab radius and drag smoothing have **not** been validated on

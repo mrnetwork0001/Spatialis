@@ -430,6 +430,19 @@ Result: running the shipped code where the reimplementation used to run
   in the desktop Preview). 155 tests. The frontend and the Lens are the same
   Scripts/ files; sync-lens keeps the project copy identical.
 
+[SESSION 5, GESTURES — 2026-09-05] THE GESTURE CONTROLLER ON THE RUNTIME
+  With no Spectacles available, the gesture controller was exercised on the
+  real runtime through Lens Studio's SPECS Preview simulation via the
+  editor's PreviewInteractTool (simulated right hand: Pinch at the sofa,
+  Drag +60cm over 2s, Release). Verbatim from the Lens log:
+  "[Spatialis:Gesture] right hand grabbed sofa #1." then, on release,
+  "[Spatialis:Gesture] Settled sofa on the unknown." Runtime scene: sofa x
+  0 -> 61.25 while held -> 61.11 after release; surface stays "unknown"
+  because the desktop Preview has no surfaces for reseat's probe to hit.
+  This verifies the pinch hysteresis, target picking, drag and the release
+  hand-off on the runtime. It does NOT verify feel on a real hand, nor
+  anything on hardware; the README says so.
+
 ==============================================================================
  VERIFICATION SUMMARY (as of 2026-09-05)
 ==============================================================================
