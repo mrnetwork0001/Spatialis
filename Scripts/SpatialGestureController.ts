@@ -90,10 +90,7 @@ export class SpatialGestureController extends BaseScriptComponent {
   pinchUpDistance: number = 4.5;
 
   @input
-  @hint(
-    "Scale the pinch distances by the wearer's own hand size. " +
-    "The two distances above then describe a nominal adult hand."
-  )
+  @hint("Scale the pinch distances by the wearer's own hand size. The two distances above then describe a nominal adult hand.")
   adaptToHandSize: boolean = true;
 
   @input
