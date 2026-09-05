@@ -392,11 +392,14 @@ test("a 'float' hint answers immediately and casts no ray", () => {
 test("hints tolerate near-equivalent surfaces but a wall hint rejects the floor", () => {
   // A lamp on the floor and a sofa on a table are odd but not wrong; art on
   // the carpet is wrong.
+  // An explicit "on the table" does not settle for the floor at once: it
+  // sweeps twelve probes for a table first, then takes the floor via the
+  // retry. Gaze probe (floor), twelve misses, one retry hit.
   let { engine, session } = makeEngine();
-  session.answer(FLOOR(0, 0, -300));
-  let r = settle(engine, (cb) => engine.requestPlacement(getFurnitureSpec("tableLamp"), "table", false, cb));
-  eq(r.surface, "floor", "'table' hint accepts a floor hit");
-  eq(session.log.length, 2, "without retrying");
+  session.answer(FLOOR(0, 0, -300), ...Array(12).fill(null), FLOOR(0, 0, -300));
+  let r = settle(engine, (cb) => engine.requestPlacement(getFurnitureSpec("tableLamp"), "table", false, cb), 24);
+  eq(r.surface, "floor", "'table' hint takes the floor only after the sweep finds no table");
+  eq(session.log.length, 1 + 1 + 12 + 1, "calibration, gaze, twelve sweep probes, one retry");
 
   ({ engine, session } = makeEngine());
   session.answer(FLOOR(0, 75, -200));
@@ -721,4 +724,31 @@ test("two floated pieces do not share a spot", () => {
   const dx = second.position.x - first.position.x, dz = second.position.z - first.position.z;
   ok(Math.hypot(dx, dz) >= (spec.footprint * 2) * 0.75 - 1e-9, "the second lamp is nudged clear of the first");
   void eye;
+});
+
+suite("SurfaceAnchorEngine — sweeping for a table");
+
+test("an explicit table hint finds a table off the gaze line and lands on it", () => {
+  // The wearer says "on the table" while looking at the floor. The table is
+  // off to one side: the third sweep probe reaches a horizontal surface 75cm
+  // above the calibrated floor, which classifies as a table.
+  const { engine, session } = makeEngine();
+  const tableHit = FLOOR(120, 75, -260);
+  session.answer(FLOOR(0, 0, -300), null, null, tableHit);
+  const r = settle(engine, (cb) => engine.requestPlacement(getFurnitureSpec("tableLamp"), "table", false, cb), 24);
+  eq(r.anchored, true);
+  eq(r.surface, "table", "the sweep's hit is a table");
+  eq(xyz(r.position), xyz(tableHit.position), "seated on the swept hit");
+  eq(session.log.length, 1 + 1 + 3, "calibration, gaze, and three sweep probes - it stops at the first table");
+  const sweep = session.log[2];
+  ok(sweep.end.y < sweep.start.y, "sweep probes aim downward");
+  ok(Math.abs(sweep.end.x - sweep.start.x) > 50, "and off the gaze line");
+});
+
+test("a floor piece never pays for a sweep", () => {
+  const { engine, session } = makeEngine();
+  session.answer(FLOOR(0, 0, -300));
+  const r = settle(engine, (cb) => engine.requestPlacement(getFurnitureSpec("sofa"), "auto", false, cb));
+  eq(r.surface, "floor");
+  eq(session.log.length, 2, "calibration and the gaze probe only");
 });

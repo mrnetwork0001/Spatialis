@@ -363,6 +363,10 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
           "Anchor",
           "Gaze hit a " + kind + " but " + spec.label + " wants a " + desired + "; retrying."
         );
+        if (desired === "table") {
+          this.sweepForTable(spec, callback, exclude);
+          return;
+        }
         this.retryForSurface(spec, desired, callback, exclude);
         return;
       }
@@ -451,6 +455,54 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
   }
 
   /**
+   * "On the table" when the gaze is not on one: look around for a table
+   * before settling for the floor. Twelve probes fan out from the gaze -
+   * six yaws at two downward pitches, nearest first - and the first hit that
+   * classifies as a table wins. Bounded, so a room with no table costs at
+   * most twelve frames before the floor fallback. Only an explicit table
+   * hint pays this; a sofa asked for on the floor never sweeps.
+   */
+  private sweepForTable(
+    spec: FurnitureSpec,
+    callback: AnchorCallback,
+    exclude: SpatialisObject | null
+  ): void {
+    const origin = this.eyePosition();
+    const fwd = this.gazeForward();
+    const baseYaw = Math.atan2(fwd.x, fwd.z);
+    const yawsDeg = [25, -25, 50, -50, 80, -80];
+    const pitchesDeg = [-15, -30];
+    const directions: vec3[] = [];
+    for (let p = 0; p < pitchesDeg.length; p++) {
+      const pitch = (pitchesDeg[p] * Math.PI) / 180;
+      for (let y = 0; y < yawsDeg.length; y++) {
+        const yaw = baseYaw + (yawsDeg[y] * Math.PI) / 180;
+        directions.push(
+          new vec3(Math.cos(pitch) * Math.sin(yaw), Math.sin(pitch), Math.cos(pitch) * Math.cos(yaw)).normalize()
+        );
+      }
+    }
+    let index = 0;
+    const next = (): void => {
+      if (index >= directions.length) {
+        log("Anchor", "No table in view for " + spec.label + "; using the floor instead.");
+        this.retryForSurface(spec, "floor", callback, exclude);
+        return;
+      }
+      const dir = directions[index++];
+      this.enqueueProbe(origin, origin.add(dir.uniformScale(this.probeDistance)), (position, normal) => {
+        if (position && normal && this.classify(position, normal) === "table") {
+          log("Anchor", "Found a table for " + spec.label + " after sweeping.");
+          callback(this.seat(spec, position, normal, "table", exclude));
+          return;
+        }
+        next();
+      });
+    };
+    next();
+  }
+
+  /**
    * Second attempt when the gaze ray landed on the wrong kind of surface: aim
    * down for floor/table pieces, and level for wall pieces.
    */
@@ -495,8 +547,9 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
       return kind === "wall";
     }
     if (desired === "table") {
-      // A tabletop is ideal, but the floor is a reasonable stand-in.
-      return kind === "table" || kind === "floor";
+      // An explicit "on the table" means a table. The floor is accepted only
+      // after sweepForTable() has looked around and found none.
+      return kind === "table";
     }
     if (desired === "floor") {
       return kind === "floor" || kind === "table";
