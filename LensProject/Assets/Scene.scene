@@ -2584,7 +2584,7 @@
     {}
   ScriptInputs:
     "":
-      voiceMLModule: !<reference.VoiceMLModule> 1b982cfb-341b-4d98-a39b-b30f27671a0c
+      asrModule: !<reference.AsrModule> 022b507d-fb06-446d-8549-a48790d3ebed
       anchorEngine: !<MappingBased.AssignableType_1> b6fc5277-10bd-4e8f-8eaa-0ba8e3b1656e
       materialSwapper: !<MappingBased.AssignableType_2> 3ca58ba4-5d5b-45a9-958d-b0df1363ebc2
       spawnParent: !<reference.SceneObject> b0b28a3d-791a-4c84-8cc2-afbd38bbfc2b
