@@ -16,6 +16,7 @@
  *     throwing mid-frame.
  *
  * Target: Lens Studio 5.22+ / Spectacles (SPECS) Project Mode.
+ * Copyright 2026 Ifeanyichukwu Onwo
  * License: Apache-2.0
  */
 

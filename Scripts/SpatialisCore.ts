@@ -11,6 +11,7 @@
  * a coffee table ~110. All footprint/height constants below are in cm.
  *
  * Target: Lens Studio 5.22+ / Spectacles (SPECS) Project Mode.
+ * Copyright 2026 Ifeanyichukwu Onwo
  * License: Apache-2.0
  */
 
