@@ -393,6 +393,19 @@ Result: running the shipped code where the reimplementation used to run
   MapOperations::get) while a diagnostic read scriptInputInfo on an
   uncompiled asset; that read is now avoided.
 
+[SESSION 5, LATER STILL — 2026-09-05] ASR MIGRATION, SECOND PREVIEW RUN
+  Every VoiceML call was deprecated per the editor's runtime warnings.
+  VoiceCommandController now uses AsrModule (startTranscribing with
+  AsrTranscriptionOptions; onTranscriptionUpdateEvent with isFinal;
+  onTranscriptionErrorEvent). The migration was written only against
+  members confirmed in StudioLib.d.ts, gated by the real-API type check
+  (clean) and the 151 tests, then the editor recompiled (succeeded), the
+  wiring script created and assigned the ASR Module asset, and the second
+  Preview run showed: "[Spatialis:Voice] Transcribing.", NO deprecation
+  warnings, and the new error hook firing with the expected Unauthenticated
+  code because the Preview has no My Lenses login. The unused VoiceML asset
+  was removed from the project.
+
 ==============================================================================
  VERIFICATION SUMMARY (as of 2026-09-05)
 ==============================================================================

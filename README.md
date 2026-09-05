@@ -195,7 +195,7 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 | Desk simulator | ✅ runs from a clone, no headset |
 | Lens Studio project (`LensProject/`, SPECS target) | ✅ created; all 5 scripts and 12 models imported and compiled by the editor |
 | Scene wiring | ✅ built through Lens Studio's MCP by `Tools/lens-editor/wire-spatialis.ts`; every input verified by read-back |
-| Runs in Lens Studio Preview | ✅ all four subsystems initialise (hit testing, hand tracking, materials, voice listening); speech itself needs a My Lenses login in Preview |
+| Runs in Lens Studio Preview | ✅ all four subsystems initialise (hit testing, hand tracking, materials, voice listening); speech itself needs a My Lenses login in Preview; voice input uses Snap's current `AsrModule`, not the deprecated VoiceML API |
 | On-device pass on Spectacles | ⬜ not yet — pinch feel untested on a real hand |
 | Demo video | ⬜ |
 

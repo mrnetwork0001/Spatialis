@@ -326,7 +326,7 @@
     <div class="step">
       <div class="n">01 · HEAR</div>
       <h3>Voice intent</h3>
-      <p>VoiceML transcribes. Interim text is shown, only the final acted on — and duplicates are debounced, because ASR emits them.</p>
+      <p>The ASR module transcribes. Interim text is shown, only the final acted on — and duplicates are debounced, because ASR emits them.</p>
     </div>
     <div class="step">
       <div class="n">02 · PLACE</div>
@@ -442,7 +442,7 @@
         <li>The room itself, and ray hit tests against it<br><span style="color:var(--ink-faint)">→ World Query on device</span></li>
         <li>Head pose, from the arrow keys<br><span style="color:var(--ink-faint)">→ the headset’s tracking on device</span></li>
         <li>Mouse drag and scroll as pinch and scale<br><span style="color:var(--ink-faint)">→ SIK hand tracking on device. <b>SpatialGestureController does not run here</b>; its state machine is covered by tests. Release does call the real <code>reseat()</code>.</span></li>
-        <li>Web Speech API<br><span style="color:var(--ink-faint)">→ VoiceML on device</span></li>
+        <li>Web Speech API<br><span style="color:var(--ink-faint)">→ the ASR module on device</span></li>
         <li>three.js rendering<br><span style="color:var(--ink-faint)">→ the Spectacles display on device</span></li>
       </ul>
     </div>

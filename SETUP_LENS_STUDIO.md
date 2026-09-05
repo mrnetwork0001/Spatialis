@@ -15,7 +15,7 @@ Add these from **Asset Browser → + → …**:
 
 | Asset | Used by | Why |
 |---|---|---|
-| **VoiceML Module** | `VoiceCommandController` | Speech-to-text |
+| **ASR Module** | `VoiceCommandController` | Speech-to-text |
 | **World Query Module** | `SurfaceAnchorEngine` | Surface hit testing against the room mesh |
 | **Spectacles Interaction Kit** (`SpectaclesInteractionKit.lspkg`) | `SpatialGestureController` | Hand joint tracking |
 
@@ -75,7 +75,7 @@ key has a texture assigned, it is applied on top.
 ### VoiceCommandController
 | Field | Set to |
 |---|---|
-| `Voice ML Module` | the **VoiceML Module** asset |
+| `Voice ML Module` | the **ASR Module** asset |
 | `Anchor Engine` | the `SurfaceAnchorEngine` component |
 | `Material Swapper` | the `PBRMaterialSwapper` component |
 | `Spawn Parent` | **SpatialisRoot** |
