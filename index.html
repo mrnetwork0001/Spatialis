@@ -134,11 +134,11 @@
   .hero-art svg{display:block;width:100%;height:auto}
   @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:34px}.hero .wrap{padding-top:44px}}
 
-  /* Timeline: 15s loop. Each piece pops at --d, holds, and everything fades at 96-100%. */
-  .piece{opacity:0;transform-box:fill-box;transform-origin:50% 100%;animation:pop 15s cubic-bezier(.2,.9,.3,1.25) infinite;animation-delay:calc(var(--d) * 15s / 100%)}
+  /* Timeline: 15s loop. Each piece pops after its --d delay (seconds), holds, and everything fades at 96-100%. */
+  .piece{opacity:0;transform-box:fill-box;transform-origin:50% 100%;animation:pop 15s cubic-bezier(.2,.9,.3,1.25) infinite;animation-delay:var(--d)}
   @keyframes pop{0%{opacity:0;transform:scale(.2) translateY(14px)}5%{opacity:1;transform:scale(1) translateY(0)}
     88%{opacity:1;transform:scale(1)}96%{opacity:0;transform:scale(.9)}100%{opacity:0}}
-  .cap{opacity:0;animation:cap 15s ease-in-out infinite;animation-delay:calc(var(--d) * 15s / 100%)}
+  .cap{opacity:0;animation:cap 15s ease-in-out infinite;animation-delay:var(--d)}
   @keyframes cap{0%{opacity:0;transform:translateY(6px)}4%{opacity:1;transform:translateY(0)}18%{opacity:1}22%{opacity:0}100%{opacity:0}}
   /* the sofa recolours on the last caption */
   .sofa-body{animation:recolor 15s linear infinite}
@@ -373,7 +373,7 @@
         </g>
 
         <!-- pieces: each pops in on its beat, all fade at the loop end -->
-        <g class="piece sofa" style="--d:8%">
+        <g class="piece sofa" style="--d:1.2s">
           <ellipse cx="300" cy="352" rx="120" ry="14" fill="rgba(0,0,0,.45)"/>
           <rect x="190" y="290" width="220" height="56" rx="10" class="sofa-body" fill="#1c2b57"/>
           <rect x="200" y="262" width="200" height="40" rx="9" class="sofa-body" fill="#1c2b57"/>
@@ -382,25 +382,25 @@
           <rect x="210" y="300" width="88" height="38" rx="7" class="sofa-cushion" fill="#26397a"/>
           <rect x="302" y="300" width="88" height="38" rx="7" class="sofa-cushion" fill="#26397a"/>
         </g>
-        <g class="piece table" style="--d:30%">
+        <g class="piece table" style="--d:4.5s">
           <ellipse cx="300" cy="392" rx="70" ry="9" fill="rgba(0,0,0,.4)"/>
           <rect x="236" y="366" width="8" height="24" fill="#5a4636"/><rect x="356" y="366" width="8" height="24" fill="#5a4636"/>
           <rect x="228" y="356" width="144" height="12" rx="3" fill="#e9e6df"/>
         </g>
-        <g class="piece lamp" style="--d:53%">
+        <g class="piece lamp" style="--d:7.95s">
           <ellipse cx="480" cy="380" rx="22" ry="6" fill="rgba(0,0,0,.4)"/>
           <rect x="478" y="230" width="4" height="150" fill="#c9a24a"/>
           <ellipse cx="480" cy="380" rx="16" ry="5" fill="#8a6a1e"/>
           <polygon points="452,236 508,236 498,206 462,206" fill="#f0e9d2"/>
           <ellipse class="lamp-glow" cx="480" cy="250" rx="38" ry="26" fill="#fff1b8" opacity=".18" filter="url(#glow)"/>
         </g>
-        <g class="piece art" style="--d:73%">
+        <g class="piece art" style="--d:10.95s">
           <rect x="262" y="110" width="116" height="84" rx="3" fill="#6b5232"/>
           <rect x="271" y="119" width="98" height="66" fill="#efe9dd"/>
           <path d="M280 176 L305 146 L322 164 L340 138 L360 176 Z" fill="#a06bff" opacity=".85"/>
           <circle cx="296" cy="136" r="7" fill="#7ee705" opacity=".9"/>
         </g>
-        <g class="piece plant" style="--d:60%">
+        <g class="piece plant" style="--d:9s">
           <ellipse cx="130" cy="392" rx="24" ry="6" fill="rgba(0,0,0,.4)"/>
           <polygon points="114,392 146,392 142,356 118,356" fill="#9a4a2a"/>
           <circle cx="130" cy="330" r="26" fill="#2f6d3a"/><circle cx="112" cy="345" r="16" fill="#3a8548"/><circle cx="150" cy="342" r="18" fill="#2a5f33"/>
@@ -408,11 +408,11 @@
 
         <!-- captions: one per beat -->
         <g font-family="SF Mono, Menlo, monospace" font-size="13" letter-spacing=".5" text-anchor="middle">
-          <text class="cap" style="--d:2%"  x="320" y="426" fill="#7ee705">“give me a navy velvet sofa”</text>
-          <text class="cap" style="--d:24%" x="320" y="426" fill="#7ee705">“add a marble coffee table”</text>
-          <text class="cap" style="--d:47%" x="320" y="426" fill="#7ee705">“a brass floor lamp by the wall”</text>
-          <text class="cap" style="--d:67%" x="320" y="426" fill="#7ee705">“hang a painting on the wall”</text>
-          <text class="cap" style="--d:84%" x="320" y="426" fill="#a06bff">“make the sofa leather”</text>
+          <text class="cap" style="--d:0.3s"  x="320" y="426" fill="#7ee705">“give me a navy velvet sofa”</text>
+          <text class="cap" style="--d:3.6s" x="320" y="426" fill="#7ee705">“add a marble coffee table”</text>
+          <text class="cap" style="--d:7.05s" x="320" y="426" fill="#7ee705">“a brass floor lamp by the wall”</text>
+          <text class="cap" style="--d:10.05s" x="320" y="426" fill="#7ee705">“hang a painting on the wall”</text>
+          <text class="cap" style="--d:12.6s" x="320" y="426" fill="#a06bff">“make the sofa leather”</text>
         </g>
       </svg>
     </div>
