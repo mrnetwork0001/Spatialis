@@ -7,7 +7,7 @@ set -e
 cd "$(dirname "$0")/.."
 P=LensProject/Assets
 if [ "$1" = "--check" ]; then
-  diff -rq Scripts "$P/Scripts" -x '*.meta' && diff -rq Assets/Prefabs "$P/Prefabs" -x '*.meta' -x m \
+  diff -rq Scripts "$P/Scripts" -x '*.meta' && diff -rq Assets/Prefabs "$P/Prefabs" -x '*.meta' -x m -x .gitkeep \
     && echo "sync:lens — project copy matches Scripts/ and Assets/Prefabs/" || { echo "sync:lens — DRIFT: run npm run sync:lens"; exit 1; }
   exit 0
 fi
