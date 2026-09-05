@@ -535,3 +535,19 @@ making the repo public, the demo video, the submission form, a device pass.
      styled) and captured the panel for the landing page and README; the
      in-memory preview input is being reset so nothing leaks into the
      saved scene.
+
+"check the /app section and be sure to have it arranged in a more
+ professional way" / (screenshot) / "on mobile view ... rebuild the app to
+ look mobile responsive: maybe add a hamburger"
+  -> Three independent reviewers (information architecture, visual
+     consistency, microcopy) read the app page; their findings were merged
+     with the author's screenshots. The panel now follows a first-time
+     visitor's path: Command with a lead line and a tap-to-speak mic icon
+     (the old label promised hold-to-talk the code never did), Response
+     directly under it, In the room with a hint, Parsed intent as a
+     collapsible inspector with human labels, the key pinned last. The
+     viewport reads as a framed display; controls are a keycap row; the
+     room's lights were lifted so walls and floor read. Narrow screens get
+     one column with the header collapsed to logo plus a menu drawer;
+     drag uses pointer events so touch works. Verified by loading the app
+     in a 390px frame and reading its layout from inside.
