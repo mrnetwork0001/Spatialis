@@ -160,7 +160,7 @@ The parser runs under plain Node, no Lens Studio required:
 ```bash
 npm install
 npm run typecheck   # strict type check of all four subsystems
-npm test            # 151 tests
+npm test            # 161 tests
 ```
 
 Inside Lens Studio's Preview (where there is no microphone), call

@@ -28,7 +28,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      # 151 behavioural tests across all four subsystems, including an
+      # 161 behavioural tests across all four subsystems, including an
       # end-to-end voice -> placement -> material integration. No headset needed.
       - name: Test
         run: npm test

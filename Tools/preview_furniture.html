@@ -60,7 +60,7 @@ for (const key of KEYS) {
   const g = new THREE.GridHelper(6, 12, 0x2a2a37, 0x20202b);
   scene.add(g);
 
-  loader.load(`/Assets/Prefabs/${key}.glb`, (gltf) => {
+  loader.load(`../Assets/Prefabs/${key}.glb`, (gltf) => {
     const obj = gltf.scene;
     obj.scale.setScalar(0.01);            // models are authored in centimetres
     scene.add(obj);
