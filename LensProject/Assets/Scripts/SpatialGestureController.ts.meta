@@ -30,9 +30,12 @@
   ScriptInputsHidden:
     adaptToHandSize: false
     anchorEngine: false
+    crushDeleteFactor: false
+    crushToDelete: false
     dragSmoothing: false
     grabIndicator: false
     grabRadius: false
+    materialSwapper: false
     maxScaleFactor: false
     minScaleFactor: false
     pinchDownDistance: false
@@ -56,6 +59,9 @@
       minScaleFactor: 0.300000
       maxScaleFactor: !<float> 3.000000
       singleHandRotate: false
+      crushToDelete: true
+      crushDeleteFactor: 0.150000
+      materialSwapper: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
       grabIndicator: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
@@ -70,4 +76,7 @@
     - "// @input float minScaleFactor = 0.3 {\"hint\":\"Smallest and largest scale allowed, as a multiple of the piece's own size.\", \"widget\":\"slider\", \"min\":0.1, \"max\":1, \"step\":0.05}"
     - '// @input float maxScaleFactor = 3 {"widget":"slider", "min":1, "max":6, "step":0.1}'
     - "// @input bool singleHandRotate {\"hint\":\"Also yaw a piece to follow a single hand's twist while dragging.\"}"
+    - '// @input bool crushToDelete = true {"hint":"Squeeze a piece held in both hands well below its minimum size, then let go, to remove it."}'
+    - '// @input float crushDeleteFactor = 0.15 {"hint":"How far below base size the two-hand squeeze must go to arm a crush. Keep it under Min Scale Factor.", "widget":"slider", "min":0.05, "max":0.3, "step":0.01}'
+    - "// @input AssignableType_2 materialSwapper {\"hint\":\"PBR Material Swapper, so a crushed piece's material clone is released with it.\"}"
     - '// @input SceneObject grabIndicator {"hint":"Optional marker moved onto whichever piece is currently held."}'

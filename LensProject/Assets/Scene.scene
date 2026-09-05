@@ -1736,6 +1736,8 @@
     minScaleFactor: true
     maxScaleFactor: true
     singleHandRotate: true
+    crushToDelete: true
+    crushDeleteFactor: true
     grabIndicator: true
   ScriptTypesDefault:
     {}
@@ -1750,6 +1752,9 @@
       minScaleFactor: 0.300000
       maxScaleFactor: !<float> 3.000000
       singleHandRotate: false
+      crushToDelete: true
+      crushDeleteFactor: 0.150000
+      materialSwapper: !<MappingBased.AssignableType_2> 3ca58ba4-5d5b-45a9-958d-b0df1363ebc2
       grabIndicator: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     "":
