@@ -2,7 +2,7 @@
  CLAD PROMPT LOG & AGENT TRAJECTORY TRANSCRIPT — SPATIALIS
  Built for Snap SPECS CLAD Summer Hackathon (Week 4: CREATE)
  Coding Agent: Claude Code (Opus)
- Repository: github.com/mrnetwork/Spatialis   License: Apache-2.0
+ Repository: github.com/mrnetwork0001/Spatialis   License: Apache-2.0
 ==============================================================================
 
  NOTE ON THIS FILE
@@ -261,24 +261,86 @@ Agent Action: Added .github/workflows/ci.yml (typecheck, test, and simulator
   pinch feel is NOT yet validated on hardware.
 
 ==============================================================================
- VERIFICATION SUMMARY
+ SESSION 4 — 2026-09-04 — STOP MOCKING: HOST THE REAL SUBSYSTEMS
 ==============================================================================
-  npm run typecheck   -> clean (strict, noImplicitAny, noUnusedLocals)
-  npm test            -> 68 passed, 0 failed
+
+[PROMPT 18] "Tell me what we're mocking or lacking in this app"
+Agent Finding (measured, not recalled): the simulator called only parse(),
+  classify() and the material preset getters. Placement was reimplemented,
+  material application wrote three.js properties directly, and
+  SpatialGestureController had zero uses. Test coverage: PBRMaterialSwapper
+  0 of 13 methods, SurfaceAnchorEngine everything but classify(),
+  VoiceCommandController every execute path. CI type-checks against a
+  hand-written 324-line API stub - a false-green machine until Lens Studio
+  validates it.
+
+[PROMPT 19] "Do these" - tests for the untested code, make the simulator
+  call the real code, correct the docs.
+Agent Action, in order:
+  - Added an injection seam, attachHitTestSource()/tick(), so placement can
+    run without World Query. It seeds the floor exactly as onStart() does.
+  - Discovered the runtime stub's quat was a placeholder (angle stored in
+    w, vectors returned unrotated): every rotation assertion in the tree
+    was vacuous. Replaced with real quaternion maths, self-checked.
+  - Rewrote the simulator as a HOST: scene-graph adapters over three.js, a
+    room hit-test source, head-pose camera, prefabs, a feedback Text, a
+    frame loop - and instantiated the real VoiceCommandController,
+    SurfaceAnchorEngine and PBRMaterialSwapper on top. room3d.js draws
+    only. Clones share prefab materials until the real swapper clones them.
+  - Ran three test-writing agents in isolated worktrees, each output
+    adversarially reviewed for vacuous assertions and unfaithful fakes,
+    then revised: material 27, anchor-placement
+    27, voice-execute 23 (the first end-to-end test).
+Result: running the shipped code where the reimplementation used to run
+  exposed FIVE defects it had hidden:
+   1. retryForSurface aimed probeDistance BELOW the floor - sofa at the
+      wearer's feet.
+   2. The wall-adjacent drop probe started at eye height + piece height +
+      40cm - above a 260cm ceiling; a chair "by the wall" classified as on
+      the ceiling.
+   3. probeDirectionFor tilted down unconditionally, undershooting a table
+      the wearer was already looking at.
+   4. A spawning piece, registered at the origin before placement, was
+      treated as furniture to step around - it dodged itself. (Found by
+      the voice-execute suite.)
+   5. The stub quat, above.
+  Verification of the simulator was by DOM inspection (each piece on the
+  surface the engine chose, carrying the swapper's material, with the
+  controller's own feedback text), the subsystems' log lines, and pixel
+  sampling of the render - image viewing was unavailable to the agent in
+  this session.
+  Docs corrected to name what runs (the three controllers, end to end) and
+  what does not (SpatialGestureController; needs SIK hand joints).
+  npm test            -> 151 passed, 0 failed.
+
+[CORRECTION — 2026-09-05]
+  Two statements the agent made earlier in this log and in conversation
+  were wrong, and are retracted here rather than edited out:
+  - "Lens Studio 5.22 may not exist; Snap's download page says 5.15." Snap
+    serves download pages for 5.22.0, 5.22.1, 5.23.0 and 5.23.1 (5.24+
+    return 404). The landing page's "5.15" is stale copy. "Lens Studio
+    5.22+" in this repository is correct; the current release is 5.23.1.
+  - "No .lsproj exists." The missing artefact is an .esproj: Lens Studio 5
+    projects are <Name>.esproj + Assets/Scene.scene + .meta sidecars, and
+    .lsproj is the LS4 format. Snap's docs make hand-authoring one
+    non-viable (only the editor generates .meta GUIDs), so the GUI is
+    unavoidable for this step.
+  Also resolved from documentation, no import needed: Lens Studio's glTF
+  importer does not convert metres unless "Convert meters to centimeters"
+  is ticked, so centimetre-authored models are now the default set.
+
+==============================================================================
+ VERIFICATION SUMMARY (as of 2026-09-05)
+==============================================================================
+  npm run typecheck   -> clean (strict; against the local hand-written Lens
+                         Studio type declarations - real Lens Studio has not
+                         yet validated them)
+  npm test            -> 151 passed, 0 failed (7 suites, incl. end to end)
   npm run build:web   -> clean (simulator ES module bundle)
-
-  Scripts/SpatialisCore.ts             509 lines   shared vocabulary + registry
-  Scripts/VoiceCommandController.ts    673 lines   Subsystem 1 — Voice Intent
-  Scripts/SpatialGestureController.ts  564 lines   Subsystem 2 — Hand Gesture
-  Scripts/SurfaceAnchorEngine.ts       649 lines   Subsystem 3 — Surface Anchor
-  Scripts/PBRMaterialSwapper.ts        505 lines   Subsystem 4 — PBR Materials
-  types/lens-studio.d.ts                           local API stubs for CI
-  Tests/                                26 cases   parser behaviour
-
- STATUS: All four subsystems implemented and verified in source.
- REMAINING BEFORE SUBMISSION (requires Lens Studio + Spectacles hardware):
-   1. Import furniture prefabs and assign them in the Inspector
-      (see SETUP_LENS_STUDIO.md).
-   2. On-device pass: tune pinch distances and grab radius to the wearer.
-   3. Record the 3-5 minute demo video.
+  fresh clone         -> npm ci, typecheck, test, build:web all green
+  CI                  -> green on every push
+  Lens Studio         -> NOT installed; no .esproj; never run on device
+  Simulator           -> hosts the real subsystems; verified via DOM, logs
+                         and pixel sampling (image viewing unavailable to
+                         the agent in session 4)
 ==============================================================================
