@@ -786,7 +786,9 @@ btnPlan.addEventListener("click", () => setView("plan"));
 // A scene can be driven from the URL, which makes the simulator scriptable for
 // headless screenshots and lets an arranged room be shared as a link:
 //   ?cmd=Give me a navy velvet sofa|Make it twice as big
-const fromUrl = new URLSearchParams(location.search).get("cmd");
+const params = new URLSearchParams(location.search);
+if (params.get("view") === "plan") setView("plan");
+const fromUrl = params.get("cmd");
 const BOOT = fromUrl
   ? fromUrl.split("|").map((c) => c.trim()).filter(Boolean)
   : ["Spawn a Scandinavian lounge chair by the wall", "Add a floating marble coffee table",

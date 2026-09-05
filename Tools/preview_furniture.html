@@ -2,15 +2,15 @@
 <meta charset="utf-8">
 <title>Spatialis furniture contact sheet</title>
 <style>
-  body { margin:0; background:#0e1117; color:#e8ecf4;
+  body { margin:0; background:#060609; color:#f2f2f5;
          font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
   h1 { font-size:15px; margin:14px 20px 2px; font-weight:600; }
-  p.sub { margin:0 20px 12px; color:#68738a; font-size:12px; }
-  #grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:#1b2130; }
-  .cell { background:#131823; position:relative; }
+  p.sub { margin:0 20px 12px; color:#8b8b98; font-size:12px; }
+  #grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:#20202b; }
+  .cell { background:#0a0a10; position:relative; }
   .cap { position:absolute; left:10px; bottom:8px; pointer-events:none; }
   .cap b { display:block; font-size:12.5px; }
-  .cap span { font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#68738a; }
+  .cap span { font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#a5966b; }
   .err { color:#f87171; font-family:ui-monospace,monospace; font-size:11px; padding:10px; }
 </style>
 <h1>Spatialis furniture catalog</h1>
@@ -40,7 +40,7 @@ for (const key of KEYS) {
   grid.appendChild(cell);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x131823);
+  scene.background = new THREE.Color(0x0a0a10);
   const cam = new THREE.PerspectiveCamera(32, W / H, 0.01, 100);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(W, H);
@@ -54,7 +54,7 @@ for (const key of KEYS) {
   key2.position.set(-4, 2, -3); scene.add(key2);
 
   // 50cm grid = 0.5 world units, since models are authored in metres.
-  const g = new THREE.GridHelper(6, 12, 0x2f3746, 0x222836);
+  const g = new THREE.GridHelper(6, 12, 0x2a2a37, 0x20202b);
   scene.add(g);
 
   loader.load(`/Assets/Prefabs/${key}.glb`, (gltf) => {
