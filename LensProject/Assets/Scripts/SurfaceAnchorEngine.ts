@@ -334,7 +334,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     const desired: PlacementHint = hint === "auto" ? spec.defaultPlacement : hint;
 
     if (desired === "float") {
-      callback(this.floatingResult(spec));
+      callback(this.floatingResult(spec, exclude));
       return;
     }
 
@@ -352,7 +352,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     this.enqueueProbe(origin, rayEnd, (position, normal) => {
       if (!position || !normal) {
         log("Anchor", "No surface for " + spec.label + "; floating it instead.");
-        callback(this.floatingResult(spec));
+        callback(this.floatingResult(spec, exclude));
         return;
       }
 
@@ -387,7 +387,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     const fwd = this.gazeForward();
     const level = new vec3(fwd.x, 0, fwd.z);
     if (level.lengthSquared < 0.0001) {
-      callback(this.floatingResult(spec));
+      callback(this.floatingResult(spec, exclude));
       return;
     }
     const direction = level.normalize();
@@ -481,7 +481,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     const rayEnd = origin.add(direction.uniformScale(this.probeDistance));
     this.enqueueProbe(origin, rayEnd, (position, normal) => {
       if (!position || !normal) {
-        callback(this.floatingResult(spec));
+        callback(this.floatingResult(spec, exclude));
         return;
       }
       const kind = this.classify(position, normal);
@@ -609,14 +609,25 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     return true;
   }
 
-  /** No surface available — hold the piece in front of the user at eye level. */
-  private floatingResult(spec: FurnitureSpec): AnchorResult {
+  /**
+   * No surface available — hold the piece in front of the user at eye level.
+   *
+   * The distance grows with the piece: floatDistance suits a lamp, but a 2.1m
+   * sofa 1.6m from the eye fills a headset's field of view with one face. And
+   * floated pieces still step around each other, or two spoken commands stack
+   * on the same spot.
+   */
+  private floatingResult(spec: FurnitureSpec, exclude: SpatialisObject | null = null): AnchorResult {
     const origin = this.eyePosition();
     const fwd = this.gazeForward();
     const flat = new vec3(fwd.x, 0, fwd.z).normalize();
-    const position = origin
-      .add(flat.uniformScale(this.floatDistance))
+    const distance = Math.max(this.floatDistance, spec.footprint * 2.5);
+    let position = origin
+      .add(flat.uniformScale(distance))
       .add(vec3.up().uniformScale(-spec.height * 0.35));
+    if (this.avoidOverlap) {
+      position = this.resolveOverlap(position, spec.footprint, vec3.up(), exclude);
+    }
     return {
       anchored: false,
       position: position,

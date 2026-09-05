@@ -34,6 +34,7 @@
     furnitureKeys: false
     furniturePrefabs: false
     materialSwapper: false
+    previewCommands: false
     requireWakeWord: false
     spawnDuration: false
     spawnParent: false
@@ -59,6 +60,8 @@
       requireWakeWord: false
       wakeWord: spatialis
       feedbackText: !<reference.Text> 00000000-0000-0000-0000-000000000000
+      previewCommands: !<string[]>
+        []
   ScriptTypes:
     -
       {}
@@ -73,3 +76,4 @@
     - "// @input bool requireWakeWord {\"hint\":\"Require the wake word 'Spatialis' before acting on a command.\"}"
     - '// @input string wakeWord = "spatialis" {"hint":"Wake word, only used when Require Wake Word is on."}'
     - '// @input Component.Text feedbackText {"hint":"Optional Text component for on-screen command feedback."}'
+    - '// @input string[] previewCommands = {} {"hint":"Preview only: sentences to run one second after start, as if spoken. Leave empty for release."}'
