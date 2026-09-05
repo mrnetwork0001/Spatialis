@@ -413,11 +413,18 @@ function render() {
   ctx.strokeStyle = "#2a2a37"; ctx.lineWidth = 7; ctx.lineJoin = "round";
   ctx.strokeRect(fx, fz, ROOM.w * SCALE, ROOM.d * SCALE);
 
+  // The room's own table: environment, not a placed piece. Drawn as a hairline
+  // dashed outline in the simulated colour so it reads like the walls, and
+  // labelled so "clear the room" leaving it is not read as a miss.
   const [tx, tz] = toPx(TABLE.x, TABLE.z);
-  ctx.fillStyle = "#12121a"; ctx.strokeStyle = "#2a2a37"; ctx.lineWidth = 1.5;
+  ctx.save();
+  ctx.fillStyle = "rgba(160,107,255,.05)"; ctx.strokeStyle = "rgba(160,107,255,.55)"; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
   roundRect(tx, tz, TABLE.w * SCALE, TABLE.d * SCALE, 5); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = "#66748f"; ctx.font = "10px ui-monospace, monospace";
-  ctx.fillText("table  ·  75cm", tx + 8, tz + 15);
+  ctx.restore();
+  ctx.fillStyle = "#a06bff"; ctx.font = "9px ui-monospace, monospace";
+  ctx.fillText("YOUR TABLE · PART OF THE ROOM", tx + 8, tz + 14);
+  ctx.fillStyle = "#8b8b98";
+  ctx.fillText("75cm high · clear keeps it", tx + 8, tz + 26);
 
   drawGaze();
   // Painter's order: what sits higher in the room draws over what is below it.

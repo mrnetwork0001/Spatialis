@@ -102,13 +102,15 @@ export class Room3D {
     const t = this.table;
     const top = new THREE.Mesh(
       new THREE.BoxGeometry(t.w * CM, 0.04, t.d * CM),
-      new THREE.MeshStandardMaterial({ color: 0x6b5844, roughness: 0.6, metalness: 0 })
+      new THREE.MeshStandardMaterial({ color: 0x12121a, roughness: 0.9, metalness: 0, transparent: true, opacity: 0.88 })
     );
     top.position.set((t.x + t.w / 2) * CM, t.top * CM, (t.z + t.d / 2) * CM);
     top.castShadow = true;
     top.receiveShadow = true;
     this.scene.add(top);
-    const legMat = new THREE.MeshStandardMaterial({ color: 0x4a3d30, roughness: 0.7 });
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x14141c, roughness: 0.9, transparent: true, opacity: 0.88 });
+    const edgeMat = new THREE.LineDashedMaterial({ color: 0xa06bff, dashSize: 0.05, gapSize: 0.035, transparent: true, opacity: 0.7 });
+    this.addEdges(top, edgeMat);
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
         const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, t.top * CM, 0.06), legMat);
@@ -119,8 +121,31 @@ export class Room3D {
         );
         leg.castShadow = true;
         this.scene.add(leg);
+        this.addEdges(leg, edgeMat);
       }
     }
+    this.scene.add(this.makeLabel("YOUR TABLE · PART OF THE ROOM", (t.x + t.w / 2) * CM, t.top * CM + 0.22, (t.z + t.d / 2) * CM));
+  }
+
+  /** Dashed violet outline on an environment mesh so it reads like the walls, not like a placed piece. */
+  addEdges(mesh, mat) {
+    const lines = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), mat);
+    lines.computeLineDistances();
+    lines.position.copy(mesh.position);
+    this.scene.add(lines);
+  }
+
+  /** Small mono label on a sprite, in the simulated colour, facing the camera. */
+  makeLabel(text, x, y, z) {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 64;
+    const g = c.getContext("2d");
+    g.font = "600 22px SF Mono, Menlo, ui-monospace, monospace"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "rgba(6,6,9,.75)"; const w = g.measureText(text).width + 36; g.fillRect(256 - w / 2, 12, w, 40);
+    g.fillStyle = "#a06bff"; g.fillText(text, 256, 33);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+    sprite.scale.set(0.9, 0.1125, 1); sprite.position.set(x, y, z);
+    return sprite;
   }
 
   buildLights() {
