@@ -641,11 +641,33 @@ window.addEventListener("mousemove", (e) => {
 
 window.addEventListener("mouseup", () => { if (dragging) endDrag(); });
 
+// A mouse has no second hand, so the two-hand "crush to delete" gesture is
+// stood in for by scrolling past the minimum: three more notches once a piece
+// is as small as it goes removes it, the way the controller does.
+let crushNotches = 0, crushTarget = null;
 function wheelScale(e, hit) {
   if (!hit) return;
   e.preventDefault();
+  const cur = hit.transform.s.x;
+  const shrinking = e.deltaY > 0;
+  if (shrinking && cur <= 0.3 + 1e-6) {
+    if (crushTarget !== hit.id) { crushTarget = hit.id; crushNotches = 0; }
+    crushNotches++;
+    heardEl.className = "interim";
+    heardEl.textContent = crushNotches >= 3
+      ? `Crushed the ${hit.spec.label} — removed`
+      : `Squeezing the ${hit.spec.label} — ${3 - crushNotches} more to remove (crush-to-delete)`;
+    if (crushNotches >= 3) {
+      swapper.forget(hit.id);
+      SpatialisRegistry.remove(hit.id);   // -> SceneObject.destroy() -> room3d.release()
+      crushTarget = null; crushNotches = 0;
+      select(null);
+    }
+    return;
+  }
+  crushTarget = null; crushNotches = 0;
   // The same clamp SpatialGestureController applies against the piece's base size.
-  const next = clamp(hit.transform.s.x * (e.deltaY < 0 ? 1.08 : 1 / 1.08), 0.3, 3.0);
+  const next = clamp(cur * (shrinking ? 1 / 1.08 : 1.08), 0.3, 3.0);
   hit.transform.setLocalScale(new vec3(1, 1, 1).uniformScale(next));
   select(hit.id);
 }
