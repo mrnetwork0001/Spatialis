@@ -151,6 +151,26 @@
   @keyframes flicker{0%,100%{opacity:.14}50%{opacity:.26}}
   @media(prefers-reduced-motion:reduce){.piece,.cap{animation:none;opacity:1}.cap:not(:first-of-type){display:none}.sofa-body,.sofa-cushion,.listen .ring,.lamp-glow{animation:none}}
 
+
+  /* ---------- motion: sections arrive on scroll, groups stagger, surfaces answer the cursor ---------- */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0ms)}
+  .reveal.in{opacity:1;transform:none}
+  .card,.step,.cmd,.box{transition:transform .25s cubic-bezier(.2,.7,.2,1),border-color .2s,background .2s,box-shadow .25s}
+  .in .card:hover,.in .box:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:0 18px 40px rgba(0,0,0,.45)}
+  .in .cmd:hover{transform:translateX(4px)}
+  .in .step:hover{background:var(--panel-2)}
+  .step .n{position:relative;padding-left:14px}
+  .step .n::before{content:"";position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--line-2);transition:background .4s,box-shadow .4s}
+  .step.in .n::before{background:var(--accent);box-shadow:0 0 10px var(--accent);transition-delay:calc(var(--d,0ms) + .35s)}
+  .kicker{position:relative;display:inline-block}
+  .kicker::after{content:"";display:block;height:1px;width:0;margin-top:6px;background:linear-gradient(90deg,var(--label),transparent);transition:width .7s cubic-bezier(.2,.7,.2,1) .25s}
+  .in .kicker::after{width:100%}
+  @media(prefers-reduced-motion:no-preference){
+    body{animation:drift 90s linear infinite}
+    @keyframes drift{from{background-position:0 0,0 0}to{background-position:0 44px,44px 0}}
+  }
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.kicker::after{width:100%;transition:none}}
+
   /* ---------- stats ---------- */
   .stats{border-bottom:1px solid var(--line);background:var(--panel)}
   .stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
@@ -714,6 +734,32 @@
       });
     });
   }
+</script>
+
+<script>
+// Sections arrive as they scroll into view. Classes are added here, so with
+// scripting off nothing is ever hidden; reduced-motion users see no animation.
+(function () {
+  if (!("IntersectionObserver" in window)) return;
+  var groups = [".flow > .step", ".cmds > .cmd", ".grid2 > .card", ".split > .box", ".catalog-grid > *"];
+  document.querySelectorAll("section .wrap").forEach(function (wrap) {
+    var head = wrap.querySelectorAll(":scope > .kicker, :scope > h2, :scope > .sub, :scope > p, :scope > figure, :scope > .note");
+    head.forEach(function (el, i) { el.classList.add("reveal"); el.style.setProperty("--d", (i * 90) + "ms"); });
+    groups.forEach(function (sel) {
+      wrap.querySelectorAll(sel).forEach(function (el, i) { el.classList.add("reveal"); el.style.setProperty("--d", (120 + i * 90) + "ms"); });
+    });
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var sec = e.target;
+      sec.classList.add("in");
+      sec.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+      io.unobserve(sec);
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+  document.querySelectorAll("section").forEach(function (sec) { io.observe(sec); });
+})();
 </script>
 </body>
 </html>
