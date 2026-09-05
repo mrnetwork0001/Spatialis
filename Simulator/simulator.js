@@ -796,8 +796,8 @@ function setView(mode) {
   btnWearer.classList.toggle("on", wearer);
   btnPlan.classList.toggle("on", !wearer);
   document.getElementById("hud-sub").textContent = wearer
-    ? "camera at the wearer's eye, 155cm · real .glb from Assets/Prefabs"
-    : "floor - plan view, 1px = 1cm · grid 50cm";
+    ? "wearer view · eye height 155 cm"
+    : "floor plan · top-down · 1 square = 50 cm";
   if (wearer) fitStage();
 }
 btnWearer.addEventListener("click", () => setView("wearer"));
