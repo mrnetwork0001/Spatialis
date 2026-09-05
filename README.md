@@ -149,9 +149,9 @@ The suite covers what cannot be verified by looking through a headset:
 | `voice-parser.test.js` | 26 | The demo script plus the phrasings likely spoken instead |
 | `voice-execute.test.js` | 23 | Every execute path, debounce, wake word, and the end-to-end integration |
 | `anchor.test.js` | 9 | Floor / table / wall / ceiling classification and its bounds |
-| `anchor-placement.test.js` | 27 | Probe queue, calibration, retry, overlap, wall-adjacent, reseat |
-| `material.test.js` | 27 | Clone-once, isolation, guarded writes, cross-fade, textures |
-| `gesture.test.js` | 22 | Pinch hysteresis, hand-relative thresholds, two-hand scale, crush-to-delete, release transitions |
+| `anchor-placement.test.js` | 31 | Probe queue, calibration, retry, overlap, wall-adjacent, reseat |
+| `material.test.js` | 29 | Clone-once, isolation, guarded writes, cross-fade, textures |
+| `gesture.test.js` | 26 | Pinch hysteresis, hand-relative thresholds, two-hand scale, crush-to-delete, release transitions |
 
 Both run on any machine — **no Lens Studio and no headset required**. The
 project ships local ambient type stubs ([`types/lens-studio.d.ts`](types/lens-studio.d.ts))
@@ -175,7 +175,7 @@ Scripts/
   PBRMaterialSwapper.ts        Subsystem 4 — PBR Material Swapper
 Simulator/                     browser desk simulator (real code, simulated room)
 types/lens-studio.d.ts         local Lens Studio API stubs (CI type-checking only)
-Tests/                         155 behavioural tests + Lens runtime and SIK stubs
+Tests/                         161 behavioural tests + Lens runtime and SIK stubs
 Tools/patch-build.js           makes tsc output loadable under Node and browsers
 .github/workflows/ci.yml       typecheck + test + simulator build on every push
 SETUP_LENS_STUDIO.md           scene wiring and on-device tuning
