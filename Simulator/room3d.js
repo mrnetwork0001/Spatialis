@@ -274,6 +274,29 @@ export class Room3D {
     return { x: hit.x / CM, z: hit.z / CM };
   }
 
+  /**
+   * Ray from a screen point onto the nearest horizontal surface: the tabletop
+   * when the ray meets it inside the table's footprint, else the floor. Floor
+   * only would resolve a mouse over the tabletop to a floor point hidden
+   * behind the table, so a piece could never be dropped ON the table.
+   * Returns centimetres plus the surface height.
+   */
+  pickSurface(nx, ny) {
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(nx, ny), this.camera);
+    const t = this.table;
+    const top = new THREE.Plane(new THREE.Vector3(0, 1, 0), -t.top * CM);
+    const hit = new THREE.Vector3();
+    if (ray.ray.intersectPlane(top, hit)) {
+      const x = hit.x / CM, z = hit.z / CM;
+      if (x >= t.x && x <= t.x + t.w && z >= t.z && z <= t.z + t.d) {
+        return { x, z, y: t.top, surface: "table" };
+      }
+    }
+    const f = this.pickFloor(nx, ny);
+    return f ? { x: f.x, z: f.z, y: 0, surface: "floor" } : null;
+  }
+
   /** Which of `roots` is under a screen point, or null. */
   pickObject(nx, ny, roots) {
     if (!roots.length) return null;

@@ -577,10 +577,13 @@ function beginDrag(entry, x, z) {
   select(entry.id);
 }
 
-function moveDrag(x, z) {
+function moveDrag(x, z, y) {
   const nx = clamp(x + dragOff[0], 15, ROOM.w - 15);
   const nz = clamp(z + dragOff[1], 15, ROOM.d - 15);
-  dragging.transform.setWorldPosition(new vec3(nx, dragging.transform.p.y, nz));
+  // While held, ride at the height of the surface under the mouse so a piece
+  // visibly lifts onto the table; the real reseat() confirms on release.
+  const ny = typeof y === "number" ? y : dragging.transform.p.y;
+  dragging.transform.setWorldPosition(new vec3(nx, ny, nz));
 }
 
 function endDrag() {
@@ -616,7 +619,7 @@ canvas3d.addEventListener("mousedown", (e) => {
   const root = room3d.pickObject(nx, ny, entries.map((o) => o.sceneObject.obj3d));
   const hit = entries.find((o) => o.sceneObject.obj3d === root);
   if (!hit) { select(null); return; }
-  const f = room3d.pickFloor(nx, ny);
+  const f = room3d.pickSurface(nx, ny);
   beginDrag(hit, f ? f.x : hit.transform.p.x, f ? f.z : hit.transform.p.z);
   dragSurface = "3d";
 });
@@ -631,8 +634,8 @@ window.addEventListener("mousemove", (e) => {
     const r = canvas3d.getBoundingClientRect();
     const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
     const ny = -((e.clientY - r.top) / r.height) * 2 + 1;
-    const f = room3d.pickFloor(nx, ny);
-    if (f) moveDrag(f.x, f.z);
+    const f = room3d.pickSurface(nx, ny);
+    if (f) moveDrag(f.x, f.z, f.y);
   }
 });
 
