@@ -1,4 +1,4 @@
-# 🔧 Spatialis — Lens Studio Scene Wiring
+# 🔧 Spatialis - Lens Studio Scene Wiring
 
 Everything in `Scripts/` is complete and type-checked, but four things can only
 be done inside Lens Studio: importing the project modules, importing furniture
@@ -21,11 +21,11 @@ Add these from **Asset Browser → + → …**:
 
 Then enable, under **Project Settings → Extensions / Permissions**:
 
-- **Microphone** — required, VoiceML fails silently without it.
-- **Depth / World Mesh** — required, `SurfaceAnchorEngine` reports
-  `"World Query module unavailable — running in float-only mode"` without it
+- **Microphone** - required, VoiceML fails silently without it.
+- **Depth / World Mesh** - required, `SurfaceAnchorEngine` reports
+  `"World Query module unavailable - running in float-only mode"` without it
   and every piece will hover in front of you instead of snapping.
-- **Hand Tracking** — required for gestures.
+- **Hand Tracking** - required for gestures.
 
 ---
 
@@ -57,8 +57,8 @@ by voice commands, and you do not want the controllers destroyed with it.
 |---|---|
 | `Camera` | the scene **Camera** |
 | `World Query Asset` | the **World Query Module** asset |
-| `Probe Distance` | `700` (cm) — how far to search for a surface |
-| `Float Distance` | `160` (cm) — fallback distance when nothing is found |
+| `Probe Distance` | `700` (cm) - how far to search for a surface |
+| `Float Distance` | `160` (cm) - fallback distance when nothing is found |
 | `Avoid Overlap` | ✔ on |
 
 ### PBRMaterialSwapper
@@ -68,7 +68,7 @@ by voice commands, and you do not want the controllers destroyed with it.
 | `Preset Texture Keys` | *(optional)* e.g. `oak`, `walnut`, `marble` |
 | `Preset Textures` | *(optional)* albedo textures, **index-matched to the keys above** |
 
-Textures are optional — every preset already carries a plausible base colour,
+Textures are optional - every preset already carries a plausible base colour,
 metallic and roughness, so the system works with untextured prefabs. Where a
 key has a texture assigned, it is applied on top.
 
@@ -79,7 +79,7 @@ key has a texture assigned, it is applied on top.
 | `Anchor Engine` | the `SurfaceAnchorEngine` component |
 | `Material Swapper` | the `PBRMaterialSwapper` component |
 | `Spawn Parent` | **SpatialisRoot** |
-| `Furniture Keys` | catalog keys — see table below |
+| `Furniture Keys` | catalog keys - see table below |
 | `Furniture Prefabs` | your prefabs, **index-matched to the keys** |
 | `Spawn Duration` | `0.55` s |
 | `Require Wake Word` | off for the demo; on in a noisy room |
@@ -89,7 +89,7 @@ key has a texture assigned, it is applied on top.
 > one must describe index 0 of the other. A mismatch is logged at start:
 > `Furniture Keys (n) and Furniture Prefabs (m) differ in length`.
 
-**Catalog keys** (from `Scripts/SpatialisCore.ts` — these strings exactly):
+**Catalog keys** (from `Scripts/SpatialisCore.ts` - these strings exactly):
 
 | Key | Spoken as | Default placement |
 |---|---|---|
@@ -114,7 +114,7 @@ You do not need all twelve. Wire the ones you have; an unwired key answers
 |---|---|
 | `Anchor Engine` | the `SurfaceAnchorEngine` component |
 | `Pinch Down Distance` | `3.0` cm |
-| `Pinch Up Distance` | `4.5` cm — **must exceed Pinch Down** |
+| `Pinch Up Distance` | `4.5` cm - **must exceed Pinch Down** |
 | `Grab Radius` | `45` cm |
 | `Drag Smoothing` | `0.35` |
 | `Min / Max Scale Factor` | `0.3` / `3.0` |
@@ -136,7 +136,7 @@ Each furniture prefab must:
    footprint values in `FURNITURE_CATALOG` drive overlap avoidance and grab
    radius, and they assume real scale.
 4. Use the **PBR shader** on its `RenderMeshVisual` if you want material swaps.
-   Custom shaders still work — they degrade to colour-only.
+   Custom shaders still work - they degrade to colour-only.
 
 ---
 
@@ -174,7 +174,7 @@ voiceCommandController.handleTranscript("Add a floating marble coffee table");
 
 ## Project format (Lens Studio 5.x)
 
-A Lens Studio 5 project is **`<Name>.esproj`** — a small YAML metadata file —
+A Lens Studio 5 project is **`<Name>.esproj`** - a small YAML metadata file -
 plus `Assets/` (the scene graph lives in `Assets/Scene.scene`), `Packages/`,
 `Workspaces/` and generated `.meta` sidecars carrying the GUID every reference
 uses. `.lsproj` is the Lens Studio 4 format and LS5 will not open it. Snap's
@@ -193,7 +193,7 @@ that hosts the real `VoiceCommandController`, `SurfaceAnchorEngine` and
 ## The project in this repository
 
 `LensProject/` is the Lens Studio 5.23.2 project (SPECS target). Scripts and
-models are import copies of `Scripts/` and `Assets/Prefabs/` — `npm run sync:lens`
+models are import copies of `Scripts/` and `Assets/Prefabs/` - `npm run sync:lens`
 refreshes them and `npm run sync:lens:check` fails on drift. The editor has
 compiled all five scripts. Scene wiring is scripted: see
 [`Tools/lens-editor/README.md`](Tools/lens-editor/README.md).

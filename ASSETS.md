@@ -25,21 +25,21 @@ arbitrary scale.
 The one deliberate exception: **`artwork` has its origin at its vertical centre**,
 not its base, because it hangs on a wall rather than standing on a floor.
 
-## Units — resolved, then corrected by the editor
+## Units - resolved, then corrected by the editor
 
 Lens Studio world units are centimetres. Snap's glTF importer has a
-"Convert meters to centimeters" option — and **in the editor it is ON by
+"Convert meters to centimeters" option - and **in the editor it is ON by
 default**: importing a file applies a ×100 scale on the prefab root. (The
 runtime `GltfSettings` API defaults it to off, which is what an earlier note
 here relied on; the editor's import dialog does not.) We found this the first
-time a spawned sofa was invisible — its root had scale 100 on top of
+time a spawned sofa was invisible - its root had scale 100 on top of
 centimetre-sized meshes, a 21,000-unit couch with the camera inside it.
 
 So the two sets are used like this:
 
 ```
-Assets/Prefabs/m/*.glb    METRES       — what the Lens Studio project imports (default import, ×100 → 210 units)
-Assets/Prefabs/*.glb      centimetres  — for the simulator, tooling, and any importer that does NOT convert
+Assets/Prefabs/m/*.glb    METRES       - what the Lens Studio project imports (default import, ×100 → 210 units)
+Assets/Prefabs/*.glb      centimetres  - for the simulator, tooling, and any importer that does NOT convert
 ```
 
 `npm run sync:lens` copies the metre set into `LensProject/Assets/Prefabs`.
@@ -55,7 +55,7 @@ python3 Tools/validate_glb.py --dir Assets/Prefabs --units cm
 
 `validate_glb.py` re-parses each `.glb` from raw bytes without reusing the
 generator's code, then checks the container, the accessor bounds, the index
-ranges, and — the checks that actually matter — each model's real-world
+ranges, and - the checks that actually matter - each model's real-world
 dimensions to 3% and that its origin sits where it should.
 
 To eyeball the models, `Tools/preview_furniture.html` renders all twelve with
@@ -77,7 +77,7 @@ shelf  plant  rug  artwork  vase  bed
 ```
 
 Note the camel case on `coffeeTable` and `tableLamp`. A mismatched key is not an
-error — the piece simply never spawns, and the log says
+error - the piece simply never spawns, and the log says
 `No prefab wired up for 'coffeetable'`.
 
 See [SETUP_LENS_STUDIO.md](SETUP_LENS_STUDIO.md) for the full scene wiring.
@@ -89,7 +89,7 @@ the two invariants or the anchor engine misbehaves:
 
 1. **Origin at the base**, centred on X/Z (except wall pieces).
 2. **Real-world scale**, matching the `footprint` and `height` in
-   `Scripts/SpatialisCore.ts` — or update the catalog to match the models.
+   `Scripts/SpatialisCore.ts` - or update the catalog to match the models.
 
 Then re-run `validate_glb.py` against the new files; it will tell you if either
 invariant broke.

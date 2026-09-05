@@ -1,9 +1,9 @@
 /**
- * anchor.test.js — SurfaceAnchorEngine surface classification.
+ * anchor.test.js - SurfaceAnchorEngine surface classification.
  *
  * classify() is the decision the whole placement system rests on: it is what
  * separates a tabletop from the floor, and it cannot be checked by looking
- * through a headset — a wrong answer just puts a lamp on the carpet.
+ * through a headset - a wrong answer just puts a lamp on the carpet.
  *
  * License: Apache-2.0
  */
@@ -15,7 +15,7 @@ const { SurfaceAnchorEngine } = require(
 );
 
 // classify() reads only its arguments and this.floorHeight, so a bare
-// prototype instance is enough — no hit test session required.
+// prototype instance is enough - no hit test session required.
 function engineWithFloorAt(y) {
   const e = Object.create(SurfaceAnchorEngine.prototype);
   e.floorHeight = y;
@@ -27,7 +27,7 @@ const DOWN = () => new vec3(0, -1, 0);
 const SIDE = () => new vec3(1, 0, 0);
 const at = (y) => new vec3(0, y, 0);
 
-suite("SurfaceAnchorEngine — horizontal surfaces");
+suite("SurfaceAnchorEngine - horizontal surfaces");
 
 test("a horizontal surface at floor level is the floor", () => {
   eq(engineWithFloorAt(0).classify(at(0), UP()), "floor");
@@ -52,7 +52,7 @@ test("the table band has both an upper and a lower bound", () => {
   eq(e.classify(at(131), UP()), "floor", "above 130cm is not a working surface");
 });
 
-suite("SurfaceAnchorEngine — vertical and inverted surfaces");
+suite("SurfaceAnchorEngine - vertical and inverted surfaces");
 
 test("a downward-facing surface is the ceiling", () => {
   eq(engineWithFloorAt(0).classify(at(240), DOWN()), "ceiling");
@@ -79,7 +79,7 @@ test("a surface between wall and floor is unknown, not guessed", () => {
 test("classification uses the normal's direction, not its magnitude", () => {
   // Regression: classify() took the raw dot product, so scaling a normal
   // scaled the comparison. A 45-degree ramp with an unnormalized normal was
-  // read as a table — the same direction gave two different answers.
+  // read as a table - the same direction gave two different answers.
   const e = engineWithFloorAt(0);
   eq(e.classify(at(50), new vec3(0.707, 0.707, 0)), "unknown");
   eq(e.classify(at(50), new vec3(3, 3, 0)), "unknown", "magnitude must not change the verdict");

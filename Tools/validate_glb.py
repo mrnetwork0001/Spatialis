@@ -31,7 +31,7 @@ EXPECTED = {
     "shelf":       (80,  32,  180, "base"),
     "plant":       (65,  57,  104, "base"),
     "rug":         (220, 160, 2,   "base"),
-    # Wall art is thin in DEPTH and tall in HEIGHT — a picture frame, not a slab.
+    # Wall art is thin in DEPTH and tall in HEIGHT - a picture frame, not a slab.
     "artwork":     (70,  4,   50,  "center"),
     "vase":        (22,  22,  30,  "base"),
     "bed":         (160, 210, 85,  "base"),

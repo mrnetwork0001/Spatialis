@@ -1,5 +1,5 @@
 /**
- * material.test.js — PBRMaterialSwapper: private clones, guarded writes, fades.
+ * material.test.js - PBRMaterialSwapper: private clones, guarded writes, fades.
  *
  * Materials in Lens Studio are shared assets: every sofa spawned from one
  * prefab points at the same Material. The swapper's central promise is that
@@ -19,7 +19,7 @@ const { PBRMaterialSwapper } = require(path.join(B, "PBRMaterialSwapper.js"));
 const { SpatialisRegistry, getFurnitureSpec, easeOutCubic } = require(path.join(B, "SpatialisCore.js"));
 
 // -----------------------------------------------------------------------------
-// Fakes — shaped exactly like what PBRMaterialSwapper touches.
+// Fakes - shaped exactly like what PBRMaterialSwapper touches.
 // -----------------------------------------------------------------------------
 
 /**
@@ -38,7 +38,7 @@ function makeMaterial(props = {}) {
     mainPass: pass,
     cloneCount: 0,
     clone() {
-      // A clone is a NEW asset with its own pass values — writes to the clone
+      // A clone is a NEW asset with its own pass values - writes to the clone
       // must never reach the source, so copy the vec4 rather than share it.
       this.cloneCount++;
       const cp = (v) => (v && typeof v.x === "number" ? new vec4(v.x, v.y, v.z, v.w) : v);
@@ -138,7 +138,7 @@ const GLASS = PBRMaterialSwapper.getPreset("glass");
 
 // -----------------------------------------------------------------------------
 
-suite("PBRMaterialSwapper — private clones");
+suite("PBRMaterialSwapper - private clones");
 
 test("an object's material is cloned exactly once across repeated restyles", () => {
   const s = makeSwapper();
@@ -220,12 +220,12 @@ test("forgetAll() clears every cache entry and abandons in-flight fades", () => 
   eq(s.styled.length, 0);
 
   // A "clear room" mid-fade must not keep writing to materials of objects
-  // that no longer exist — the tween is gone, so nothing moves.
+  // that no longer exist - the tween is gone, so nothing moves.
   s.tweens.update(1.0);
   eq(passOf(visual).baseColor, new vec4(1, 1, 1, 1), "no fade step should run after forgetAll");
 });
 
-suite("PBRMaterialSwapper — writing a finish");
+suite("PBRMaterialSwapper - writing a finish");
 
 test("applyMaterial writes the preset's albedo, metallic and roughness to the clone", () => {
   const s = makeSwapper();
@@ -251,7 +251,7 @@ test("the glass preset writes a transparent alpha", () => {
 
 test("applyColor keeps the current finish and only shifts hue", () => {
   // "make the sofa navy" after "make it velvet" must still look like velvet:
-  // same roughness, same metallic, same alpha — just a different colour.
+  // same roughness, same metallic, same alpha - just a different colour.
   const s = makeSwapper();
   const visual = makeVisual(pbrMaterial("sofa"));
   const sofa = place("sofa", makeNode([visual]));
@@ -345,7 +345,7 @@ test("an object whose SceneObject is gone is refused rather than crashed on", ()
   eq(s.styled.length, 0, "nothing should be cached for a dead object");
 });
 
-suite("PBRMaterialSwapper — unknown keys");
+suite("PBRMaterialSwapper - unknown keys");
 
 test("an unknown material key returns false and writes nothing", () => {
   const s = makeSwapper();
@@ -382,7 +382,7 @@ test("materialKey on the registry entry records the finish on success", () => {
   eq(sofa.materialKey, "chrome");
 });
 
-suite("PBRMaterialSwapper — by kind");
+suite("PBRMaterialSwapper - by kind");
 
 test("applyMaterialToKind restyles every object of that kind and no others", () => {
   const s = makeSwapper();
@@ -411,7 +411,7 @@ test("applyMaterialToKind counts only the objects it could restyle", () => {
   eq(s.applyMaterialToKind("chair", "nope"), 0, "unknown finish restyles nothing");
 });
 
-suite("PBRMaterialSwapper — cross-fade");
+suite("PBRMaterialSwapper - cross-fade");
 
 test("a finish fades in over blendDuration rather than snapping", () => {
   const s = makeSwapper({ blendDuration: 0.45 });
@@ -485,7 +485,7 @@ test("a new finish requested mid-fade starts from what is on screen", () => {
   ok(justAfter > 0.28, "should not have reached walnut yet");
 });
 
-suite("PBRMaterialSwapper — textures");
+suite("PBRMaterialSwapper - textures");
 
 test("a wired-up albedo texture is assigned only to passes that expose baseTex", () => {
   const T = { name: "oak-albedo" };
@@ -511,7 +511,7 @@ test("a finish with no wired texture leaves the existing albedo alone", () => {
   ok(passOf(visual).baseTex === original, "walnut has no texture, so the prefab's stays");
 });
 
-suite("PBRMaterialSwapper — spoken vocabulary");
+suite("PBRMaterialSwapper - spoken vocabulary");
 
 test("resolveMaterial picks the longest alias so 'dark wood' is walnut, not oak", () => {
   eq(PBRMaterialSwapper.resolveMaterial("make it smoked glass"), "glass");
@@ -544,7 +544,7 @@ test("getPresetLabel falls back to the key for unknown finishes", () => {
   eq(PBRMaterialSwapper.getPresetLabel("nope"), "nope");
 });
 
-suite("PBRMaterialSwapper — glTF-imported materials");
+suite("PBRMaterialSwapper - glTF-imported materials");
 
 test("a pass exposing only glTF's *Factor names is written, not skipped", () => {
   // Every spawned prefab is a glTF import, whose materials expose

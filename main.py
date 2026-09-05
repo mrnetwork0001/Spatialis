@@ -1,6 +1,6 @@
 """
-Spatialis — Voice & Gesture 3D Spatial Interior Design Tool for SPECS
-Built for the CLAD Summer Hackathon (Week 4: CREATE) — Lenslist & Snap SPECS.
+Spatialis - Voice & Gesture 3D Spatial Interior Design Tool for SPECS
+Built for the CLAD Summer Hackathon (Week 4: CREATE) - Lenslist & Snap SPECS.
 Lens Studio 5.22+ / Spectacles Project Mode / Claude Code CLAD.
 
 This is a repository status check, not part of the Lens itself. The Lens runs
@@ -63,7 +63,7 @@ def report(rows, numbered):
 
 def main():
     print(RULE)
-    print(" SPATIALIS — Voice & Gesture 3D Spatial Interior Design for SPECS")
+    print(" SPATIALIS - Voice & Gesture 3D Spatial Interior Design for SPECS")
     print(" CLAD Summer Hackathon, Week 4: CREATE   |   Deadline: Sept 6, 2026")
     print(RULE)
 
@@ -79,7 +79,7 @@ def main():
         print(" Verify logic:  npm run typecheck  &&  npm test")
         print(" Run on SPECS:  see SETUP_LENS_STUDIO.md for scene wiring")
     else:
-        print(" {0} component(s) MISSING — see the list above.".format(missing))
+        print(" {0} component(s) MISSING - see the list above.".format(missing))
     print(RULE)
 
     return 0 if missing == 0 else 1

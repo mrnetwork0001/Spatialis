@@ -4,7 +4,7 @@
  * Behavioural tests for the Spatialis voice intent parser.
  *
  * The parser is the one part of the system that cannot be verified by staring
- * at a headset — it either understands a sentence or it does not. These cases
+ * at a headset - it either understands a sentence or it does not. These cases
  * are the demo script plus the phrasings most likely to be spoken instead.
  *
  * Run: npm test
@@ -19,7 +19,7 @@ const BUILD = path.join(__dirname, "..", ".build", "Scripts");
 const { VoiceCommandController } = require(path.join(BUILD, "VoiceCommandController.js"));
 
 // parse() only reads its arguments and pure private helpers, so a bare
-// prototype instance is enough — no Lens Studio component lifecycle needed.
+// prototype instance is enough - no Lens Studio component lifecycle needed.
 const parser = Object.create(VoiceCommandController.prototype);
 
 function check(utterance, expected) {
@@ -47,7 +47,7 @@ function check(utterance, expected) {
   });
 }
 
-suite("VoiceCommandController — spec demo commands");
+suite("VoiceCommandController - spec demo commands");
 check("Spawn a Scandinavian lounge chair by the wall", {
   action: "spawn", furniture: "chair", material: "", color: "",
   placement: "auto", style: "scandinavian", wallAdjacent: true,
@@ -57,7 +57,7 @@ check("Add a floating marble coffee table", {
   placement: "float",
 });
 
-suite("VoiceCommandController — spawning");
+suite("VoiceCommandController - spawning");
 check("put a dark wood side table on the table", {
   action: "spawn", furniture: "coffeeTable", material: "walnut", color: "",
   placement: "table",
@@ -79,7 +79,7 @@ check("drop a brass floor lamp against the wall", {
   placement: "auto", wallAdjacent: true,
 });
 
-suite("VoiceCommandController — restyling");
+suite("VoiceCommandController - restyling");
 check("make the sofa velvet", {
   action: "material", furniture: "sofa", material: "velvet", color: "", placement: "auto",
 });
@@ -96,7 +96,7 @@ check("turn the coffee table into carrara marble", {
   action: "material", furniture: "coffeeTable", material: "marble", color: "", placement: "auto",
 });
 
-suite("VoiceCommandController — resizing");
+suite("VoiceCommandController - resizing");
 check("make it a bit bigger", {
   action: "scale", furniture: "", material: "", color: "", placement: "auto", scaleFactor: 1.15,
 });
@@ -111,7 +111,7 @@ check("make the sofa smaller", {
   scaleFactor: Number((1 / 1.3).toFixed(3)),
 });
 
-suite("VoiceCommandController — removing");
+suite("VoiceCommandController - removing");
 check("remove the lamp", {
   action: "delete", furniture: "lamp", material: "", color: "", placement: "auto",
 });
@@ -125,7 +125,7 @@ check("remove everything", {
   action: "clear", furniture: "", material: "", color: "", placement: "auto",
 });
 
-suite("VoiceCommandController — ambiguity guards");
+suite("VoiceCommandController - ambiguity guards");
 // "big" describes the sofa here, so this must spawn rather than resize.
 check("add a big sofa", {
   action: "spawn", furniture: "sofa", material: "", color: "", placement: "auto",

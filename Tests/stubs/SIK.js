@@ -6,7 +6,7 @@
  *
  * On device SIK reports joint positions from the headset's hand tracking. Here
  * a test positions the joints directly, which is the only way to assert things
- * like "a pinch held at 4.0cm stays closed because it closed at 3.0cm" — a
+ * like "a pinch held at 4.0cm stays closed because it closed at 3.0cm" - a
  * distinction no amount of waving at a headset can reliably reproduce.
  *
  * The build step rewrites the bare "SpectaclesInteractionKit.lspkg/SIK"

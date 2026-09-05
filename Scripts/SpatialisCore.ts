@@ -51,7 +51,7 @@ export interface SpatialisIntent {
   /** Free-form style adjective ("scandinavian", "brutalist") kept for logging. */
   style: string;
   rawTranscript: string;
-  /** 0..1 heuristic — how many distinct slots the parser actually filled. */
+  /** 0..1 heuristic - how many distinct slots the parser actually filled. */
   confidence: number;
 }
 
@@ -243,7 +243,7 @@ export interface SpatialisObject {
   /** Material preset key currently applied, or "" for the prefab default. */
   materialKey: string;
   spawnedAtSeconds: number;
-  /** True while a hand is dragging it — the anchor engine leaves it alone. */
+  /** True while a hand is dragging it - the anchor engine leaves it alone. */
   isGrabbed: boolean;
 }
 
@@ -292,7 +292,7 @@ class SpatialisObjectRegistry {
     return count;
   }
 
-  /** Live view — callers must not mutate the returned array. */
+  /** Live view - callers must not mutate the returned array. */
   all(): SpatialisObject[] {
     return this.objects;
   }
@@ -336,7 +336,7 @@ class SpatialisObjectRegistry {
     return best;
   }
 
-  /** Most recent object matching a catalog key — "make the sofa velvet". */
+  /** Most recent object matching a catalog key - "make the sofa velvet". */
   lastOfKind(kind: string): SpatialisObject | null {
     for (let i = this.objects.length - 1; i >= 0; i--) {
       if (this.objects[i].kind === kind) {
@@ -385,7 +385,7 @@ export function dampVec3(current: vec3, target: vec3, smoothing: number, dt: num
   return vec3.lerp(current, target, t);
 }
 
-/** Cubic ease-out — the spawn "pop" curve. */
+/** Cubic ease-out - the spawn "pop" curve. */
 export function easeOutCubic(t: number): number {
   const u = 1 - clamp(t, 0, 1);
   return 1 - u * u * u;
@@ -421,7 +421,7 @@ export function alignToNormal(normal: vec3, preferredForward: vec3): quat {
   const up = normal.normalize();
   let fwd = preferredForward.sub(up.uniformScale(preferredForward.dot(up)));
   if (fwd.lengthSquared < 0.0001) {
-    // preferredForward was parallel to the normal — pick any orthogonal axis.
+    // preferredForward was parallel to the normal - pick any orthogonal axis.
     fwd = Math.abs(up.y) < 0.9 ? vec3.up().cross(up) : vec3.forward().cross(up);
   }
   return quat.lookAt(fwd.normalize(), up);
@@ -435,7 +435,7 @@ export type TweenStep = (t: number) => void;
 
 /**
  * Minimal time-based tween. Each subsystem owns a TweenPool and steps it from
- * its own UpdateEvent — no hidden global update ordering between subsystems.
+ * its own UpdateEvent - no hidden global update ordering between subsystems.
  */
 export class Tween {
   private elapsed: number = 0;
@@ -506,5 +506,5 @@ export function log(tag: string, message: string): void {
 }
 
 export function warn(tag: string, message: string): void {
-  print("[Spatialis:" + tag + "] WARNING — " + message);
+  print("[Spatialis:" + tag + "] WARNING - " + message);
 }

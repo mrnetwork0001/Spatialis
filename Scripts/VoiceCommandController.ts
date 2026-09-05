@@ -1,7 +1,7 @@
 /**
  * VoiceCommandController.ts
  * -----------------------------------------------------------------------------
- * Subsystem 1 of 4 — natural-language intent parsing and 3D instantiation.
+ * Subsystem 1 of 4 - natural-language intent parsing and 3D instantiation.
  *
  * Listens through the ASR module, turns a spoken sentence into a SpatialisIntent, then
  * drives the other three subsystems: the Anchor engine decides where the piece
@@ -9,7 +9,7 @@
  * takes over once it exists.
  *
  * Design note on parsing: this is a slot filler, not a grammar. Real speech is
- * "uh, put a like, dark wood coffee table over there" — so we scan the whole
+ * "uh, put a like, dark wood coffee table over there" - so we scan the whole
  * transcript for a verb, a catalog noun, a finish, a colour and a placement,
  * and act on whatever we found. Longest-alias matching means "coffee table"
  * beats "table" regardless of word order.
@@ -170,11 +170,11 @@ export class VoiceCommandController extends BaseScriptComponent {
     }
 
     if (!this.asrModule) {
-      warn("Voice", "No ASR module assigned — voice commands are disabled.");
+      warn("Voice", "No ASR module assigned - voice commands are disabled.");
       return;
     }
     if (!this.anchorEngine) {
-      warn("Voice", "No Surface Anchor Engine assigned — spawns will not snap to surfaces.");
+      warn("Voice", "No Surface Anchor Engine assigned - spawns will not snap to surfaces.");
     }
     if (this.furnitureKeys.length !== this.furniturePrefabs.length) {
       warn(
@@ -212,7 +212,7 @@ export class VoiceCommandController extends BaseScriptComponent {
     this.asrModule.startTranscribing(options);
     this.isListening = true;
     log("Voice", "Transcribing.");
-    this.showFeedback("Listening — try “add a walnut coffee table”");
+    this.showFeedback("Listening - try “add a walnut coffee table”");
   }
 
   /** ASR update: interim text is echoed to the feedback line; only a final one executes. */
@@ -346,7 +346,7 @@ export class VoiceCommandController extends BaseScriptComponent {
       intent.action = "material";
       slots++;
     } else if (intent.furniture) {
-      // A bare noun ("a walnut side table") is a spawn — the common shorthand.
+      // A bare noun ("a walnut side table") is a spawn - the common shorthand.
       intent.action = "spawn";
     } else if (intent.material || intent.color) {
       // A bare finish ("velvet") restyles whatever was last touched.
@@ -358,7 +358,7 @@ export class VoiceCommandController extends BaseScriptComponent {
   }
 
   private parsePlacement(padded: string): PlacementHint {
-    // "on the wall" / "hang" mounts to a wall. "by the wall" does not — it is a
+    // "on the wall" / "hang" mounts to a wall. "by the wall" does not - it is a
     // floor piece pushed back against one, which is a different placement.
     if (
       this.containsAny(padded, ["on the wall", "onto the wall", "hang", "mount", "wall mounted"])
@@ -444,7 +444,7 @@ export class VoiceCommandController extends BaseScriptComponent {
         this.executeClear();
         break;
       default:
-        this.showFeedback("Didn’t catch that — try “add a velvet armchair”");
+        this.showFeedback("Didn’t catch that - try “add a velvet armchair”");
         break;
     }
   }
@@ -488,7 +488,7 @@ export class VoiceCommandController extends BaseScriptComponent {
     const wallAdjacent = this.parseWallAdjacent(" " + this.normalize(intent.rawTranscript) + " ");
 
     if (!this.anchorEngine) {
-      // No anchor engine — drop it at the parent origin and still animate in.
+      // No anchor engine - drop it at the parent origin and still animate in.
       this.playSpawnAnimation(entry, baseScale);
       this.applyStyleFromIntent(entry, intent);
       this.showFeedback("Added a " + spec.label);

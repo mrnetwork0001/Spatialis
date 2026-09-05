@@ -1,7 +1,7 @@
 /**
  * SurfaceAnchorEngine.ts
  * -----------------------------------------------------------------------------
- * Subsystem 3 of 4 — physical surface detection and snapping.
+ * Subsystem 3 of 4 - physical surface detection and snapping.
  *
  * Casts world-query rays into the room mesh, classifies each hit as floor /
  * table / wall / ceiling, and seats furniture flush against it. Also owns the
@@ -104,7 +104,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     if (!this.camera) {
       warn(
         "Anchor",
-        "No camera assigned — gaze rays will originate from this SceneObject instead."
+        "No camera assigned - gaze rays will originate from this SceneObject instead."
       );
     }
     this.cameraTransform = this.camera
@@ -115,7 +115,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     if (!module) {
       warn(
         "Anchor",
-        "World Query module unavailable — running in float-only mode. " +
+        "World Query module unavailable - running in float-only mode. " +
           "Add the World Query asset in the Asset Browser and assign it."
       );
       this.ready = false;
@@ -143,7 +143,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
    * Attach a hit-test source directly, bypassing World Query.
    *
    * The desk simulator and the test suite have no Lens Studio runtime, so they
-   * supply their own — anything with `hitTest(start, end, cb)` where `cb`
+   * supply their own - anything with `hitTest(start, end, cb)` where `cb`
    * receives `{ position, normal }` or `null`. Everything downstream of the
    * probe (classification, retry, overlap, wall-adjacent, reseat) then runs
    * unchanged, which is the point: it is the shipped placement logic being
@@ -258,7 +258,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
       if (position && normal) {
         log("Anchor", "Floor calibrated at y=" + position.y.toFixed(1) + "cm.");
       } else {
-        // No depth yet — assume a standing user, eye height ~155cm.
+        // No depth yet - assume a standing user, eye height ~155cm.
         this.floorHeight = origin.y - 155;
         log("Anchor", "Floor estimated from eye height at y=" + this.floorHeight.toFixed(1) + "cm.");
       }
@@ -399,7 +399,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
 
     this.enqueueProbe(origin, wallRayEnd, (wallPos, wallNormal) => {
       if (!wallPos || !wallNormal || this.classify(wallPos, wallNormal) !== "wall") {
-        // No wall in view — fall back to an ordinary floor placement.
+        // No wall in view - fall back to an ordinary floor placement.
         log("Anchor", "No wall found for " + spec.label + "; placing on the floor instead.");
         this.retryForSurface(spec, "floor", callback, exclude);
         return;
@@ -426,7 +426,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
         const rotation = yawTowards(standAt, facing);
 
         if (!floorPos || !floorNormal) {
-          // Wall found but no floor reading — use the running floor estimate.
+          // Wall found but no floor reading - use the running floor estimate.
           const fallback = new vec3(standAt.x, this.floorHeight, standAt.z);
           callback({
             anchored: true,
@@ -515,7 +515,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
     const origin = this.eyePosition();
     let direction: vec3;
     if (desired === "wall") {
-      // Look straight ahead at eye level — walls are vertical and in front.
+      // Look straight ahead at eye level - walls are vertical and in front.
       const fwd = this.gazeForward();
       direction = new vec3(fwd.x, 0, fwd.z).normalize();
     } else {
@@ -537,7 +537,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
         return;
       }
       const kind = this.classify(position, normal);
-      // Second attempt is final — take whatever we got rather than loop.
+      // Second attempt is final - take whatever we got rather than loop.
       callback(this.seat(spec, position, normal, kind, exclude));
     });
   }
@@ -581,7 +581,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
       // Horizontal: rest on the surface and turn to face the user.
       rotation = yawTowards(hitPosition, this.eyePosition());
       if (Math.abs(normal.dot(vec3.up())) < 0.995) {
-        // Sloped floor — tilt with it so legs stay in contact.
+        // Sloped floor - tilt with it so legs stay in contact.
         rotation = alignToNormal(normal, rotation.multiplyVec3(vec3.forward()));
       }
       if (this.avoidOverlap) {
@@ -663,7 +663,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
   }
 
   /**
-   * No surface available — hold the piece in front of the user at eye level.
+   * No surface available - hold the piece in front of the user at eye level.
    *
    * The distance grows with the piece: floatDistance suits a lamp, but a 2.1m
    * sofa 1.6m from the eye fills a headset's field of view with one face. And
@@ -697,7 +697,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
   /**
    * Called by SpatialGestureController when the user lets go of a piece.
    * Drops a short ray straight down from just above the object to find whatever
-   * it was released over — the floor, or a tabletop it was dragged onto.
+   * it was released over - the floor, or a tabletop it was dragged onto.
    */
   reseat(obj: SpatialisObject, callback: AnchorCallback): void {
     const current = obj.transform.getWorldPosition();
@@ -706,7 +706,7 @@ export class SurfaceAnchorEngine extends BaseScriptComponent {
 
     this.enqueueProbe(rayStart, rayEnd, (position, normal) => {
       if (!position || !normal) {
-        // Nothing underneath — leave it exactly where the hand let go.
+        // Nothing underneath - leave it exactly where the hand let go.
         callback({
           anchored: false,
           position: current,

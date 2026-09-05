@@ -1,5 +1,5 @@
 /**
- * gesture.test.js — SpatialGestureController state machine.
+ * gesture.test.js - SpatialGestureController state machine.
  *
  * Pinch, grab and two-hand transforms are the part of Spatialis most likely to
  * break silently: a wrong threshold does not throw, it just makes furniture
@@ -101,7 +101,7 @@ function settleSpan(g, span, frames = 90) {
   }
 }
 
-suite("SpatialGestureController — pinch hysteresis");
+suite("SpatialGestureController - pinch hysteresis");
 
 test("a pinch closes at the down distance", () => {
   const g = makeController();
@@ -144,7 +144,7 @@ test("an inverted threshold pair is corrected rather than obeyed", () => {
   ok(g.pinchUpDistance > g.pinchDownDistance, "up must exceed down after repair");
 });
 
-suite("SpatialGestureController — grabbing");
+suite("SpatialGestureController - grabbing");
 
 test("pinching near a piece grabs it", () => {
   const g = makeController();
@@ -198,7 +198,7 @@ test("dragging carries the piece with the hand, preserving the offset", () => {
   near(sofa.transform.getWorldPosition().x, 100, 0.001, "piece should move by the same 100cm");
 });
 
-suite("SpatialGestureController — release");
+suite("SpatialGestureController - release");
 
 test("releasing hands the piece to the anchor engine to settle", () => {
   const g = makeController();
@@ -234,7 +234,7 @@ test("releaseAll clears every grab", () => {
   eq(sofa.isGrabbed, false);
 });
 
-suite("SpatialGestureController — two-hand transform");
+suite("SpatialGestureController - two-hand transform");
 
 test("spreading both hands scales the piece up", () => {
   const g = makeController();
@@ -298,7 +298,7 @@ test("lifting the second hand finally releases the piece", () => {
   eq(sofa.isGrabbed, false);
 });
 
-suite("SpatialGestureController — hand-relative thresholds");
+suite("SpatialGestureController - hand-relative thresholds");
 
 test("a nominal hand gets exactly the authored thresholds", () => {
   const g = makeController();
@@ -364,7 +364,7 @@ test("hysteresis still holds once thresholds are scaled", () => {
   eq(g.isPinching("right"), false, "must open at the scaled up-threshold");
 });
 
-suite("SpatialGestureController — crush to delete");
+suite("SpatialGestureController - crush to delete");
 
 /** Hold the sofa in both hands 40cm apart, then squeeze to `ratio` of that. */
 function squeeze(g, ratio) {

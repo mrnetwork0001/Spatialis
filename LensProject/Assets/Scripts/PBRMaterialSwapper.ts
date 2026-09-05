@@ -1,7 +1,7 @@
 /**
  * PBRMaterialSwapper.ts
  * -----------------------------------------------------------------------------
- * Subsystem 4 of 4 — dynamic material restyling.
+ * Subsystem 4 of 4 - dynamic material restyling.
  *
  * Holds a catalog of physically-plausible presets (oak, walnut, leather,
  * velvet, marble, brushed brass, chrome, glass...) and blends a spatial object
@@ -219,7 +219,7 @@ export class PBRMaterialSwapper extends BaseScriptComponent {
   }
 
   // ---------------------------------------------------------------------------
-  // Vocabulary lookup — called by VoiceCommandController while parsing
+  // Vocabulary lookup - called by VoiceCommandController while parsing
   // ---------------------------------------------------------------------------
 
   /** Resolve a spoken phrase to a material key, longest alias wins. */
@@ -329,7 +329,7 @@ export class PBRMaterialSwapper extends BaseScriptComponent {
     return true;
   }
 
-  /** Apply a finish to every object of a kind — "make all the chairs oak". */
+  /** Apply a finish to every object of a kind - "make all the chairs oak". */
   applyMaterialToKind(kind: string, materialKey: string): number {
     const all = SpatialisRegistry.all();
     let applied = 0;
@@ -479,7 +479,7 @@ export class PBRMaterialSwapper extends BaseScriptComponent {
           return;
         }
       } catch (e) {
-        // Shader does not expose this uniform — try the next name.
+        // Shader does not expose this uniform - try the next name.
       }
     }
   }

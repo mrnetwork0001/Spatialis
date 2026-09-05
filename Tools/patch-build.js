@@ -4,9 +4,9 @@
  * Post-processes TypeScript output so it can be loaded outside Lens Studio.
  *
  * Two things Lens Studio does for us that neither Node nor a browser will:
- *   esm — browsers require a file extension on relative specifiers; tsc emits
+ *   esm - browsers require a file extension on relative specifiers; tsc emits
  *         them exactly as written in the source, which has none.
- *   cjs — "SpectaclesInteractionKit.lspkg/SIK" is a Lens Studio package
+ *   cjs - "SpectaclesInteractionKit.lspkg/SIK" is a Lens Studio package
  *         specifier that resolves to nothing under Node, so it is redirected
  *         to the test stub.
  *

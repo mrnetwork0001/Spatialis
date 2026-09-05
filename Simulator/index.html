@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spatialis — Desk Simulator</title>
+<title>Spatialis - Desk Simulator</title>
 <style>
   :root{
     --bg:#060609; --panel:#0a0a10; --panel-2:#0e0e15; --panel-3:#12121a;
@@ -168,8 +168,8 @@
 
 <header>
   <a class="brand" href="../" title="Back to the Spatialis landing page"><h1>Spatialis</h1></a>
-  <span class="sub">desk simulator — no headset required</span>
-  <span class="tag" id="build" title="loaded build — if this looks old, your browser cached a stale copy">build …</span>
+  <span class="sub">desk simulator - no headset required</span>
+  <span class="tag" id="build" title="loaded build - if this looks old, your browser cached a stale copy">build …</span>
   <span class="spacer"></span>
   <span class="tag real">● real subsystem code</span>
   <span class="tag sim">● simulated scene</span>
@@ -203,15 +203,15 @@
 
     <div class="sec">
       <h2>Parsed intent <span style="color:var(--real)">· real parser</span></h2>
-      <div id="heard">—</div>
+      <div id="heard">-</div>
       <table class="slots">
-        <tr><td>action</td><td id="s-action" class="empty">—</td></tr>
-        <tr><td>furniture</td><td id="s-furniture" class="empty">—</td></tr>
-        <tr><td>material</td><td id="s-material" class="empty">—</td></tr>
-        <tr><td>colour</td><td id="s-color" class="empty">—</td></tr>
-        <tr><td>placement</td><td id="s-placement" class="empty">—</td></tr>
-        <tr><td>style</td><td id="s-style" class="empty">—</td></tr>
-        <tr><td>surface</td><td id="s-surface" class="empty">—</td></tr>
+        <tr><td>action</td><td id="s-action" class="empty">-</td></tr>
+        <tr><td>furniture</td><td id="s-furniture" class="empty">-</td></tr>
+        <tr><td>material</td><td id="s-material" class="empty">-</td></tr>
+        <tr><td>colour</td><td id="s-color" class="empty">-</td></tr>
+        <tr><td>placement</td><td id="s-placement" class="empty">-</td></tr>
+        <tr><td>style</td><td id="s-style" class="empty">-</td></tr>
+        <tr><td>surface</td><td id="s-surface" class="empty">-</td></tr>
       </table>
       <div class="bar"><i id="s-conf"></i></div>
     </div>
@@ -222,8 +222,8 @@
     <div id="objects"></div>
 
     <footer>
-      <div><span class="k" style="background:var(--real)"></span><code>VoiceCommandController</code>, <code>SurfaceAnchorEngine</code> and <code>PBRMaterialSwapper</code> run here as instances of the shipped <code>Scripts/*.ts</code> — parsing, placement, materials, spawn animation, debounce, feedback.</div>
-      <div style="margin-top:5px"><span class="k" style="background:var(--sim)"></span>Simulated: the room and its hit tests (World Query on device), head pose and mouse-as-pinch (headset and SIK hand tracking — <code>SpatialGestureController</code> does not run here), Web Speech for the ASR module, three.js for the display.</div>
+      <div><span class="k" style="background:var(--real)"></span><code>VoiceCommandController</code>, <code>SurfaceAnchorEngine</code> and <code>PBRMaterialSwapper</code> run here as instances of the shipped <code>Scripts/*.ts</code> - parsing, placement, materials, spawn animation, debounce, feedback.</div>
+      <div style="margin-top:5px"><span class="k" style="background:var(--sim)"></span>Simulated: the room and its hit tests (World Query on device), head pose and mouse-as-pinch (headset and SIK hand tracking - <code>SpatialGestureController</code> does not run here), Web Speech for the ASR module, three.js for the display.</div>
       <div class="app-footer">
         <div class="row">
           <a class="brand" href="../"><span class="brand-mark">S</span><span class="brand-name">SPATIALIS</span></a>
@@ -257,7 +257,7 @@
 }}
 </script>
 <script>
-  // A module that throws while loading fails silently — the page just sits
+  // A module that throws while loading fails silently - the page just sits
   // there. Surface it in the overlay instead of showing "loading…" forever.
   window.addEventListener("error", function (e) {
     var el = document.getElementById("loading");

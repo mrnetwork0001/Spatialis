@@ -313,7 +313,7 @@ function runCommand(text) {
   voice.handleTranscript(text);
   if (voice.lastTranscriptTime === stamp) {
     heardEl.className = "interim";
-    heardEl.textContent = "(identical transcript within 2s — dropped, as the Lens does for duplicate ASR output)";
+    heardEl.textContent = "(identical transcript within 2s - dropped, as the Lens does for duplicate ASR output)";
   }
 }
 
@@ -507,7 +507,7 @@ function drawPiece(o) {
 
 function setSlot(id, value) {
   const el = document.getElementById(id);
-  el.textContent = value || "—";
+  el.textContent = value || "-";
   el.className = value ? "" : "empty";
 }
 
@@ -655,8 +655,8 @@ function wheelScale(e, hit) {
     crushNotches++;
     heardEl.className = "interim";
     heardEl.textContent = crushNotches >= 3
-      ? `Crushed the ${hit.spec.label} — removed`
-      : `Squeezing the ${hit.spec.label} — ${3 - crushNotches} more to remove (crush-to-delete)`;
+      ? `Crushed the ${hit.spec.label} - removed`
+      : `Squeezing the ${hit.spec.label} - ${3 - crushNotches} more to remove (crush-to-delete)`;
     if (crushNotches >= 3) {
       swapper.forget(hit.id);
       SpatialisRegistry.remove(hit.id);   // -> SceneObject.destroy() -> room3d.release()
@@ -737,7 +737,7 @@ if (!SR) {
   rec.continuous = false; rec.interimResults = true; rec.lang = "en-US";
   let live = false;
   mic.addEventListener("click", () => { live ? rec.stop() : rec.start(); });
-  rec.onstart = () => { live = true; mic.classList.add("live"); mic.textContent = "● Listening — speak now"; };
+  rec.onstart = () => { live = true; mic.classList.add("live"); mic.textContent = "● Listening - speak now"; };
   rec.onend = () => { live = false; mic.classList.remove("live"); mic.textContent = "🎙 Hold to speak (Web Speech API)"; };
   rec.onerror = (e) => { mic.textContent = "🎙 Mic error: " + e.error; };
   rec.onresult = (e) => {
@@ -777,7 +777,7 @@ function setView(mode) {
   btnPlan.classList.toggle("on", !wearer);
   document.getElementById("hud-sub").textContent = wearer
     ? "camera at the wearer's eye, 155cm · real .glb from Assets/Prefabs"
-    : "floor — plan view, 1px = 1cm · grid 50cm";
+    : "floor - plan view, 1px = 1cm · grid 50cm";
   if (wearer) fitStage();
 }
 btnWearer.addEventListener("click", () => setView("wearer"));
@@ -807,8 +807,8 @@ if (report.failed.length) {
   console.warn("[Spatialis simulator] missing in 3D:", report.failed.join(", "));
   const hud = document.getElementById("hud-sub");
   hud.innerHTML = report.loaded.length
-    ? `⚠ ${report.failed.length} model(s) unavailable — switch to Floor plan to see them`
-    : `⚠ no models loaded — the Floor plan view still works`;
+    ? `⚠ ${report.failed.length} model(s) unavailable - switch to Floor plan to see them`
+    : `⚠ no models loaded - the Floor plan view still works`;
   hud.style.color = "#fbbf24";
   if (!report.loaded.length) setView("plan");
 }

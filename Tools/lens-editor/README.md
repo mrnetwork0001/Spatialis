@@ -1,6 +1,6 @@
 # Wiring the Lens Studio scene
 
-`wire-spatialis.ts` is an **Editor API** script — it runs inside Lens Studio and
+`wire-spatialis.ts` is an **Editor API** script - it runs inside Lens Studio and
 builds the scene a person would otherwise assemble in the Inspector. It is
 idempotent: run it again and it finds what it made before.
 
@@ -14,7 +14,7 @@ idempotent: run it again and it finds what it made before.
    file's contents. Read the `[wire-spatialis]` log lines: the last four report
    each component's declared inputs and anything still **UNSET**.
 
-Never drive the editor over raw HTTP — the MCP tools handle auth and
+Never drive the editor over raw HTTP - the MCP tools handle auth and
 serialisation; bypassing them fails silently.
 
 ## What it does
@@ -22,11 +22,11 @@ serialisation; bypassing them fails silently.
 | Creates | Wires |
 |---|---|
 | `Spatialis/Anchor Engine` + `SurfaceAnchorEngine` | `camera` ← scene main camera, `worldQueryAsset` ← World Query Module |
-| `Spatialis/Material Swapper` + `PBRMaterialSwapper` | — |
+| `Spatialis/Material Swapper` + `PBRMaterialSwapper` | - |
 | `Spatialis/Gesture` + `SpatialGestureController` | `anchorEngine`, `materialSwapper` |
 | `Spatialis/Voice` + `VoiceCommandController` | `asrModule`, `anchorEngine`, `materialSwapper`, `spawnParent`, `feedbackText`, `furnitureKeys[]`, `furniturePrefabs[]` |
 | `Spatialis/Spawn Root`, `Spatialis/Feedback` (Text) | parent for spawned furniture; the feedback line |
-| `Assets/Modules/` ASR + World Query native assets | — |
+| `Assets/Modules/` ASR + World Query native assets | - |
 
 ## If you must do it by hand
 

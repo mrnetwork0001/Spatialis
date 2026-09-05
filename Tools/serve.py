@@ -6,7 +6,7 @@ Development server for the Spatialis landing page and simulator.
 
 Replaces `python3 -m http.server`, which sends no Cache-Control header at all.
 Browsers then apply heuristic caching to ES modules, so an edited file can keep
-serving a stale copy — and a stale module presents as the app silently not
+serving a stale copy - and a stale module presents as the app silently not
 starting, which is indistinguishable from a real bug. Every response here is
 no-store, so a reload always gets what is on disk.
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     with Server(("127.0.0.1", PORT), Handler) as httpd:
         print(f"Spatialis  →  http://localhost:{PORT}/")
         print(f"app        →  http://localhost:{PORT}/Simulator/")
-        print("cache disabled (no-store) — a reload always gets fresh files\n")
+        print("cache disabled (no-store) - a reload always gets fresh files\n")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

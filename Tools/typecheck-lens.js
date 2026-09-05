@@ -36,7 +36,7 @@ const APP_DECL = [
  .find((p) => fs.existsSync(p));
 
 if (!fs.existsSync(STUDIO_LIB) || !APP_DECL) {
-  console.error("typecheck:lens — Lens Studio's declarations were not found on this machine.");
+  console.error("typecheck:lens - Lens Studio's declarations were not found on this machine.");
   console.error("  needs: " + STUDIO_LIB);
   console.error("  and:   <Lens Studio.app>/Contents/Plugins/Es_TypeScriptCompilationManager.bundle/.../Declarations");
   console.error("  Install Lens Studio 5.22+ and launch it once; it generates StudioLib.d.ts on start.");
@@ -93,7 +93,7 @@ const version = (() => {
   } catch { return "unknown"; }
 })();
 const lines = fs.readFileSync(STUDIO_LIB, "utf8").split("\n").length;
-console.log(`typecheck:lens — Lens Studio ${version}, StudioLib.d.ts (${lines.toLocaleString()} lines), ${scripts.length} scripts, SIK: ${projectSik ? "real package source" : "shim"}`);
+console.log(`typecheck:lens - Lens Studio ${version}, StudioLib.d.ts (${lines.toLocaleString()} lines), ${scripts.length} scripts, SIK: ${projectSik ? "real package source" : "shim"}`);
 
 const tsc = path.join(root, "node_modules", ".bin", "tsc");
 const r = spawnSync(tsc, ["-p", path.join(work, "tsconfig.json")], { encoding: "utf8" });
@@ -106,4 +106,4 @@ if (errors.length) {
   console.log(`\n${errors.length} error(s) against the real Lens Studio API.`);
   process.exit(1);
 }
-console.log("clean — every subsystem type-checks against the real Lens Studio API.");
+console.log("clean - every subsystem type-checks against the real Lens Studio API.");

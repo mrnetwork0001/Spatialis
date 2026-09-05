@@ -47,7 +47,7 @@ import os
 import struct
 
 # -----------------------------------------------------------------------------
-# Materials — linear-space factors matching PBRMaterialSwapper's presets
+# Materials - linear-space factors matching PBRMaterialSwapper's presets
 # -----------------------------------------------------------------------------
 
 MATERIALS = [
@@ -65,7 +65,7 @@ MAT = {name: i for i, (name, _, _, _) in enumerate(MATERIALS)}
 
 # -----------------------------------------------------------------------------
 # Primitive builders. Each returns (positions, normals, indices) with flat
-# normals — every face gets its own vertices so edges stay crisp when shaded.
+# normals - every face gets its own vertices so edges stay crisp when shaded.
 # -----------------------------------------------------------------------------
 
 def box(cx, cy, cz, sx, sy, sz):

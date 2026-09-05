@@ -7,7 +7,7 @@
  * Lens Studio ships its own types and injects them at build time inside the
  * editor; this file exists purely so `npm run typecheck` can verify Spatialis
  * logic in CI, on a machine with no Lens Studio install. It is NOT a complete
- * or authoritative API surface — extend it as the project uses more of the API.
+ * or authoritative API surface - extend it as the project uses more of the API.
  *
  * License: Apache-2.0
  */

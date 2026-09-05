@@ -1,7 +1,7 @@
 /**
  * SpatialGestureController.ts
  * -----------------------------------------------------------------------------
- * Subsystem 2 of 4 — SPECS hand tracking for direct spatial manipulation.
+ * Subsystem 2 of 4 - SPECS hand tracking for direct spatial manipulation.
  *
  * Gesture grammar:
  *   one hand pinched   → grab and drag a piece through the room
@@ -45,7 +45,7 @@ interface HandState {
   /** This hand's size relative to REFERENCE_HAND_SPAN, smoothed over frames. */
   spanScale: number;
   spanSamples: number;
-  /** Midpoint of thumb and index tips — the point the user thinks they hold. */
+  /** Midpoint of thumb and index tips - the point the user thinks they hold. */
   pinchPoint: vec3;
   grabbed: SpatialisObject | null;
   /** Object position minus pinch point at grab time, so it does not snap. */
@@ -173,7 +173,7 @@ export class SpatialGestureController extends BaseScriptComponent {
     if (!left && !right) {
       warn(
         "Gesture",
-        "Hand tracking unavailable — check that SpectaclesInteractionKit is in the project."
+        "Hand tracking unavailable - check that SpectaclesInteractionKit is in the project."
       );
       this.handsAvailable = false;
       return;
@@ -287,7 +287,7 @@ export class SpatialGestureController extends BaseScriptComponent {
    *
    * A 3cm gap is a firm pinch on a large hand and an open grip on a small one.
    * Authoring the thresholds against a nominal hand and scaling to the wearer
-   * is what keeps the feel consistent without a per-user tuning pass — which
+   * is what keeps the feel consistent without a per-user tuning pass - which
    * matters here because the defaults have never been tuned on hardware.
    *
    * The scale is a running mean rather than an instantaneous ratio: hand
@@ -357,7 +357,7 @@ export class SpatialGestureController extends BaseScriptComponent {
     } catch (e) {
       // fall through
     }
-    // No tracking flag on this SIK version — infer it from joint availability.
+    // No tracking flag on this SIK version - infer it from joint availability.
     return this.jointPosition(hand, "indexTip") !== null;
   }
 
@@ -428,7 +428,7 @@ export class SpatialGestureController extends BaseScriptComponent {
     }
 
     // If the other hand still holds it, this is a two-hand gesture collapsing
-    // back to a one-hand drag — not a release.
+    // back to a one-hand drag - not a release.
     const other = this.otherHand(state);
     if (other && other.isPinching && other.grabbed && other.grabbed.id === released.id) {
       this.twoHand = null;
@@ -454,7 +454,7 @@ export class SpatialGestureController extends BaseScriptComponent {
     }
     this.anchorEngine.reseat(obj, (result: AnchorResult) => {
       if (isNull(obj.sceneObject) || obj.isGrabbed) {
-        // Re-grabbed while the hit test was in flight — do not yank it back.
+        // Re-grabbed while the hit test was in flight - do not yank it back.
         return;
       }
       obj.transform.setWorldPosition(result.position);
@@ -704,7 +704,7 @@ export class SpatialGestureController extends BaseScriptComponent {
   }
 
   // ---------------------------------------------------------------------------
-  // Public state — read by the voice layer for "make it bigger" style commands
+  // Public state - read by the voice layer for "make it bigger" style commands
   // ---------------------------------------------------------------------------
 
   /** The piece currently under a hand, or null. */
@@ -726,7 +726,7 @@ export class SpatialGestureController extends BaseScriptComponent {
     return false;
   }
 
-  /** Force-release everything — used when the voice layer clears the room. */
+  /** Force-release everything - used when the voice layer clears the room. */
   releaseAll(): void {
     for (let i = 0; i < this.hands.length; i++) {
       const state = this.hands[i];

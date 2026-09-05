@@ -1,5 +1,5 @@
 /**
- * anchor-placement.test.js — SurfaceAnchorEngine placement, retry, overlap,
+ * anchor-placement.test.js - SurfaceAnchorEngine placement, retry, overlap,
  * wall-adjacent placement, re-seating and the probe queue.
  *
  * classify() is covered in anchor.test.js. Everything downstream of it runs
@@ -7,8 +7,8 @@
  * a scripted hit-test source: tests pre-load the answers and then assert both
  * WHERE the engine chose to look (the ray log) and WHAT it did with the answer.
  *
- * Rays are asserted by intent — where they cross the floor, whether they point
- * down, whether they are level — rather than by their exact direction vector,
+ * Rays are asserted by intent - where they cross the floor, whether they point
+ * down, whether they are level - rather than by their exact direction vector,
  * so a legitimate change to how a ray is aimed does not break the suite while
  * a ray that lands in the wrong place still does.
  *
@@ -48,7 +48,7 @@ const xyz = (v) => ({ x: v.x, y: v.y, z: v.z });
  *
  * hitTest(start, end, cb) is the only method the engine calls; answer/hold/
  * respond are test-side controls. `hold = true` makes it behave like the real
- * thing — the answer arrives on a later frame — so the one-in-flight rule can
+ * thing - the answer arrives on a later frame - so the one-in-flight rule can
  * be observed.
  */
 function scriptedSession() {
@@ -169,11 +169,11 @@ function floorCrossing(probe, planeY) {
   );
 }
 
-suite("SurfaceAnchorEngine — floor calibration");
+suite("SurfaceAnchorEngine - floor calibration");
 
 test("attaching fires a downward probe and a floor hit becomes the floor estimate", () => {
-  // Without a calibrated floor the first horizontal hit — which may be a
-  // tabletop — would define "floor", and tables would vanish for the session.
+  // Without a calibrated floor the first horizontal hit - which may be a
+  // tabletop - would define "floor", and tables would vanish for the session.
   // The depth normal is deliberately NOT unit length: World Query does not
   // promise one, and noteFloorSample compares the raw dot product against the
   // horizontal threshold, so the pump must normalize before sampling or this
@@ -210,7 +210,7 @@ test("a lower horizontal reading eases the floor down rather than snapping", () 
   near(engine.getFloorHeight(), -98, 1e-6);
 });
 
-suite("SurfaceAnchorEngine — gaze placement");
+suite("SurfaceAnchorEngine - gaze placement");
 
 /** The direction a piece faces: its local +Z forward, rotated by `q`. */
 function facing(q) {
@@ -294,7 +294,7 @@ test("the first probe for a wall piece follows the gaze without tilt", () => {
 });
 
 test("a sofa whose gaze ray hits a wall is re-probed to the floor a pace ahead", () => {
-  // The retry has one job: find the ground "a comfortable pace ahead" —
+  // The retry has one job: find the ground "a comfortable pace ahead" -
   // floatDistance, the same spot the piece would float at if nothing is found.
   // Aiming probeDistance BELOW that spot instead made the ray so steep that it
   // met the floor 35cm out, at the wearer's feet.
@@ -334,7 +334,7 @@ test("art whose gaze ray hits the floor is re-probed level and hung at eye heigh
   eq(r.rotation, alignToNormal(vec3.up(), new vec3(0, 0, -1)));
 });
 
-test("the retry is final — a second wrong surface is accepted, never a third probe", () => {
+test("the retry is final - a second wrong surface is accepted, never a third probe", () => {
   // Looping would leave the user staring at nothing while rays go unanswered.
   const { engine, session } = makeEngine();
   session.answer(WALL(0, 100, -300, 0, 0, 1), WALL(0, 100, -200, 0, 0, 1));
@@ -383,7 +383,7 @@ test("a 'float' hint answers immediately and casts no ray", () => {
   engine.requestPlacement(getFurnitureSpec("sofa"), "float", false, (res) => {
     r = res;
   });
-  ok(r !== null, "callback fires synchronously — no tick needed");
+  ok(r !== null, "callback fires synchronously - no tick needed");
   eq(r.anchored, false);
   eq(session.log.length, 1, "only the calibration probe was ever cast");
   near(r.position.z, eye.z - floatRange(getFurnitureSpec("sofa")), 1e-9);
@@ -414,7 +414,7 @@ test("hints tolerate near-equivalent surfaces but a wall hint rejects the floor"
   eq(r.surface, "wall");
 });
 
-suite("SurfaceAnchorEngine — overlap");
+suite("SurfaceAnchorEngine - overlap");
 
 test("a sofa dropped onto an existing sofa is nudged clear on the ground plane", () => {
   const { engine, session } = makeEngine();
@@ -441,7 +441,7 @@ test("avoidOverlap off leaves the piece exactly at the hit even inside another",
   eq(xyz(r.position), xyz(hit));
 });
 
-suite("SurfaceAnchorEngine — wall-adjacent placement");
+suite("SurfaceAnchorEngine - wall-adjacent placement");
 
 test("'by the wall': a level probe finds the wall, a downward one finds the floor a footprint in", () => {
   const { engine, session, eye } = makeEngine();
@@ -574,7 +574,7 @@ test("'by the wall' with a wall but no floor reading uses the running floor esti
   near(f.z, 0, 1e-9);
 });
 
-suite("SurfaceAnchorEngine — reseat");
+suite("SurfaceAnchorEngine - reseat");
 
 test("a released sofa keeps its X/Z and drops onto the floor beneath it", () => {
   const { engine, session } = makeEngine();
@@ -635,7 +635,7 @@ test("wall art does not fall to the floor when released", () => {
   eq(r.rotation, rot);
 });
 
-suite("SurfaceAnchorEngine — probe queue");
+suite("SurfaceAnchorEngine - probe queue");
 
 test("probes are serial: one hit test in flight at a time, answered in order", () => {
   // World Query rejects overlapping requests, so a second placement must wait
@@ -690,7 +690,7 @@ test("an engine that never got a hit-test session floats requests instead of han
   eq(session.log.length, 0, "hitTest is never called on an unready session");
 });
 
-suite("SurfaceAnchorEngine — floating distance and spacing");
+suite("SurfaceAnchorEngine - floating distance and spacing");
 
 test("small pieces float at floatDistance; large ones float further so they do not fill the view", () => {
   const lamp = getFurnitureSpec("lamp");       // footprint 22 -> 55 < 160
@@ -726,7 +726,7 @@ test("two floated pieces do not share a spot", () => {
   void eye;
 });
 
-suite("SurfaceAnchorEngine — sweeping for a table");
+suite("SurfaceAnchorEngine - sweeping for a table");
 
 test("an explicit table hint finds a table off the gaze line and lands on it", () => {
   // The wearer says "on the table" while looking at the floor. The table is

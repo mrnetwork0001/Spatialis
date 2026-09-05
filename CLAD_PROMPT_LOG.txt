@@ -1,5 +1,5 @@
 ==============================================================================
- CLAD PROMPT LOG & AGENT TRAJECTORY TRANSCRIPT — SPATIALIS
+ CLAD PROMPT LOG & AGENT TRAJECTORY TRANSCRIPT - SPATIALIS
  Built for Snap SPECS CLAD Summer Hackathon (Week 4: CREATE)
  Coding Agent: Claude Code (Opus)
  Repository: github.com/mrnetwork0001/Spatialis   License: Apache-2.0
@@ -9,12 +9,12 @@
  -----------------
  This is an accurate record of Closed Loop Agentic Development on Spatialis:
  what was asked, what the agent did, and what was verified. Session 1 entries
- are retained but corrected — they were written as a blueprint of intended
+ are retained but corrected - they were written as a blueprint of intended
  work and were logged as complete before any source files existed. Session 2
  is the session in which the four subsystems were actually generated.
 
 ==============================================================================
- SESSION 1 — 2026-08-31 — BLUEPRINT / PLANNING  (no source files produced)
+ SESSION 1 - 2026-08-31 - BLUEPRINT / PLANNING  (no source files produced)
 ==============================================================================
 
 [PROMPT 1] Project Initialization & SPECS Setup
@@ -24,7 +24,7 @@ Agent Prompt: "Initialize a Lens Studio 5.22+ SPECS spatial project for
 Outcome: Specification documents authored (SPATIALIS_PROJECT_SPEC.md,
   ANTIGRAVITY_SPATIALIS.md, README.md). Subsystem responsibilities and file
   layout were fixed here and carried into Session 2 unchanged.
-Status: PLANNING ONLY — Scripts/ was not created in this session.
+Status: PLANNING ONLY - Scripts/ was not created in this session.
 
 [PROMPT 2] Hand Gesture Pinch & Rotate Design
 Agent Prompt: "Implement pinch, drag, rotate, and scale hand gesture listeners
@@ -42,7 +42,7 @@ Outcome: Intent vocabulary and material catalog scoped. Implemented in
 Status: PLANNING ONLY.
 
 ==============================================================================
- SESSION 2 — 2026-08-31 — IMPLEMENTATION  (all four subsystems generated)
+ SESSION 2 - 2026-08-31 - IMPLEMENTATION  (all four subsystems generated)
 ==============================================================================
 
 [PROMPT 4] Read directives, audit repository state
@@ -50,7 +50,7 @@ Agent Prompt: "Read SPATIALIS_PROJECT_SPEC.md, ANTIGRAVITY_SPATIALIS.md and
   CLAD_PROMPT_LOG.txt before starting. Build the 4 subsystems."
 Agent Action: Read all three directive files plus README.md, package.json and
   main.py.
-Agent Finding: REPORTED DISCREPANCY — the log claimed "100% CLAD Prompt
+Agent Finding: REPORTED DISCREPANCY - the log claimed "100% CLAD Prompt
   Trajectory Completed" and the spec checklist was fully ticked, but Scripts/
   did not exist and no TypeScript, tsconfig or Lens Studio project was present.
   Treated the documents as the target specification, not as a record of work.
@@ -58,7 +58,7 @@ Result: Scaffolded Scripts/, Assets/Materials/, Assets/Prefabs/ and a strict
   tsconfig.json (strict, noImplicitAny, noUnusedLocals, noUnusedParameters).
 
 [PROMPT 5] Shared core module
-Agent Action: Generated Scripts/SpatialisCore.ts — the vocabulary the four
+Agent Action: Generated Scripts/SpatialisCore.ts - the vocabulary the four
   subsystems agree on, so none of them holds a direct reference to another:
    - SurfaceKind / PlacementHint / IntentAction / SpatialisIntent types.
    - FURNITURE_CATALOG: 12 entries, each with a real-world footprint (cm),
@@ -71,7 +71,7 @@ Agent Action: Generated Scripts/SpatialisCore.ts — the vocabulary the four
 Result: 509 lines. Each subsystem drives its own TweenPool from its own
   UpdateEvent, so there is no hidden update-order coupling between them.
 
-[PROMPT 6] Subsystem 3 — Surface Anchor Engine
+[PROMPT 6] Subsystem 3 - Surface Anchor Engine
 Agent Prompt: "Detect physical floors, tables and walls and snap 3D objects
   cleanly to real surfaces."
 Agent Action: Generated Scripts/SurfaceAnchorEngine.ts.
@@ -79,7 +79,7 @@ Agent Action: Generated Scripts/SurfaceAnchorEngine.ts.
     permits one hit test in flight and answers on a later frame, so probes are
     queued and drained in onUpdate rather than issued ad hoc.
   - classify(): floor / table / wall / ceiling from the surface normal PLUS
-    height above a running floor estimate — a table is "horizontal, but 30 to
+    height above a running floor estimate - a table is "horizontal, but 30 to
     130cm up", which is the only way to tell a tabletop from the floor.
   - Floor height calibrated by a downward probe at start, eased (not hard-min)
     so one bad depth sample cannot drop the floor through the ground; falls
@@ -92,7 +92,7 @@ Agent Action: Generated Scripts/SurfaceAnchorEngine.ts.
     the user's chosen X/Z and correcting only height.
 Result: 649 lines.
 
-[PROMPT 7] Subsystem 1 — Voice Intent Engine
+[PROMPT 7] Subsystem 1 - Voice Intent Engine
 Agent Prompt: "Listen to voice commands and spawn 3D prefabs with scale-in
   animations."
 Agent Action: Generated Scripts/VoiceCommandController.ts.
@@ -111,7 +111,7 @@ Result: 673 lines.
 Agent Finding: The spec's headline command is "Spawn a Scandinavian lounge
   chair BY the wall". Treating that as a wall placement would hang a chair on
   the wall. "by / against / near the wall" is a FLOOR placement backed up to a
-  wall — a different operation.
+  wall - a different operation.
 Agent Action: Extended requestPlacement() with a wallAdjacent path using two
   chained probes: a level ray finds the wall and its normal, then a downward
   ray stepped off the wall by the piece's own footprint finds the floor there.
@@ -119,7 +119,7 @@ Agent Action: Extended requestPlacement() with a wallAdjacent path using two
   when no wall is in view.
 Result: Headline command now behaves as spoken. Verified by test.
 
-[PROMPT 9] Subsystem 4 — PBR Material Swapper
+[PROMPT 9] Subsystem 4 - PBR Material Swapper
 Agent Prompt: "Dynamically update wood, fabric and metal textures on spatial
   objects."
 Agent Action: Generated Scripts/PBRMaterialSwapper.ts.
@@ -134,7 +134,7 @@ Agent Action: Generated Scripts/PBRMaterialSwapper.ts.
   - Cross-fades colour, metallic and roughness over ~0.45s.
 Result: 505 lines.
 
-[PROMPT 10] Subsystem 2 — Hand Gesture Controller
+[PROMPT 10] Subsystem 2 - Hand Gesture Controller
 Agent Prompt: "Implement SPECS hand tracking for pinch, drag, rotate and scale
   operations in 3D space."
 Agent Action: Generated Scripts/SpatialGestureController.ts.
@@ -153,25 +153,25 @@ Agent Action: Generated Scripts/SpatialGestureController.ts.
 Result: 564 lines.
 
 [PROMPT 11] Type-checking outside Lens Studio
-Agent Action: Generated types/lens-studio.d.ts — local ambient declarations for
+Agent Action: Generated types/lens-studio.d.ts - local ambient declarations for
   the subset of the Lens Studio 5.22+ API the project uses (math types, scene
   graph, materials, VoiceML, World Query, Inspector decorators, SIK hands).
   Lens Studio injects its own types in-editor; this exists so the project can
   be verified in CI on a machine with no Lens Studio install.
 Verification: `npx tsc --noEmit` under strict + noUnusedLocals.
-Result: FIRST RUN FAILED — 2 errors (unused imports 'clamp' in
+Result: FIRST RUN FAILED - 2 errors (unused imports 'clamp' in
   SurfaceAnchorEngine, 'IntentAction' in VoiceCommandController). Also removed
   an unguarded global.scene.getRootObject(0).getChild(0) call in the anchor
   engine's no-camera fallback, which could throw on an empty scene.
   SECOND RUN: clean.
 
-[PROMPT 12] Closing the loop — behavioural tests on the parser
+[PROMPT 12] Closing the loop - behavioural tests on the parser
 Agent Rationale: The parser is the one subsystem that cannot be validated by
-  looking through a headset — it either understands a sentence or it does not.
+  looking through a headset - it either understands a sentence or it does not.
 Agent Action: Generated Tests/lens-runtime-stub.js (Node stand-in for the Lens
   Studio globals) and Tests/voice-parser.test.js (26 cases: the demo script,
   plus the phrasings most likely to be spoken instead).
-Result: FIRST RUN FAILED — two genuine parser defects found:
+Result: FIRST RUN FAILED - two genuine parser defects found:
   (a) "make the chairs navy" did not resolve, because catalog aliases were
       singular and speech is often plural.
       FIX: resolveFurniture() now also matches the naive plural.
@@ -181,7 +181,7 @@ Result: FIRST RUN FAILED — two genuine parser defects found:
       FIX: action precedence reordered so an explicit spawn verb plus a noun
       always wins, and a size word only means "resize" when it is not merely
       describing a piece being spawned.
-  SECOND RUN: 26 passed, 0 failed — including both spec headline commands.
+  SECOND RUN: 26 passed, 0 failed - including both spec headline commands.
 
 [PROMPT 13] Scene wiring documentation
 Agent Action: Generated SETUP_LENS_STUDIO.md and rewrote README.md with the
@@ -190,14 +190,14 @@ Agent Action: Generated SETUP_LENS_STUDIO.md and rewrote README.md with the
   the Lens Studio Inspector; that wiring is what SETUP_LENS_STUDIO.md covers.
 
 ==============================================================================
- SESSION 3 — 2026-09-02 — HARDENING & SUBMISSION READINESS
+ SESSION 3 - 2026-09-02 - HARDENING & SUBMISSION READINESS
 ==============================================================================
 
 [PROMPT 14] "Launch the frontend, let me see"
-Agent Finding: REPORTED — Spatialis has no frontend. It is a Lens Studio AR
+Agent Finding: REPORTED - Spatialis has no frontend. It is a Lens Studio AR
   project; the display is the Spectacles headset, and Lens Studio is not
   installed on this machine. No .lsproj, no server, no HTML, nothing to launch.
-Agent Action: Built Simulator/ — a browser desk simulator that imports the REAL
+Agent Action: Built Simulator/ - a browser desk simulator that imports the REAL
   compiled subsystems as ES modules and drives them against a simulated room.
   Real: the parser, FURNITURE_CATALOG, SpatialisRegistry, the material presets,
   SurfaceAnchorEngine.classify(). Simulated: the room, hit tests, rendering,
@@ -211,17 +211,17 @@ Verification: Served the page and screenshotted it under headless Chrome.
   FIRST RENDER WAS WRONG in three ways, all found by looking at the image:
    (a) the sofa was drawn nearly square. `footprint` is an overlap RADIUS, not
        a silhouette; pieces now carry a draw aspect ratio.
-   (b) labels were unreadable where pieces stacked — added backing pills.
+   (b) labels were unreadable where pieces stacked - added backing pills.
    (c) the physical table sat in the default gaze line, so a floor spawn landed
        on the tabletop. Moved it off-axis.
-  SECOND RENDER: correct. Both spec headline commands visibly work — the chair
+  SECOND RENDER: correct. Both spec headline commands visibly work - the chair
   anchors "floor · by wall", the coffee table reads "floating".
 
 [PROMPT 15] "What else is remaining for submission?"
 Agent Action: Audited the repository against the submission checklist.
 Agent Findings:
   - The LICENSE file was TRUNCATED. It ended mid-sentence at "7. Disclaimer of
-    Warranty. Summary: Apache 2.0 License." — sections 7-9 and the appendix
+    Warranty. Summary: Apache 2.0 License." - sections 7-9 and the appendix
     were missing, so GitHub reported the repository as unlicensed despite six
     files declaring Apache-2.0. Replaced with the complete 201-line text.
   - Test coverage was parser-only. Three of four subsystems were untested.
@@ -230,22 +230,22 @@ Agent Findings:
     no demo video, and the repository is still private.
 
 [PROMPT 16] Test coverage for the remaining subsystems
-Agent Action: Added Tests/harness.js (a ~60-line runner — Spatialis carries no
+Agent Action: Added Tests/harness.js (a ~60-line runner - Spatialis carries no
   test framework dependency on purpose, so `npm test` works from a bare clone),
   Tests/stubs/SIK.js (controllable fake hands), and three suites:
    - core.test.js    17 cases: alias resolution incl. plurals and longest-match,
                      registry semantics, framerate-independent damping.
    - anchor.test.js   9 cases: floor/table/wall/ceiling classification, the
                      table band's bounds, and floor-relative (not absolute)
-                     height — an upper-storey room must still see its tables.
+                     height - an upper-storey room must still see its tables.
    - gesture.test.js 16 cases: pinch hysteresis, grab reach scaling, two-hand
                      scale clamping, and the three transitions most likely to
-                     break silently — two hands collapsing to one WITHOUT
+                     break silently - two hands collapsing to one WITHOUT
                      releasing, losing tracking mid-grab counting as a release,
                      and releaseAll.
 Result: FOUND A REAL BUG. SurfaceAnchorEngine.classify() took the raw dot
   product of the surface normal without normalizing it, so the same surface
-  direction returned different answers depending on the vector's magnitude —
+  direction returned different answers depending on the vector's magnitude -
   a 45-degree ramp with an unnormalized normal classified as a TABLE. Not
   reachable from the Lens today (the internal probe path normalizes first), but
   classify() is public and the simulator calls it directly. Fixed, with a
@@ -261,7 +261,7 @@ Agent Action: Added .github/workflows/ci.yml (typecheck, test, and simulator
   pinch feel is NOT yet validated on hardware.
 
 ==============================================================================
- SESSION 4 — 2026-09-04 — STOP MOCKING: HOST THE REAL SUBSYSTEMS
+ SESSION 4 - 2026-09-04 - STOP MOCKING: HOST THE REAL SUBSYSTEMS
 ==============================================================================
 
 [PROMPT 18] "Tell me what we're mocking or lacking in this app"
@@ -313,7 +313,7 @@ Result: running the shipped code where the reimplementation used to run
   what does not (SpatialGestureController; needs SIK hand joints).
   npm test            -> 151 passed, 0 failed.
 
-[CORRECTION — 2026-09-05]
+[CORRECTION - 2026-09-05]
   Two statements the agent made earlier in this log and in conversation
   were wrong, and are retracted here rather than edited out:
   - "Lens Studio 5.22 may not exist; Snap's download page says 5.15." Snap
@@ -329,7 +329,7 @@ Result: running the shipped code where the reimplementation used to run
   importer does not convert metres unless "Convert meters to centimeters"
   is ticked, so centimetre-authored models are now the default set.
 
-[SESSION 4, LATER — 2026-09-05] THE REAL API CHECK
+[SESSION 4, LATER - 2026-09-05] THE REAL API CHECK
   Lens Studio 5.23.2 was installed (macOS arm). On first launch it writes
   ~/Library/Caches/Snap/Lens Studio/DtsCache/StudioLib.d.ts - 34,393 lines,
   662 top-level declarations: the entire runtime API. The four subsystems
@@ -346,7 +346,7 @@ Result: running the shipped code where the reimplementation used to run
   runtime concern. Everything else the "false green" worry covered is now
   a real green. Repeatable: npm run typecheck:lens (local; needs the app).
 
-[SESSION 5 — 2026-09-05] LENS STUDIO
+[SESSION 5 - 2026-09-05] LENS STUDIO
   Lens Studio 5.23.2 (macOS arm) installed - the user had been running it
   from the mounted disk image; the app was copied to /Applications. A SPECS
   base-template project was created and saved as LensProject/ inside the
@@ -363,7 +363,7 @@ Result: running the shipped code where the reimplementation used to run
   component's inputNames back. typecheck:lens now checks the gesture
   controller against the real SIK source from the project cache: clean.
 
-[SESSION 5, LATER — 2026-09-05] THE LENS RUNS
+[SESSION 5, LATER - 2026-09-05] THE LENS RUNS
   The editor had been on its Home screen with a temp "Default" project;
   every recompile had been hitting an empty project. Opened LensProject via
   Editor.Model.IModel.openProject through ExecuteEditorCode. Recompile then
@@ -393,7 +393,7 @@ Result: running the shipped code where the reimplementation used to run
   MapOperations::get) while a diagnostic read scriptInputInfo on an
   uncompiled asset; that read is now avoided.
 
-[SESSION 5, LATER STILL — 2026-09-05] ASR MIGRATION, SECOND PREVIEW RUN
+[SESSION 5, LATER STILL - 2026-09-05] ASR MIGRATION, SECOND PREVIEW RUN
   Every VoiceML call was deprecated per the editor's runtime warnings.
   VoiceCommandController now uses AsrModule (startTranscribing with
   AsrTranscriptionOptions; onTranscriptionUpdateEvent with isFinal;
@@ -406,7 +406,7 @@ Result: running the shipped code where the reimplementation used to run
   code because the Preview has no My Lenses login. The unused VoiceML asset
   was removed from the project.
 
-[SESSION 5, FINAL — 2026-09-05] A SPOKEN COMMAND SPAWNS FURNITURE IN THE LENS
+[SESSION 5, FINAL - 2026-09-05] A SPOKEN COMMAND SPAWNS FURNITURE IN THE LENS
   The user spoke "Give me a navy velvet sofa." into the Preview. Verbatim
   from the Lens runtime: heard ... -> spawn sofa [velvet] {navy} @auto
   (confidence 1.00); No surface for sofa; floating it instead; sofa ->
@@ -430,7 +430,7 @@ Result: running the shipped code where the reimplementation used to run
   in the desktop Preview). 155 tests. The frontend and the Lens are the same
   Scripts/ files; sync-lens keeps the project copy identical.
 
-[SESSION 5, GESTURES — 2026-09-05] THE GESTURE CONTROLLER ON THE RUNTIME
+[SESSION 5, GESTURES - 2026-09-05] THE GESTURE CONTROLLER ON THE RUNTIME
   With no Spectacles available, the gesture controller was exercised on the
   real runtime through Lens Studio's SPECS Preview simulation via the
   editor's PreviewInteractTool (simulated right hand: Pinch at the sofa,

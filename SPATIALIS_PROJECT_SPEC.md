@@ -1,6 +1,6 @@
-# 👓 SPATIALIS — Voice & Gesture 3D Spatial Interior Design Tool for SPECS
+# 👓 SPATIALIS - Voice & Gesture 3D Spatial Interior Design Tool for SPECS
 
-> **CLAD Summer Hackathon Blueprint (Week 4: CREATE — $1,000 1st Place Target)**  
+> **CLAD Summer Hackathon Blueprint (Week 4: CREATE - $1,000 1st Place Target)**  
 > **Host:** Snap Inc. / SPECS / Lenslist (`lenslist.co/clad-summer-hackathon`)  
 > **Target:** 1st Place ($1,000 Cash Prize)  
 > **Submission Deadline:** September 6, 2026 @ 23:59 PT  
@@ -64,15 +64,15 @@ Instead of navigating complex 3D software on a desktop, the user stands in their
 ## 📋 Required Submission Package Checklist
 
 - [x] `CLAD_PROMPT_LOG.txt` (Claude Code prompt transcript proving CLAD execution).
-- [x] Project description & source (`Scripts/` — all four subsystems, type-checked under `strict`).
-- [x] Test suite — 155 behavioural cases across all four subsystems, runnable from a clone.
-- [x] Type-checked against Snap's real API (Lens Studio 5.23.2 `StudioLib.d.ts`) — 0 errors; mutation-verified.
-- [x] Desk simulator — runs the real subsystem code in a browser, no headset required.
+- [x] Project description & source (`Scripts/` - all four subsystems, type-checked under `strict`).
+- [x] Test suite - 155 behavioural cases across all four subsystems, runnable from a clone.
+- [x] Type-checked against Snap's real API (Lens Studio 5.23.2 `StudioLib.d.ts`) - 0 errors; mutation-verified.
+- [x] Desk simulator - runs the real subsystem code in a browser, no headset required.
 - [x] Apache-2.0 licence (complete text; the earlier file was truncated and GitHub read the repo as unlicensed).
-- [x] CI — typecheck, test and simulator build on every push.
+- [x] CI - typecheck, test and simulator build on every push.
 - [ ] **GitHub repository set to public** (currently private; the checklist requires public).
-- [ ] Lens Studio scene wiring — prefabs imported and assigned (see `SETUP_LENS_STUDIO.md`).
-- [ ] On-device pass on Spectacles — tune pinch distances and grab radius.
+- [ ] Lens Studio scene wiring - prefabs imported and assigned (see `SETUP_LENS_STUDIO.md`).
+- [ ] On-device pass on Spectacles - tune pinch distances and grab radius.
 - [ ] Demo video walkthrough link (Google Drive / Dropbox).
 - [ ] Submission form filed on `lenslist.co/clad-summer-hackathon`.
 

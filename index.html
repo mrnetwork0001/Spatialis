@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spatialis — voice &amp; gesture spatial interior design for Snap Spectacles</title>
-<meta name="description" content="Stand in your room, speak, and furniture appears — anchored to your real floor, tables and walls. Built for Snap Spectacles in Lens Studio.">
+<title>Spatialis - voice &amp; gesture spatial interior design for Snap Spectacles</title>
+<meta name="description" content="Stand in your room, speak, and furniture appears - anchored to your real floor, tables and walls. Built for Snap Spectacles in Lens Studio.">
 <style>
   :root{
     --bg:#060609; --panel:#0a0a10; --panel-2:#0e0e15; --panel-3:#12121a;
@@ -294,7 +294,7 @@
       <h1>Talk to your room.<br><span class="grad">Watch it furnish itself.</span></h1>
       <p class="lede">
         Spatialis is a spatial interior design tool for Snap Spectacles. Stand in your
-        actual room, say <b>“add a floating marble coffee table”</b>, and it appears —
+        actual room, say <b>“add a floating marble coffee table”</b>, and it appears -
         scaled to life, snapped to your real floor, and restyled by voice or pinch.
       </p>
       <div class="cta">
@@ -400,7 +400,7 @@
   <p class="sub">
     Real speech is “uh, put a like, dark wood coffee table over there”. The parser
     scans the whole sentence for a verb, a noun, a finish, a colour and a placement,
-    then acts on whatever it found — no fixed phrasing required.
+    then acts on whatever it found - no fixed phrasing required.
   </p>
   <div class="cmds">
     <div class="cmd">
@@ -430,7 +430,7 @@
   </div>
   <div class="note" style="border-color:var(--sim);background:var(--violet-dim)">
     <b style="color:var(--sim)">“By the wall” is not “on the wall.”</b>
-    A chair asked for <i>by</i> the wall still stands on the floor — backed up to a
+    A chair asked for <i>by</i> the wall still stands on the floor - backed up to a
     wall and turned to face the room. Read as a wall mount, it would hang a chair
     at head height. That distinction is a separate anchoring path, and a test.
   </div>
@@ -444,7 +444,7 @@
     <div class="step">
       <div class="n">01 · HEAR</div>
       <h3>Voice intent</h3>
-      <p>The ASR module transcribes. Interim text is shown, only the final acted on — and duplicates are debounced, because ASR emits them.</p>
+      <p>The ASR module transcribes. Interim text is shown, only the final acted on - and duplicates are debounced, because ASR emits them.</p>
     </div>
     <div class="step">
       <div class="n">02 · PLACE</div>
@@ -475,8 +475,8 @@
         <div class="file">Scripts/VoiceCommandController.ts</div></div></div>
       <p>Turns a spoken sentence into an intent, then drives the other three.</p>
       <ul>
-        <li><b>Longest-alias matching</b> — “coffee table” beats “table”</li>
-        <li><b>Precedence rules</b> — “add a big sofa” spawns, doesn’t resize</li>
+        <li><b>Longest-alias matching</b> - “coffee table” beats “table”</li>
+        <li><b>Precedence rules</b> - “add a big sofa” spawns, doesn’t resize</li>
         <li>Spawn, restyle, recolour, scale, delete, clear</li>
         <li>Plurals, disfluency and bare nouns all resolve</li>
       </ul>
@@ -487,7 +487,7 @@
         <div class="file">Scripts/SurfaceAnchorEngine.ts</div></div></div>
       <p>Finds real surfaces and seats furniture flush against them.</p>
       <ul>
-        <li><b>Floor estimate eases</b> toward new lows — one bad depth sample can’t drop the floor</li>
+        <li><b>Floor estimate eases</b> toward new lows - one bad depth sample can’t drop the floor</li>
         <li>Re-probes when the gaze hits the wrong surface type</li>
         <li>Golden-angle spiral to clear existing furniture</li>
         <li>Wall-adjacent placement via two chained probes</li>
@@ -499,7 +499,7 @@
         <div class="file">Scripts/PBRMaterialSwapper.ts</div></div></div>
       <p>11 finishes and 10 tints, applied without touching anything else.</p>
       <ul>
-        <li><b>Per-object material clones</b> — else one command repaints every sofa in the room</li>
+        <li><b>Per-object material clones</b> - else one command repaints every sofa in the room</li>
         <li>Every uniform write guarded for custom shaders</li>
         <li>Tints preserve the finish: navy velvet stays velvet</li>
       </ul>
@@ -510,11 +510,11 @@
         <div class="file">Scripts/SpatialGestureController.ts</div></div></div>
       <p>SIK hand tracking for pinch, drag, rotate and two-hand scale.</p>
       <ul>
-        <li><b>Thresholds scale to your hand</b> — 3cm is a firm pinch on a large hand, an open grip on a small one</li>
+        <li><b>Thresholds scale to your hand</b> - 3cm is a firm pinch on a large hand, an open grip on a small one</li>
         <li>Hysteresis so joint jitter can’t chatter a grab</li>
         <li>Two hands → one continues the drag, doesn’t drop</li>
         <li>Lost tracking counts as a release, not a freeze</li>
-        <li><b>Crush to delete</b> — squeeze a held piece well below its minimum and let go</li>
+        <li><b>Crush to delete</b> - squeeze a held piece well below its minimum and let go</li>
       </ul>
     </div>
   </div>
@@ -531,7 +531,7 @@
   </p>
   <figure class="shot" style="margin-top:0">
     <img src="./docs/furniture.png" alt="All twelve Spatialis furniture models">
-    <figcaption>Rendered by three.js — an independent glTF reader, not the generator that wrote them.</figcaption>
+    <figcaption>Rendered by three.js - an independent glTF reader, not the generator that wrote them.</figcaption>
   </figure>
 </div></section>
 
@@ -539,7 +539,7 @@
   <div class="kicker">No smoke, no mirrors</div>
   <h2>What’s real, what’s simulated</h2>
   <p class="sub">
-    The app you just launched runs in a browser — so it matters exactly which parts
+    The app you just launched runs in a browser - so it matters exactly which parts
     are the shipped Lens code and which are scaffolding standing in for hardware.
   </p>
   <div class="split">
@@ -547,9 +547,9 @@
       <h3>● Real shipped code</h3>
       <p>Instances of the shipped <code>Scripts/*.ts</code>, compiled to ES modules and wired as the Inspector would wire them. Not reimplementations.</p>
       <ul>
-        <li><code>VoiceCommandController</code> — parse, execute, spawn animation, debounce, feedback</li>
-        <li><code>SurfaceAnchorEngine</code> — probe queue, floor calibration, classify, retry, overlap, wall-adjacent, reseat</li>
-        <li><code>PBRMaterialSwapper</code> — clone-once, cross-fade, guarded uniform writes</li>
+        <li><code>VoiceCommandController</code> - parse, execute, spawn animation, debounce, feedback</li>
+        <li><code>SurfaceAnchorEngine</code> - probe queue, floor calibration, classify, retry, overlap, wall-adjacent, reseat</li>
+        <li><code>PBRMaterialSwapper</code> - clone-once, cross-fade, guarded uniform writes</li>
         <li><code>FURNITURE_CATALOG</code>, <code>SpatialisRegistry</code>, the tween system</li>
         <li>The 12 <code>.glb</code> models the Lens would load</li>
       </ul>
@@ -573,7 +573,7 @@
   <div class="kicker">The real thing</div>
   <h2>Two front doors, one codebase</h2>
   <p class="sub">
-    The app you can launch above is the <b>browser simulator</b> — it hosts the shipped
+    The app you can launch above is the <b>browser simulator</b> - it hosts the shipped
     subsystems against a simulated room so anyone can try Spatialis without hardware.
     The <b>Lens</b> is the same four <code>Scripts/*.ts</code> files running inside Lens Studio
     for Spectacles. <code>npm run sync:lens</code> keeps the Lens project’s copy identical
@@ -584,17 +584,17 @@
       <h3>● Browser simulator</h3>
       <p>For judges, for the video, for anyone without a headset.</p>
       <ul>
-        <li>Real parser, anchor engine, material swapper — hosted in a page</li>
+        <li>Real parser, anchor engine, material swapper - hosted in a page</li>
         <li>Room, hit tests, head pose and pinch are simulated</li>
         <li><a href="./Simulator/">Launch app</a></li>
       </ul>
     </div>
     <div class="box real">
       <h3>● Lens Studio project</h3>
-      <p><code>LensProject/</code> — SPECS target, scene wired by script, runs in the editor’s Preview.</p>
+      <p><code>LensProject/</code> - SPECS target, scene wired by script, runs in the editor’s Preview.</p>
       <ul>
         <li>Open <code>LensProject/LensProject.esproj</code> in Lens Studio 5.22+, sign in to My Lenses, press ▶ in Preview</li>
-        <li>Say <i>“give me a navy velvet sofa”</i> — the runtime log shows the spawn, and the sofa appears</li>
+        <li>Say <i>“give me a navy velvet sofa”</i> - the runtime log shows the spawn, and the sofa appears</li>
         <li>No room surfaces in the desktop Preview, so pieces float; on Spectacles, World Query anchors them</li>
       </ul>
     </div>
@@ -619,7 +619,7 @@
   <div class="footer-grid">
     <div class="footer-brand">
       <a class="brand" href="./" style="text-decoration:none"><span class="brand-mark">S</span><span class="brand-name">SPATIALIS</span></a>
-      <p class="footer-desc">Voice &amp; gesture interior design for Snap Spectacles. Stand in your room, speak, and furniture appears — scaled to life, snapped to your real floor, restyled by voice or pinch. Same code in the Lens and in this browser.</p>
+      <p class="footer-desc">Voice &amp; gesture interior design for Snap Spectacles. Stand in your room, speak, and furniture appears - scaled to life, snapped to your real floor, restyled by voice or pinch. Same code in the Lens and in this browser.</p>
       <div class="footer-social">
         <a href="https://github.com/mrnetwork0001/Spatialis" title="GitHub" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
         <a href="https://ar.snap.com/lens-studio" title="Lens Studio" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c3.2 0 5.6 2.5 5.6 5.9v2.4c.5.2 1.1 0 1.6-.2.5-.2.9.2.7.7-.3.7-1.3 1-1.9 1.2.2 1.7 1.7 3.4 3.6 3.9.4.1.5.6.1.8-.8.4-1.6.5-2.2.6-.1.5-.3 1-.7 1.1-.6.1-1.4-.2-2.1 0-1.2.3-2.1 1.9-4.7 1.9s-3.5-1.6-4.7-1.9c-.7-.2-1.5.1-2.1 0-.4-.1-.6-.6-.7-1.1-.6-.1-1.4-.2-2.2-.6-.4-.2-.3-.7.1-.8 1.9-.5 3.4-2.2 3.6-3.9-.6-.2-1.6-.5-1.9-1.2-.2-.5.2-.9.7-.7.5.2 1.1.4 1.6.2V7.9C6.4 4.5 8.8 2 12 2z"/></svg></a>

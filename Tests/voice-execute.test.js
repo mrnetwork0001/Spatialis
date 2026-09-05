@@ -1,5 +1,5 @@
 /**
- * voice-execute.test.js — VoiceCommandController, the execution half.
+ * voice-execute.test.js - VoiceCommandController, the execution half.
  *
  * voice-parser.test.js proves that a sentence becomes the right intent. This
  * file proves the other half: that the intent actually produces a placed,
@@ -41,7 +41,7 @@ globalThis.getTime = () => clock.now;
 globalThis.isNull = (v) => realIsNull(v) || (typeof v === "object" && v !== null && v.destroyed === true);
 
 // ---------------------------------------------------------------------------
-// Fakes — shaped by what the shipped code actually calls
+// Fakes - shaped by what the shipped code actually calls
 // ---------------------------------------------------------------------------
 
 /** Material: the swapper reads/writes mainPass and clones it once per object. */
@@ -108,7 +108,7 @@ function makeSceneObject(name, position, baseScale, sharedMaterial) {
 /**
  * ObjectPrefab: instantiate(parent) drops the instance at the parent's origin,
  * as Lens Studio does. Every instance of one prefab shares the same Material
- * asset — exactly the situation the swapper must not repaint globally.
+ * asset - exactly the situation the swapper must not repaint globally.
  */
 function makePrefab(key, baseScale) {
   const shared = makeMaterial(key + "_material");
@@ -229,7 +229,7 @@ const passOf = (entry) => entry.sceneObject.visual.mainMaterial.mainPass;
 
 // ---------------------------------------------------------------------------
 
-suite("VoiceCommandController — a spoken sentence becomes a placed, styled object");
+suite("VoiceCommandController - a spoken sentence becomes a placed, styled object");
 
 test("“give me a navy velvet sofa” places a velvet sofa on the floor, tinted navy", () => {
   // The end-to-end promise of the product. Nothing here is set by a fake:
@@ -305,7 +305,7 @@ test("the spawn animation lifts the piece, then settles it at exactly the prefab
   ok(mid > BASE * 0.01 && mid < BASE, "mid-animation scale should be between hidden and full, got " + mid);
 
   w.pump(20);
-  // Not 0.999 — a gesture scale that later multiplies this must start from
+  // Not 0.999 - a gesture scale that later multiplies this must start from
   // the true base, or every "make it bigger" drifts.
   near(scaleOf(chair).x, BASE, 1e-12);
   near(scaleOf(chair).y, BASE, 1e-12);
@@ -418,7 +418,7 @@ test("the same holds on the retry path, when the gaze first hits the wrong surfa
   // The gaze lands on a partition wall; a sofa wants a floor, so the anchor
   // re-probes toward the ground. That second attempt is a separate code path
   // through the overlap check, and it must know which piece it is placing
-  // just like the first — otherwise every sofa spawned while facing a wall
+  // just like the first - otherwise every sofa spawned while facing a wall
   // dodges itself.
   const w = makeWorld();
   const spot = new vec3(0, FLOOR_Y, -100);
@@ -458,7 +458,7 @@ test("describe() reads back the style, finish and label in that order", () => {
   eq(w.feedback(), "Added a sage lounge chair on the floor");
 });
 
-suite("VoiceCommandController — spawn failure modes");
+suite("VoiceCommandController - spawn failure modes");
 
 test("a catalog noun with no prefab wired reports 'no model loaded' and places nothing", () => {
   const w = makeWorld();
@@ -515,7 +515,7 @@ test("a piece deleted while its hit test is in flight stays deleted", () => {
   eq(w.voice.tweens.tweens.length, 0, "no spawn animation for it either");
 });
 
-suite("VoiceCommandController — restyling what is already in the room");
+suite("VoiceCommandController - restyling what is already in the room");
 
 test("“make the sofa leather” restyles the sofa by kind and leaves the chair alone", () => {
   const w = makeWorld();
@@ -574,7 +574,7 @@ test("“twice as big” doubles, doubles again, then clamps at 4x base; “smal
   w.later(); w.say("make it twice as big"); w.pump(10);
   near(scaleOf(sofa).x, BASE * 4, 1e-9);
 
-  // The clamp is against the piece's OWN base scale, not against 1.0 — a
+  // The clamp is against the piece's OWN base scale, not against 1.0 - a
   // prefab authored at 1.5 must still be allowed to reach 6.0.
   w.later(); w.say("make it twice as big"); w.pump(10);
   near(scaleOf(sofa).x, BASE * 4, 1e-9, "must not exceed 4x base");
@@ -584,7 +584,7 @@ test("“twice as big” doubles, doubles again, then clamps at 4x base; “smal
   eq(w.feedback(), "Shrunk the sofa");
 });
 
-suite("VoiceCommandController — removing");
+suite("VoiceCommandController - removing");
 
 test("“remove the lamp” scales it out, destroys it, drops it from the registry and the swapper", () => {
   const w = makeWorld();
@@ -647,7 +647,7 @@ test("“clear the room” destroys every piece and counts them; a second clear 
   eq(w.feedback(), "Room is already empty");
 });
 
-suite("VoiceCommandController — transcript hygiene");
+suite("VoiceCommandController - transcript hygiene");
 
 test("an identical transcript within 2s is ASR echo and runs once; after 2s it runs again", () => {
   const w = makeWorld();
@@ -671,7 +671,7 @@ test("with the wake word required, only sentences carrying it are acted on, and 
   const w = makeWorld({ requireWakeWord: true });
   w.say("add a sofa");
   eq(SpatialisRegistry.count(), 0, "no wake word, no action");
-  eq(w.feedback(), "", "and no feedback either — the user was talking to someone else");
+  eq(w.feedback(), "", "and no feedback either - the user was talking to someone else");
 
   w.say("spatialis add a sofa");
   eq(SpatialisRegistry.count(), 1);

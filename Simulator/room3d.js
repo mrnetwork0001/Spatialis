@@ -60,7 +60,7 @@ export class Room3D {
   }
 
   // ---------------------------------------------------------------------------
-  // Static room — the geometry RoomHitTest in simulator.js raycasts against
+  // Static room - the geometry RoomHitTest in simulator.js raycasts against
   // ---------------------------------------------------------------------------
 
   buildRoom() {

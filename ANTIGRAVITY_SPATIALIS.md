@@ -1,7 +1,7 @@
-# 👓 ANTIGRAVITY_SPATIALIS — Persistent Project Context Directive
+# 👓 ANTIGRAVITY_SPATIALIS - Persistent Project Context Directive
 
 > **Project Name:** SPATIALIS  
-> **Target Event:** CLAD Summer Hackathon (Week 4: CREATE — $1,000 1st Place Target)  
+> **Target Event:** CLAD Summer Hackathon (Week 4: CREATE - $1,000 1st Place Target)  
 > **Host:** Snap Inc. / SPECS / Lenslist (`lenslist.co/clad-summer-hackathon`)  
 > **Submission Deadline:** September 6, 2026 @ 23:59 PT  
 > **Core Stack:** Lens Studio 5.22+ + SPECS Project Mode + TypeScript + Claude Code CLAD  

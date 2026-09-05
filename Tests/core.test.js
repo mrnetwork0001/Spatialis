@@ -1,5 +1,5 @@
 /**
- * core.test.js — SpatialisCore: catalog resolution, registry, math helpers.
+ * core.test.js - SpatialisCore: catalog resolution, registry, math helpers.
  * License: Apache-2.0
  */
 
@@ -33,7 +33,7 @@ function makeEntry(kind, x, z) {
   });
 }
 
-suite("SpatialisCore — catalog resolution");
+suite("SpatialisCore - catalog resolution");
 
 test("longest alias wins: 'coffee table' does not resolve as 'table'", () => {
   eq(resolveFurniture("a coffee table"), "coffeeTable");
@@ -45,7 +45,7 @@ test("multi-word aliases resolve regardless of surrounding words", () => {
   eq(resolveFurniture("a bedside lamp please"), "tableLamp");
 });
 
-test("plurals resolve — speech is often plural", () => {
+test("plurals resolve - speech is often plural", () => {
   eq(resolveFurniture("make the chairs navy"), "chair");
   eq(resolveFurniture("move the sofas"), "sofa");
 });
@@ -69,7 +69,7 @@ test("catalog metadata is physically sane", () => {
   }
 });
 
-suite("SpatialisCore — object registry");
+suite("SpatialisCore - object registry");
 
 test("register assigns increasing ids and counts", () => {
   SpatialisRegistry.removeAll();
@@ -79,7 +79,7 @@ test("register assigns increasing ids and counts", () => {
   eq(SpatialisRegistry.count(), 2);
 });
 
-test("last() returns the most recent spawn — the target of 'make it bigger'", () => {
+test("last() returns the most recent spawn - the target of 'make it bigger'", () => {
   SpatialisRegistry.removeAll();
   makeEntry("sofa", 0, 0);
   const chair = makeEntry("chair", 100, 0);
@@ -119,7 +119,7 @@ test("removeAll() reports how many it cleared and empties the room", () => {
   eq(SpatialisRegistry.count(), 0);
 });
 
-suite("SpatialisCore — math helpers");
+suite("SpatialisCore - math helpers");
 
 test("clamp bounds in both directions", () => {
   eq(core.clamp(5, 0, 1), 1);
@@ -127,7 +127,7 @@ test("clamp bounds in both directions", () => {
   eq(core.clamp(0.5, 0, 1), 0.5);
 });
 
-test("damp is framerate independent — this is why it exists", () => {
+test("damp is framerate independent - this is why it exists", () => {
   // One second of smoothing must land in the same place whether it was
   // reached in 60 steps or in 30.
   let at60 = 0;
@@ -156,7 +156,7 @@ test("easeOutCubic is monotonic and bounded", () => {
   }
 });
 
-test("yawTowards ignores height — furniture faces you without tipping over", () => {
+test("yawTowards ignores height - furniture faces you without tipping over", () => {
   const flat = core.yawTowards(new vec3(0, 0, 0), new vec3(100, 0, 0));
   const raised = core.yawTowards(new vec3(0, 0, 0), new vec3(100, 500, 0));
   eq(flat.w, raised.w, "a target overhead should yaw the same as one at eye level");
