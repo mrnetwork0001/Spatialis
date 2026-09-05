@@ -16,6 +16,15 @@
   "devDependencies": {
     "@types/node": "^20.11.16"
   },
-  "description": "Voice & gesture 3D spatial interior design tool for Snap Spectacles (Lens Studio 5.22+).",
-  "license": "Apache-2.0"
+  "description": "Voice & gesture spatial interior design tool for Snap Spectacles (Lens Studio 5.22+, TypeScript)",
+  "license": "Apache-2.0",
+  "author": "Ifeanyichukwu Onwo (mrnetwork0001)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrnetwork0001/Spatialis.git"
+  },
+  "homepage": "https://github.com/mrnetwork0001/Spatialis#readme",
+  "engines": {
+    "node": ">=18"
+  }
 }

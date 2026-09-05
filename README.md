@@ -4,6 +4,7 @@
 > **Submission deadline:** September 6, 2026 @ 23:59 PT
 > **Coding agent:** Claude Code + CLAD (Closed Loop Agentic Development)
 > **Environment:** Lens Studio 5.22+ · Spectacles Project Mode · TypeScript
+> **Author:** Ifeanyichukwu Onwo (`mrnetwork0001`)
 > **License:** Apache-2.0
 
 [![CI](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml/badge.svg)](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml)
@@ -145,8 +146,8 @@ The suite covers what cannot be verified by looking through a headset:
 |---|---|---|
 | `core.test.js` | 17 | Alias resolution, registry, framerate-independent damping |
 | `voice-parser.test.js` | 26 | The demo script plus the phrasings likely spoken instead |
-| `anchor.test.js` | 9 | Floor / table / wall / ceiling classification and its bounds |
 | `voice-execute.test.js` | 23 | Every execute path, debounce, wake word, and the end-to-end integration |
+| `anchor.test.js` | 9 | Floor / table / wall / ceiling classification and its bounds |
 | `anchor-placement.test.js` | 27 | Probe queue, calibration, retry, overlap, wall-adjacent, reseat |
 | `material.test.js` | 27 | Clone-once, isolation, guarded writes, cross-fade, textures |
 | `gesture.test.js` | 22 | Pinch hysteresis, hand-relative thresholds, two-hand scale, release transitions |
