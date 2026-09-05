@@ -20,13 +20,13 @@
  *     Anchor Engine     SurfaceAnchorEngine     camera=mainCamera, worldQueryAsset
  *     Material Swapper  PBRMaterialSwapper
  *     Gesture           SpatialGestureController anchorEngine
- *     Voice             VoiceCommandController   voiceMLModule, anchorEngine,
+ *     Voice             VoiceCommandController   asrModule, anchorEngine,
  *                                                materialSwapper, spawnParent,
  *                                                furnitureKeys, furniturePrefabs,
  *                                                feedbackText
  *     Spawn Root        (parent for spawned furniture)
  *     Feedback          Text component the controller writes into
- *   Assets/Modules/     VoiceML Module, World Query Module (native assets)
+ *   Assets/Modules/     ASR Module, World Query Module (native assets)
  *
  * License: Apache-2.0
  */
@@ -168,7 +168,7 @@
   const feedbackObj = ensureChild(root, "Feedback");
 
   const worldQuery = ensureModule("WorldQueryModule", "World Query Module");
-  const voiceML = ensureModule("VoiceMLModule", "VoiceML Module");
+  const asr = ensureModule("AsrModule", "ASR Module");
 
   let feedbackText = feedbackObj.components.find((c) => c.isOfType("Text")) as Editor.Components.Text | undefined;
   if (!feedbackText) {
@@ -190,7 +190,7 @@
 
   const prefabs = CATALOG_KEYS.map(prefabFor);
   const wiredKeys = CATALOG_KEYS.filter((_, i) => prefabs[i]);
-  setInput(voice, "voiceMLModule", voiceML);
+  setInput(voice, "asrModule", asr);
   setInput(voice, "anchorEngine", anchor);
   setInput(voice, "materialSwapper", material);
   setInput(voice, "spawnParent", spawnRoot);
