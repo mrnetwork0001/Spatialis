@@ -1,0 +1,128 @@
+- !<AssetImportMetadata/4145fa01-c5a4-40ad-af24-97e8381bfff7>
+  ImportedAssetIds:
+    .hidden/marble: !<reference> edc53fec-a74b-4412-92ed-0cd24b6a82ec
+    26ba073d67b9d0dd: !<reference> cf38f2f4-aa4f-4630-b371-af8b33a89995
+    88ab437fd121cc69: !<reference> 4c5a8d6b-5480-428a-a9a1-682288cbbbd2
+    8ca84b35803bb664: !<reference> 2e7f1087-da95-418c-ade8-5886d143772a
+    95f82626b0fcd4a8: !<reference> 811bdfbc-4e62-4b98-bf3f-3c8e59fc1f5b
+    Materials/marble: !<reference> 214e685b-3afb-4127-b6de-4ef003d496b6
+    Materials/marble|marble|GraphPassInfo: !<reference> 05e66033-d90a-4ad2-b6df-e22b87f198bb
+    Meshes/vase: !<reference> 1776181a-6bb8-43d2-951a-53bd26efa1fe
+    Scene: !<reference> a42aa65e-73d1-4971-b1c0-99323172c1dc
+    e24fc76fd8e5cad1: !<reference> 73f9b947-4d98-4aa3-802f-5ce46dc21dd7
+  ImporterName: GltfImporter
+  PrimaryAsset: !<reference> a42aa65e-73d1-4971-b1c0-99323172c1dc
+  PackageType: LegacyPackage
+  LegacyPackagePolicy: CanBeUnpackedTransparent
+  ExtraData:
+    {}
+  AssetDataMap:
+    Scene: !<own> 4f123f5b-b8f7-4206-8734-86a0ef5525f2
+  DependentFiles:
+    []
+  ImporterSettings: !<GltfImporterSettings>
+    UseLegacyImporter: false
+    WithMaterials: true
+    NamingConvention: ByCategorySanitizeV2
+    PersistentIdGenerationAlgorithm: DescriptorBasedV2
+    AnimationCurveOptimization: true
+    CustomAnimationSamplingRate: 30.000000
+    ImportVertexColor: true
+    ImportTangents: true
+    ImportMorphTargetAnimation: true
+    ConvertMetersToCentimeters: true
+    RegenerateTangents: false
+    OptimizeMesh: true
+  CompressionSettings: !<ComplexCompressionSettings>
+    Presets:
+      None Compression: !<FileCompressionSettings>
+        {}
+    ExtensionMappings:
+      mesh: None Compression
+    Overrides:
+      {}
+- !<SceneObject/2e7f1087-da95-418c-5217-a7792ebc88d5>
+  PrefabRemaps:
+    []
+  Name: vase
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 73f9b947-4d98-4aa3-7fd0-a31b923de228
+- !<SceneObject/4c5a8d6b-5480-428a-565e-97dd7734442d>
+  PrefabRemaps:
+    []
+  Name: Scenes
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 811bdfbc-4e62-4b98-40c0-c371a603e0a4
+  Components:
+    []
+- !<ObjectPrefabAssetData/4f123f5b-b8f7-4206-8734-86a0ef5525f2>
+  Prototype: !<ObjectOwner/b09a8ddd-8823-49ad-867c-b0aced0f9211>
+    PackagePath: ""
+    objects:
+      - !<own> cf38f2f4-aa4f-4630-4c8e-5074cc57666a
+- !<RenderMeshVisual/73f9b947-4d98-4aa3-7fd0-a31b923de228>
+  PrefabRemaps:
+    []
+  Name: vase
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 214e685b-3afb-4127-b6de-4ef003d496b6
+  Mesh: !<reference> 1776181a-6bb8-43d2-951a-53bd26efa1fe
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/811bdfbc-4e62-4b98-40c0-c371a603e0a4>
+  PrefabRemaps:
+    []
+  Name: vase
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 2e7f1087-da95-418c-5217-a7792ebc88d5
+  Components:
+    []
+- !<SceneObject/cf38f2f4-aa4f-4630-4c8e-5074cc57666a>
+  PrefabRemaps:
+    []
+  Name: vase
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 4c5a8d6b-5480-428a-565e-97dd7734442d
+  Components:
+    []

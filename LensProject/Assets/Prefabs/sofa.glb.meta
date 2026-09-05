@@ -1,0 +1,153 @@
+- !<AssetImportMetadata/c4741261-3d78-4ead-9d04-23b1acb4fc34>
+  ImportedAssetIds:
+    .hidden/linen: !<reference> 47ed278a-0293-414c-a915-044cdd76aae4
+    26ba073d67b9d0dd: !<reference> 77f6740d-e884-48a1-9294-f94b30c682ba
+    3f5975add175c8fb: !<reference> e92888f2-119b-40a8-817f-02702e76f459
+    4ee44e5c9725199c: !<reference> db3db15f-7b48-44fd-9697-899d43b4e098
+    88ab437fd121cc69: !<reference> 2a75fca8-43b9-4346-9082-ac99df2ac134
+    88f47ac63811ab91: !<reference> c58fc927-3967-412c-bc9d-ecdac91cf113
+    9f73fe94a509ef63: !<reference> 2344f7e3-1365-4438-9ae5-6d354868d851
+    Materials/linen: !<reference> ee34ba6d-a78a-4b74-9a5d-8ef158860b47
+    Materials/linen|linen|GraphPassInfo: !<reference> a01e019c-9a7e-4f26-aea0-ffa498d19a42
+    Materials/matteBlack: !<reference> 42f04c9e-aa94-4870-9765-80d15d5bfc86
+    Materials/matteBlack|matteBlack|GraphPassInfo: !<reference> 206716ad-8442-42a2-bd1a-e89f309c4fb9
+    Meshes/sofa: !<reference> 505e3f07-b4c4-41dc-a085-fe9109cacf7e
+    Meshes/sofa1: !<reference> 54aa5bf8-282f-4e72-99cf-1771f26c30bf
+    Scene: !<reference> 5979a808-97f7-42a6-b5fa-13a52b3674b1
+  ImporterName: GltfImporter
+  PrimaryAsset: !<reference> 5979a808-97f7-42a6-b5fa-13a52b3674b1
+  PackageType: LegacyPackage
+  LegacyPackagePolicy: CanBeUnpackedTransparent
+  ExtraData:
+    {}
+  AssetDataMap:
+    Scene: !<own> 51c26dd6-c50f-412f-8b00-fc4b8c7c7ec5
+  DependentFiles:
+    []
+  ImporterSettings: !<GltfImporterSettings>
+    UseLegacyImporter: false
+    WithMaterials: true
+    NamingConvention: ByCategorySanitizeV2
+    PersistentIdGenerationAlgorithm: DescriptorBasedV2
+    AnimationCurveOptimization: true
+    CustomAnimationSamplingRate: 30.000000
+    ImportVertexColor: true
+    ImportTangents: true
+    ImportMorphTargetAnimation: true
+    ConvertMetersToCentimeters: true
+    RegenerateTangents: false
+    OptimizeMesh: true
+  CompressionSettings: !<ComplexCompressionSettings>
+    Presets:
+      None Compression: !<FileCompressionSettings>
+        {}
+    ExtensionMappings:
+      mesh: None Compression
+    Overrides:
+      {}
+- !<SceneObject/2344f7e3-1365-4438-651a-92cab79727ae>
+  PrefabRemaps:
+    []
+  Name: sofa
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> e92888f2-119b-40a8-7e80-fd8fd1890ba6
+  Components:
+    []
+- !<SceneObject/2a75fca8-43b9-4346-6f7d-536620d53ecb>
+  PrefabRemaps:
+    []
+  Name: Scenes
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 2344f7e3-1365-4438-651a-92cab79727ae
+  Components:
+    []
+- !<ObjectPrefabAssetData/51c26dd6-c50f-412f-8b00-fc4b8c7c7ec5>
+  Prototype: !<ObjectOwner/51e1806b-82f8-40c0-abfb-71cee32a4990>
+    PackagePath: ""
+    objects:
+      - !<own> 77f6740d-e884-48a1-6d6b-06b4cf397d45
+- !<SceneObject/77f6740d-e884-48a1-6d6b-06b4cf397d45>
+  PrefabRemaps:
+    []
+  Name: sofa
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 2a75fca8-43b9-4346-6f7d-536620d53ecb
+  Components:
+    []
+- !<RenderMeshVisual/c58fc927-3967-412c-4362-132536e30eec>
+  PrefabRemaps:
+    []
+  Name: sofa
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 42f04c9e-aa94-4870-9765-80d15d5bfc86
+  Mesh: !<reference> 505e3f07-b4c4-41dc-a085-fe9109cacf7e
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<RenderMeshVisual/db3db15f-7b48-44fd-6968-7662bc4b1f67>
+  PrefabRemaps:
+    []
+  Name: sofa
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> ee34ba6d-a78a-4b74-9a5d-8ef158860b47
+  Mesh: !<reference> 54aa5bf8-282f-4e72-99cf-1771f26c30bf
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/e92888f2-119b-40a8-7e80-fd8fd1890ba6>
+  PrefabRemaps:
+    []
+  Name: sofa
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> c58fc927-3967-412c-4362-132536e30eec
+    - !<own> db3db15f-7b48-44fd-6968-7662bc4b1f67

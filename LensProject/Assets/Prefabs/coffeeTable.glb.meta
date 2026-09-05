@@ -1,0 +1,128 @@
+- !<AssetImportMetadata/fef35603-d8c0-44cb-8c4a-51bb27181d8c>
+  ImportedAssetIds:
+    .hidden/walnut: !<reference> 715f6886-9d0b-4ef9-9622-b9d3ee4b1a33
+    26ba073d67b9d0dd: !<reference> cbdcc01a-ffcb-482f-89a3-46ef83f71b97
+    3cbfb973ffa4695e: !<reference> cde43ae1-05c5-4a9b-b619-675e35d0b185
+    729bf0de2084dc1c: !<reference> 534aba13-153d-484f-a5d5-9ef09cbb00ec
+    88ab437fd121cc69: !<reference> 6edbedb8-82a8-4b09-92d2-bd12357bfe7c
+    Materials/walnut: !<reference> 081e129c-40fe-4670-ab00-355a5e7b88ed
+    Materials/walnut|walnut|GraphPassInfo: !<reference> 7ab6fa79-4945-4ef8-bfcd-8819c47145bc
+    Meshes/coffeeTable: !<reference> 8ab5bc67-7883-40a0-a7ce-0373e62ee20e
+    Scene: !<reference> 8156b836-2506-493f-ad61-58cf548e6995
+    b828e445336d3ca1: !<reference> 443466e5-3e90-493e-9b9f-328f4e244ab4
+  ImporterName: GltfImporter
+  PrimaryAsset: !<reference> 8156b836-2506-493f-ad61-58cf548e6995
+  PackageType: LegacyPackage
+  LegacyPackagePolicy: CanBeUnpackedTransparent
+  ExtraData:
+    {}
+  AssetDataMap:
+    Scene: !<own> 0414391d-3ca3-439d-ae13-8d27aab95289
+  DependentFiles:
+    []
+  ImporterSettings: !<GltfImporterSettings>
+    UseLegacyImporter: false
+    WithMaterials: true
+    NamingConvention: ByCategorySanitizeV2
+    PersistentIdGenerationAlgorithm: DescriptorBasedV2
+    AnimationCurveOptimization: true
+    CustomAnimationSamplingRate: 30.000000
+    ImportVertexColor: true
+    ImportTangents: true
+    ImportMorphTargetAnimation: true
+    ConvertMetersToCentimeters: true
+    RegenerateTangents: false
+    OptimizeMesh: true
+  CompressionSettings: !<ComplexCompressionSettings>
+    Presets:
+      None Compression: !<FileCompressionSettings>
+        {}
+    ExtensionMappings:
+      mesh: None Compression
+    Overrides:
+      {}
+- !<ObjectPrefabAssetData/0414391d-3ca3-439d-ae13-8d27aab95289>
+  Prototype: !<ObjectOwner/701b1ffe-811e-4a7f-bee3-2b94ef8e58dc>
+    PackagePath: ""
+    objects:
+      - !<own> cbdcc01a-ffcb-482f-765c-b9107c08e468
+- !<SceneObject/443466e5-3e90-493e-6460-cd70b1dbb54b>
+  PrefabRemaps:
+    []
+  Name: coffeeTable
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 534aba13-153d-484f-5a2a-610f6344ff13
+- !<RenderMeshVisual/534aba13-153d-484f-5a2a-610f6344ff13>
+  PrefabRemaps:
+    []
+  Name: coffeeTable
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 081e129c-40fe-4670-ab00-355a5e7b88ed
+  Mesh: !<reference> 8ab5bc67-7883-40a0-a7ce-0373e62ee20e
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/6edbedb8-82a8-4b09-6d2d-42edca840183>
+  PrefabRemaps:
+    []
+  Name: Scenes
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> cde43ae1-05c5-4a9b-49e6-98a1ca2f4e7a
+  Components:
+    []
+- !<SceneObject/cbdcc01a-ffcb-482f-765c-b9107c08e468>
+  PrefabRemaps:
+    []
+  Name: coffeeTable
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 6edbedb8-82a8-4b09-6d2d-42edca840183
+  Components:
+    []
+- !<SceneObject/cde43ae1-05c5-4a9b-49e6-98a1ca2f4e7a>
+  PrefabRemaps:
+    []
+  Name: coffeeTable
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 443466e5-3e90-493e-6460-cd70b1dbb54b
+  Components:
+    []

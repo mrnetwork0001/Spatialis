@@ -1,0 +1,178 @@
+- !<AssetImportMetadata/e9984370-1d11-45f7-a73e-f45b7997e5ed>
+  ImportedAssetIds:
+    .hidden/brass: !<reference> 18df27ea-aa30-4ec7-a6a3-baed09fac992
+    26ba073d67b9d0dd: !<reference> 39bde978-a11a-4707-86f7-d50bfe62e803
+    4803608b6feb8951: !<reference> 0d51c39e-3357-4f01-9245-fca8a9900b35
+    4b670b61432cd4b6: !<reference> e7a20a0a-9a6c-40cd-9d22-fd13c114d758
+    50351cdc36c2c098: !<reference> d115cc71-3fe7-4b27-9639-a339001b8bf7
+    595584ca5e67a355: !<reference> 8a26ac20-f9e9-49a3-89f7-6044da2a7a02
+    88ab437fd121cc69: !<reference> ac7f8879-44a2-460f-ad92-9dbd0676632a
+    Materials/brass: !<reference> c94866db-58fa-4fc1-8a10-3975dcf9e87b
+    Materials/brass|brass|GraphPassInfo: !<reference> 6d357344-3769-48c7-a784-feef7fb18988
+    Materials/linenShade: !<reference> c35a7d40-bd87-48b0-9377-aae9edbfaadc
+    Materials/linenShade|linenShade|GraphPassInfo: !<reference> 42c3f5d3-2ee8-435a-8c72-57af44138234
+    Materials/marble: !<reference> c8a9c56a-1a5a-4dcf-8211-da38051adf19
+    Materials/marble|marble|GraphPassInfo: !<reference> bc8f0320-cde1-467c-8f13-a734cbaff805
+    Meshes/tableLamp: !<reference> c72563e1-711b-4ea5-8750-e8b860a547c3
+    Meshes/tableLamp1: !<reference> 661e0007-c72f-4b8d-9167-835552ec4b1a
+    Meshes/tableLamp2: !<reference> 70b8d095-ac19-4d33-9402-cdde2c0754e3
+    Scene: !<reference> bfb395ee-7bf4-4209-a802-798fcd04d0d5
+    a0d1003d5cb65f57: !<reference> c1d55f53-a9c2-4a32-8f51-019f40da0ed8
+  ImporterName: GltfImporter
+  PrimaryAsset: !<reference> bfb395ee-7bf4-4209-a802-798fcd04d0d5
+  PackageType: LegacyPackage
+  LegacyPackagePolicy: CanBeUnpackedTransparent
+  ExtraData:
+    {}
+  AssetDataMap:
+    Scene: !<own> f80446ec-213e-4880-bbf6-3a7328d8a558
+  DependentFiles:
+    []
+  ImporterSettings: !<GltfImporterSettings>
+    UseLegacyImporter: false
+    WithMaterials: true
+    NamingConvention: ByCategorySanitizeV2
+    PersistentIdGenerationAlgorithm: DescriptorBasedV2
+    AnimationCurveOptimization: true
+    CustomAnimationSamplingRate: 30.000000
+    ImportVertexColor: true
+    ImportTangents: true
+    ImportMorphTargetAnimation: true
+    ConvertMetersToCentimeters: true
+    RegenerateTangents: false
+    OptimizeMesh: true
+  CompressionSettings: !<ComplexCompressionSettings>
+    Presets:
+      None Compression: !<FileCompressionSettings>
+        {}
+    ExtensionMappings:
+      mesh: None Compression
+    Overrides:
+      {}
+- !<RenderMeshVisual/0d51c39e-3357-4f01-6dba-0357566ff4ca>
+  PrefabRemaps:
+    []
+  Name: tableLamp
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> c94866db-58fa-4fc1-8a10-3975dcf9e87b
+  Mesh: !<reference> 661e0007-c72f-4b8d-9167-835552ec4b1a
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/39bde978-a11a-4707-7908-2af4019d17fc>
+  PrefabRemaps:
+    []
+  Name: tableLamp
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> ac7f8879-44a2-460f-526d-6242f9899cd5
+  Components:
+    []
+- !<RenderMeshVisual/8a26ac20-f9e9-49a3-7608-9fbb25d585fd>
+  PrefabRemaps:
+    []
+  Name: tableLamp
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> c8a9c56a-1a5a-4dcf-8211-da38051adf19
+  Mesh: !<reference> c72563e1-711b-4ea5-8750-e8b860a547c3
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/ac7f8879-44a2-460f-526d-6242f9899cd5>
+  PrefabRemaps:
+    []
+  Name: Scenes
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> e7a20a0a-9a6c-40cd-62dd-02ec3eeb28a7
+  Components:
+    []
+- !<RenderMeshVisual/c1d55f53-a9c2-4a32-70ae-fe60bf25f127>
+  PrefabRemaps:
+    []
+  Name: tableLamp
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> c35a7d40-bd87-48b0-9377-aae9edbfaadc
+  Mesh: !<reference> 70b8d095-ac19-4d33-9402-cdde2c0754e3
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/d115cc71-3fe7-4b27-69c6-5cc6ffe47408>
+  PrefabRemaps:
+    []
+  Name: tableLamp
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 8a26ac20-f9e9-49a3-7608-9fbb25d585fd
+    - !<own> 0d51c39e-3357-4f01-6dba-0357566ff4ca
+    - !<own> c1d55f53-a9c2-4a32-70ae-fe60bf25f127
+- !<SceneObject/e7a20a0a-9a6c-40cd-62dd-02ec3eeb28a7>
+  PrefabRemaps:
+    []
+  Name: tableLamp
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> d115cc71-3fe7-4b27-69c6-5cc6ffe47408
+  Components:
+    []
+- !<ObjectPrefabAssetData/f80446ec-213e-4880-bbf6-3a7328d8a558>
+  Prototype: !<ObjectOwner/0f0a7b5c-b0b9-413a-978f-88acaa1645ef>
+    PackagePath: ""
+    objects:
+      - !<own> 39bde978-a11a-4707-7908-2af4019d17fc

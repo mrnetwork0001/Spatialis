@@ -1,0 +1,178 @@
+- !<AssetImportMetadata/4e693547-4587-448e-977b-29ab3ee95aae>
+  ImportedAssetIds:
+    .hidden/linen: !<reference> eebf2b85-6f62-4430-8295-5cd9eb5f1aa4
+    26ba073d67b9d0dd: !<reference> f27d9c46-043c-45ba-bfe7-681bacf27947
+    2bd45aed8393127e: !<reference> d629e3dd-aa54-4afb-a06c-28a6c007e3ba
+    59518de698fa26e5: !<reference> 1710d89e-4027-4c22-af5d-eb62ea60726e
+    810a7e28ebb745cc: !<reference> 88458392-96fa-44fc-95e6-a93a29d0511b
+    83f34848b83a99ce: !<reference> 36037145-4f69-4318-86be-0ae1aa80e0c2
+    88ab437fd121cc69: !<reference> 4aca3d28-5886-482a-875d-8678acb675c5
+    Materials/linen: !<reference> 9796f5b5-39f7-404e-8dfb-4fa5262dbd3a
+    Materials/linen|linen|GraphPassInfo: !<reference> 20687505-4b78-4603-99b2-000dbab474bb
+    Materials/matteBlack: !<reference> 950faec1-1dd2-473c-a6ec-f05f78bd2dfe
+    Materials/matteBlack|matteBlack|GraphPassInfo: !<reference> 44b1d138-ddea-46fe-ae28-9dde10050b4c
+    Materials/oak: !<reference> 76097e35-57cc-4e87-a1ac-b835ca4f4e14
+    Materials/oak|oak|GraphPassInfo: !<reference> 108f9f8a-f665-4be4-b10c-7ec6e43a800e
+    Meshes/chair: !<reference> 1c836692-00d8-4b37-b4a5-bd4be9b2d131
+    Meshes/chair1: !<reference> 0cf3c72e-5d32-43e9-af92-f720c80e7a30
+    Meshes/chair2: !<reference> 4d0dc6f1-6b0c-4c32-b68b-9cf63c06bd6d
+    Scene: !<reference> 15869e97-f7c2-47d6-8f16-454b92582529
+    d3b1867f8c67c11e: !<reference> 001a0626-2e87-45b2-9a07-261667dbe028
+  ImporterName: GltfImporter
+  PrimaryAsset: !<reference> 15869e97-f7c2-47d6-8f16-454b92582529
+  PackageType: LegacyPackage
+  LegacyPackagePolicy: CanBeUnpackedTransparent
+  ExtraData:
+    {}
+  AssetDataMap:
+    Scene: !<own> f9070532-dd22-4cd3-bc6e-95a3da490358
+  DependentFiles:
+    []
+  ImporterSettings: !<GltfImporterSettings>
+    UseLegacyImporter: false
+    WithMaterials: true
+    NamingConvention: ByCategorySanitizeV2
+    PersistentIdGenerationAlgorithm: DescriptorBasedV2
+    AnimationCurveOptimization: true
+    CustomAnimationSamplingRate: 30.000000
+    ImportVertexColor: true
+    ImportTangents: true
+    ImportMorphTargetAnimation: true
+    ConvertMetersToCentimeters: true
+    RegenerateTangents: false
+    OptimizeMesh: true
+  CompressionSettings: !<ComplexCompressionSettings>
+    Presets:
+      None Compression: !<FileCompressionSettings>
+        {}
+    ExtensionMappings:
+      mesh: None Compression
+    Overrides:
+      {}
+- !<RenderMeshVisual/001a0626-2e87-45b2-65f8-d9e998241fd7>
+  PrefabRemaps:
+    []
+  Name: chair
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 950faec1-1dd2-473c-a6ec-f05f78bd2dfe
+  Mesh: !<reference> 1c836692-00d8-4b37-b4a5-bd4be9b2d131
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<RenderMeshVisual/1710d89e-4027-4c22-50a2-149d159f8d91>
+  PrefabRemaps:
+    []
+  Name: chair
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 76097e35-57cc-4e87-a1ac-b835ca4f4e14
+  Mesh: !<reference> 4d0dc6f1-6b0c-4c32-b68b-9cf63c06bd6d
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/36037145-4f69-4318-7941-f51e557f1f3d>
+  PrefabRemaps:
+    []
+  Name: chair
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> d629e3dd-aa54-4afb-5f93-d7593ff81c45
+  Components:
+    []
+- !<SceneObject/4aca3d28-5886-482a-78a2-798753498a3a>
+  PrefabRemaps:
+    []
+  Name: Scenes
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 36037145-4f69-4318-7941-f51e557f1f3d
+  Components:
+    []
+- !<RenderMeshVisual/88458392-96fa-44fc-6a19-56c5d62faee4>
+  PrefabRemaps:
+    []
+  Name: chair
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 9796f5b5-39f7-404e-8dfb-4fa5262dbd3a
+  Mesh: !<reference> 0cf3c72e-5d32-43e9-af92-f720c80e7a30
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<SceneObject/d629e3dd-aa54-4afb-5f93-d7593ff81c45>
+  PrefabRemaps:
+    []
+  Name: chair
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 001a0626-2e87-45b2-65f8-d9e998241fd7
+    - !<own> 88458392-96fa-44fc-6a19-56c5d62faee4
+    - !<own> 1710d89e-4027-4c22-50a2-149d159f8d91
+- !<SceneObject/f27d9c46-043c-45ba-4018-97e4530d86b8>
+  PrefabRemaps:
+    []
+  Name: chair
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 4aca3d28-5886-482a-78a2-798753498a3a
+  Components:
+    []
+- !<ObjectPrefabAssetData/f9070532-dd22-4cd3-bc6e-95a3da490358>
+  Prototype: !<ObjectOwner/cb896de5-8274-4300-b062-4f4757bc2c2c>
+    PackagePath: ""
+    objects:
+      - !<own> f27d9c46-043c-45ba-4018-97e4530d86b8
