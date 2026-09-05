@@ -161,6 +161,21 @@ const COLOR_PRESETS: ColorPreset[] = [
   { key: "burgundy", rgb: new vec3(0.36, 0.10, 0.15), aliases: ["burgundy", "wine", "maroon", "red"] },
 ];
 
+/**
+ * Uniform names by material family. Lens Studio's built-in PBR exposes
+ * baseColor/metallic/roughness; materials imported from glTF expose the
+ * specification's own names, baseColorFactor/metallicFactor/roughnessFactor.
+ * Every spawned prefab here is a glTF import, so a swapper that knew only the
+ * built-in names would write nothing and report success - which is exactly
+ * what happened on the first run in Lens Studio's Preview.
+ */
+const UNIFORM_ALIASES: { [key: string]: string[] } = {
+  baseColor: ["baseColor", "baseColorFactor"],
+  metallic: ["metallic", "metallicFactor"],
+  roughness: ["roughness", "roughnessFactor"],
+  baseTex: ["baseTex"],
+};
+
 /** Per-object bookkeeping so we clone a material exactly once. */
 interface StyledObject {
   objectId: number;
@@ -454,36 +469,47 @@ export class PBRMaterialSwapper extends BaseScriptComponent {
     }
   }
 
+  /** Write to the first alias the pass exposes; skip silently if it has none. */
   private trySet(pass: any, property: string, value: any): void {
-    try {
-      if (pass[property] !== undefined) {
-        pass[property] = value;
+    const names = UNIFORM_ALIASES[property] || [property];
+    for (let i = 0; i < names.length; i++) {
+      try {
+        if (pass[names[i]] !== undefined) {
+          pass[names[i]] = value;
+          return;
+        }
+      } catch (e) {
+        // Shader does not expose this uniform — try the next name.
       }
-    } catch (e) {
-      // Shader does not expose this uniform — skip it silently.
     }
   }
 
   private readColor(material: Material): vec4 {
-    try {
-      const pass = material.mainPass as any;
-      if (pass && pass.baseColor) {
-        return pass.baseColor as vec4;
+    const names = UNIFORM_ALIASES.baseColor;
+    for (let i = 0; i < names.length; i++) {
+      try {
+        const pass = material.mainPass as any;
+        if (pass && pass[names[i]]) {
+          return pass[names[i]] as vec4;
+        }
+      } catch (e) {
+        // fall through to the next name
       }
-    } catch (e) {
-      // fall through
     }
     return new vec4(1, 1, 1, 1);
   }
 
   private readNumber(material: Material, property: string, fallback: number): number {
-    try {
-      const pass = material.mainPass as any;
-      if (pass && typeof pass[property] === "number") {
-        return pass[property] as number;
+    const names = UNIFORM_ALIASES[property] || [property];
+    for (let i = 0; i < names.length; i++) {
+      try {
+        const pass = material.mainPass as any;
+        if (pass && typeof pass[names[i]] === "number") {
+          return pass[names[i]] as number;
+        }
+      } catch (e) {
+        // fall through to the next name
       }
-    } catch (e) {
-      // fall through
     }
     return fallback;
   }

@@ -29,10 +29,9 @@ const { SpatialisRegistry, getFurnitureSpec, easeOutCubic } = require(path.join(
  */
 function makeMaterial(props = {}) {
   const pass = {};
-  if (props.baseColor !== undefined) pass.baseColor = props.baseColor;
-  if (props.metallic !== undefined) pass.metallic = props.metallic;
-  if (props.roughness !== undefined) pass.roughness = props.roughness;
-  if (props.baseTex !== undefined) pass.baseTex = props.baseTex;
+  for (const k of ["baseColor", "metallic", "roughness", "baseTex", "baseColorFactor", "metallicFactor", "roughnessFactor"]) {
+    if (props[k] !== undefined) pass[k] = props[k];
+  }
 
   const material = {
     name: props.name || "material",
@@ -42,13 +41,11 @@ function makeMaterial(props = {}) {
       // A clone is a NEW asset with its own pass values — writes to the clone
       // must never reach the source, so copy the vec4 rather than share it.
       this.cloneCount++;
-      const c = pass.baseColor;
+      const cp = (v) => (v && typeof v.x === "number" ? new vec4(v.x, v.y, v.z, v.w) : v);
       const copy = makeMaterial({
         name: this.name + "-clone",
-        baseColor: c ? new vec4(c.x, c.y, c.z, c.w) : undefined,
-        metallic: pass.metallic,
-        roughness: pass.roughness,
-        baseTex: pass.baseTex,
+        baseColor: cp(pass.baseColor), metallic: pass.metallic, roughness: pass.roughness, baseTex: pass.baseTex,
+        baseColorFactor: cp(pass.baseColorFactor), metallicFactor: pass.metallicFactor, roughnessFactor: pass.roughnessFactor,
       });
       copy.clonedFrom = this;
       return copy;
@@ -545,4 +542,34 @@ test("resolveColor picks the longest alias and ignores case", () => {
 test("getPresetLabel falls back to the key for unknown finishes", () => {
   eq(PBRMaterialSwapper.getPresetLabel("brass"), "brushed brass");
   eq(PBRMaterialSwapper.getPresetLabel("nope"), "nope");
+});
+
+suite("PBRMaterialSwapper — glTF-imported materials");
+
+test("a pass exposing only glTF's *Factor names is written, not skipped", () => {
+  // Every spawned prefab is a glTF import, whose materials expose
+  // baseColorFactor/metallicFactor/roughnessFactor rather than the built-in
+  // PBR names. The first Preview run reported 'sofa -> velvet' while the sofa
+  // stayed linen-white: the guarded write found no 'baseColor' and skipped.
+  const s = makeSwapper();
+  const source = makeMaterial({ baseColorFactor: new vec4(0.86, 0.83, 0.76, 1), metallicFactor: 0, roughnessFactor: 0.94 });
+  const visual = makeVisual(source);
+  const sofa = place("sofa", makeNode([visual]));
+  ok(s.applyMaterial(sofa, "brass"));
+  const pass = passOf(visual);
+  near(pass.baseColorFactor.x, BRASS.baseColor.x, 1e-9, "colour written to baseColorFactor");
+  near(pass.metallicFactor, 1.0, 1e-9, "metallic written to metallicFactor");
+  near(pass.roughnessFactor, BRASS.roughness, 1e-9, "roughness written to roughnessFactor");
+  eq(pass.baseColor, undefined, "no built-in-named uniform was invented on the pass");
+});
+
+test("the first fade on a glTF material starts from its own baseColorFactor", () => {
+  const s = makeSwapper({ blendDuration: 0.5 });
+  const source = makeMaterial({ baseColorFactor: new vec4(0.2, 0.3, 0.4, 1), metallicFactor: 0, roughnessFactor: 0.5 });
+  const visual = makeVisual(source);
+  const sofa = place("sofa", makeNode([visual]));
+  ok(s.applyMaterial(sofa, "velvet"));
+  s.tweens.update(0.001);
+  const c = passOf(visual).baseColorFactor;
+  ok(c.x < 0.25 && c.x > 0.19, "fade begins near the prefab's own colour, not white");
 });
