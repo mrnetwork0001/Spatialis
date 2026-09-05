@@ -137,7 +137,7 @@ npm install
 
 npm run typecheck   # strict type check against the local API stubs (what CI runs)
 npm run typecheck:lens  # the same code against Snap's REAL API — needs Lens Studio installed
-npm test            # 155 behavioural tests across all four subsystems
+npm test            # 161 behavioural tests across all four subsystems
 npm run sim         # landing page + app on http://localhost:8777/
 ```
 
@@ -151,7 +151,7 @@ The suite covers what cannot be verified by looking through a headset:
 | `anchor.test.js` | 9 | Floor / table / wall / ceiling classification and its bounds |
 | `anchor-placement.test.js` | 27 | Probe queue, calibration, retry, overlap, wall-adjacent, reseat |
 | `material.test.js` | 27 | Clone-once, isolation, guarded writes, cross-fade, textures |
-| `gesture.test.js` | 22 | Pinch hysteresis, hand-relative thresholds, two-hand scale, release transitions |
+| `gesture.test.js` | 22 | Pinch hysteresis, hand-relative thresholds, two-hand scale, crush-to-delete, release transitions |
 
 Both run on any machine — **no Lens Studio and no headset required**. The
 project ships local ambient type stubs ([`types/lens-studio.d.ts`](types/lens-studio.d.ts))
