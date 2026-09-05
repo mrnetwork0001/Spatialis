@@ -24,3 +24,11 @@ Workspaces/**
 .codex/config.toml
 .claude/settings.local.json
 # END Lens Studio managed Agents-Docs block
+
+# Injected by Lens Studio's MCP agent tooling during sessions; not referenced by the Lens.
+Packages/AiPreviewAgentInteract.lspkg
+Packages/AiPreviewAgentInteract.lspkg.meta
+Packages/Bitmoji 3D.lsc
+Packages/Bitmoji 3D.lsc.meta
+Packages/Leaf.lspkg
+Packages/Leaf.lspkg.meta
