@@ -29,7 +29,8 @@
   }
   ::selection{background:var(--accent-dim);color:var(--accent)}
   a{color:inherit}
-  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+  /* Half the side margins of a centred 1120px column: the column grows to (viewport + 1120) / 2. */
+  .wrap{max-width:calc(50vw + 560px);margin:0 auto;padding:0 24px}
 
   /* ---------- nav ---------- */
   nav{
