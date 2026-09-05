@@ -48,8 +48,8 @@ export class Room3D {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x0d1017);
-    this.scene.fog = new THREE.Fog(0x0d1017, 4, 14);
+    this.scene.background = new THREE.Color(0x060609);
+    this.scene.fog = new THREE.Fog(0x060609, 4, 14);
 
     // A wide-ish FOV keeps the room legible from a standing position; SPECS'
     // own field of view is narrower, so this errs toward showing more.
@@ -70,7 +70,7 @@ export class Room3D {
 
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(W, D),
-      new THREE.MeshStandardMaterial({ color: 0x2b2f38, roughness: 0.95, metalness: 0 })
+      new THREE.MeshStandardMaterial({ color: 0x1c1c26, roughness: 0.95, metalness: 0 })
     );
     floor.rotation.x = -Math.PI / 2;
     floor.position.set(W / 2, 0, D / 2);
@@ -79,12 +79,12 @@ export class Room3D {
 
     // A faint grid keeps the sense of scale the plan view gives for free.
     const grid = new THREE.GridHelper(Math.max(W, D), Math.round(Math.max(W, D) / 0.5),
-                                      0x3a4152, 0x2f353f);
+                                      0x2a2a37, 0x20202b);
     grid.position.set(W / 2, 0.002, D / 2);
     this.scene.add(grid);
 
     const wallMat = new THREE.MeshStandardMaterial({
-      color: 0x3c424e, roughness: 0.92, metalness: 0, side: THREE.DoubleSide,
+      color: 0x2a2a37, roughness: 0.92, metalness: 0, side: THREE.DoubleSide,
     });
     const wall = (w, h, x, y, z, ry) => {
       const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
@@ -259,7 +259,7 @@ export class Room3D {
       this.selection = null;
     }
     if (obj) {
-      this.selection = new THREE.BoxHelper(obj, 0xffd84d);
+      this.selection = new THREE.BoxHelper(obj, 0x7ee705);
       this.scene.add(this.selection);
     }
   }

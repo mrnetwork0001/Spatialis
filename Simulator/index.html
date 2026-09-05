@@ -5,38 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spatialis — Desk Simulator</title>
 <style>
-  :root {
-    --bg: #0b0d11;  --panel: #12151c;  --panel-2: #171b24;
-    --line: #232936; --line-2: #2f3746;
-    --ink: #e8ecf4;  --ink-dim: #9aa4b6; --ink-faint: #626d80;
-    --accent: #ffd84d; --accent-dim: #6b5a15;
-    --real: #4ade80;  --sim: #60a5fa;
-    --mono: ui-monospace, "SF Mono", Menlo, monospace;
-    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  :root{
+    --bg:#060609; --panel:#0a0a10; --panel-2:#0e0e15; --panel-3:#12121a;
+    --line:#20202b; --line-soft:#16161f; --line-2:#2a2a37;
+    --grid:hsla(0,0%,100%,.032);
+    --ink:#f2f2f5; --ink-dim:#8b8b98; --ink-faint:#55555f; --label:#a5966b;
+    --accent:#7ee705; --accent-dim:rgba(126,231,5,.12); --accent-deep:#0b1400;
+    --violet:#a06bff; --violet-dim:rgba(160,107,255,.12);
+    --real:#7ee705; --sim:#a06bff; --warn:#e5b94a;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --wrap:1120px;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 44px 44px;
     font-family: var(--sans); font-size: 14px; overflow: hidden;
   }
+  ::selection { background: var(--accent-dim); color: var(--accent); }
   header {
     display: flex; align-items: center; gap: 14px;
     padding: 12px 20px; border-bottom: 1px solid var(--line);
     background: var(--panel);
   }
-  header h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: .2px; }
+  header h1 { font-family: var(--mono); font-size: 13px; font-weight: 700; margin: 0; letter-spacing: .14em; text-transform: uppercase; }
   header .brand { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
   header .brand:hover h1 { color: var(--accent); }
-  header .sub { color: var(--ink-faint); font-size: 12px; }
+  header .sub { color: var(--ink-faint); font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; }
   .spacer { flex: 1; }
   .tag {
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: .4px;
-    padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-2);
+    font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 4px; border: 1px solid var(--line-2);
     color: var(--ink-dim); white-space: nowrap;
   }
-  .tag.real { color: var(--real); border-color: #1e4b32; background: #0e1f17; }
-  .tag.sim  { color: var(--sim);  border-color: #1e3a5c; background: #0d1826; }
+  .tag.real { color: var(--real); border-color: rgba(126,231,5,.4); background: var(--accent-dim); }
+  .tag.sim  { color: var(--sim);  border-color: rgba(160,107,255,.4); background: var(--violet-dim); }
 
   main { display: grid; grid-template-columns: 1fr 380px; height: calc(100% - 53px); }
 
@@ -50,15 +56,16 @@
     position: absolute; top: 14px; left: 20px; z-index: 3; display: flex; gap: 6px;
   }
   .vbtn {
-    font-size: 11.5px; padding: 5px 11px; border-radius: 999px;
-    background: rgba(18,21,28,.86); border: 1px solid var(--line-2);
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+    padding: 6px 11px; border-radius: 4px;
+    background: rgba(6,6,9,.86); border: 1px solid var(--line-2);
     color: var(--ink-dim); cursor: pointer; backdrop-filter: blur(6px);
   }
-  .vbtn.on { background: var(--accent); color: #191400; border-color: var(--accent); font-weight: 600; }
+  .vbtn.on { background: var(--accent-dim); color: var(--accent); border-color: rgba(126,231,5,.5); font-weight: 600; }
   #loading {
     position: absolute; inset: 0; display: grid; place-items: center;
-    background: #0d1017; color: var(--ink-faint);
-    font-family: var(--mono); font-size: 12px; z-index: 2;
+    background: var(--bg); color: var(--ink-faint);
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; z-index: 2;
   }
   #loading.done { display: none; }
   #scene3d { border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.55); cursor: grab; }
@@ -77,41 +84,43 @@
   }
   .sec { padding: 14px 16px; border-bottom: 1px solid var(--line); }
   .sec h2 {
-    font-size: 10.5px; text-transform: uppercase; letter-spacing: .9px;
-    color: var(--ink-faint); margin: 0 0 10px; font-weight: 600;
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .22em;
+    color: var(--label); margin: 0 0 10px; font-weight: 600;
   }
   .row { display: flex; gap: 8px; }
   input[type=text] {
     flex: 1; min-width: 0; background: var(--panel-2); color: var(--ink);
-    border: 1px solid var(--line-2); border-radius: 7px;
+    border: 1px solid var(--line-2); border-radius: 5px;
     padding: 9px 11px; font-family: var(--sans); font-size: 13px; outline: none;
   }
-  input[type=text]:focus { border-color: var(--accent-dim); }
+  input[type=text]:focus { border-color: rgba(126,231,5,.45); }
   button {
-    background: var(--panel-2); color: var(--ink); border: 1px solid var(--line-2);
-    border-radius: 7px; padding: 9px 12px; font-size: 13px; cursor: pointer;
-    font-family: var(--sans); white-space: nowrap;
+    background: transparent; color: var(--ink-dim); border: 1px solid var(--line-2);
+    border-radius: 5px; padding: 9px 12px; font-size: 11px; cursor: pointer;
+    font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
+    transition: background .15s, box-shadow .15s, color .15s;
   }
-  button:hover { border-color: #414c60; background: #1c212c; }
-  button.primary { background: var(--accent); color: #191400; border-color: var(--accent); font-weight: 600; }
-  button.primary:hover { background: #ffe172; }
-  button.mic { width: 100%; margin-top: 8px; }
-  button.mic.live { background: #3a1414; border-color: #7f1d1d; color: #fca5a5; }
+  button:hover { color: var(--ink); border-color: var(--ink-dim); }
+  button.primary { color: var(--accent); border-color: rgba(126,231,5,.45); }
+  button.primary:hover { background: var(--accent-dim); box-shadow: 0 0 14px rgba(126,231,5,.2); }
+  button.mic { width: 100%; margin-top: 8px; color: var(--violet); border-color: rgba(160,107,255,.45); }
+  button.mic:hover { background: var(--violet-dim); box-shadow: 0 0 14px rgba(160,107,255,.2); }
+  button.mic.live { background: rgba(229,74,74,.12); border-color: rgba(229,74,74,.5); color: #f08c8c; }
   button:disabled { opacity: .4; cursor: not-allowed; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   .chip {
-    font-size: 11.5px; padding: 5px 9px; border-radius: 999px;
-    background: var(--panel-2); border: 1px solid var(--line);
-    color: var(--ink-dim); cursor: pointer;
+    font-size: 11.5px; padding: 5px 9px; border-radius: 4px;
+    background: transparent; border: 1px solid var(--line);
+    color: var(--ink-dim); cursor: pointer; transition: color .15s, border-color .15s;
   }
-  .chip:hover { color: var(--ink); border-color: var(--line-2); }
+  .chip:hover { color: var(--accent); border-color: rgba(126,231,5,.4); }
 
   /* ---- intent inspector ---- */
   #heard {
     font-family: var(--mono); font-size: 12px; color: var(--accent);
-    background: #16150c; border: 1px solid var(--accent-dim);
-    border-radius: 6px; padding: 8px 10px; margin-bottom: 10px;
+    background: var(--accent-dim); border: 1px solid rgba(126,231,5,.3);
+    border-radius: 5px; padding: 8px 10px; margin-bottom: 10px;
     min-height: 33px; word-break: break-word;
   }
   #heard.interim { color: var(--ink-faint); border-color: var(--line-2); background: var(--panel-2); }
@@ -121,7 +130,7 @@
   table.slots td:last-child { color: var(--ink); }
   td.empty { color: var(--ink-faint) !important; }
   .bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 8px; }
-  .bar > i { display: block; height: 100%; background: var(--real); width: 0; transition: width .25s; }
+  .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
 
   /* ---- object list ---- */
   #objects { flex: none; }
@@ -130,17 +139,29 @@
     padding: 8px 16px; border-bottom: 1px solid var(--line); cursor: pointer;
   }
   .obj:hover { background: var(--panel-2); }
-  .obj.sel { background: #1b1a10; box-shadow: inset 2px 0 0 var(--accent); }
+  .obj.sel { background: var(--accent-dim); box-shadow: inset 2px 0 0 var(--accent); }
   .sw { width: 22px; height: 22px; border-radius: 5px; flex: none; border: 1px solid rgba(255,255,255,.14); }
   .obj .nm { font-size: 12.5px; }
   .obj .meta { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); }
   .empty-note { padding: 16px; color: var(--ink-faint); font-size: 12.5px; line-height: 1.6; }
 
   footer {
-    padding: 10px 16px; border-top: 1px solid var(--line);
+    padding: 14px 16px 16px; border-top: 1px solid var(--line-soft);
     font-size: 11px; color: var(--ink-faint); line-height: 1.7;
   }
   footer .k { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .app-footer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 10px; }
+  .app-footer .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .app-footer .brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; color: var(--ink); }
+  .app-footer .brand-mark { width: 26px; height: 26px; border: 1px solid var(--ink); border-radius: 6px; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .app-footer .brand-name { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+  .app-footer .social { display: flex; gap: 12px; }
+  .app-footer .social svg { width: 15px; height: 15px; fill: var(--ink-dim); transition: fill .15s; }
+  .app-footer .social a:hover svg { fill: var(--ink); }
+  .app-footer nav { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .app-footer nav a { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--ink-dim); text-decoration: none; }
+  .app-footer nav a:hover { color: var(--accent); }
+  .app-footer .copy { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--ink-faint); text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -203,6 +224,22 @@
     <footer>
       <div><span class="k" style="background:var(--real)"></span><code>VoiceCommandController</code>, <code>SurfaceAnchorEngine</code> and <code>PBRMaterialSwapper</code> run here as instances of the shipped <code>Scripts/*.ts</code> — parsing, placement, materials, spawn animation, debounce, feedback.</div>
       <div style="margin-top:5px"><span class="k" style="background:var(--sim)"></span>Simulated: the room and its hit tests (World Query on device), head pose and mouse-as-pinch (headset and SIK hand tracking — <code>SpatialGestureController</code> does not run here), Web Speech for the ASR module, three.js for the display.</div>
+      <div class="app-footer">
+        <div class="row">
+          <a class="brand" href="../"><span class="brand-mark">S</span><span class="brand-name">SPATIALIS</span></a>
+          <div class="social">
+            <a href="https://github.com/mrnetwork0001/Spatialis" title="GitHub" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+            <a href="https://ar.snap.com/lens-studio" title="Lens Studio" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c3.2 0 5.6 2.5 5.6 5.9v2.4c.5.2 1.1 0 1.6-.2.5-.2.9.2.7.7-.3.7-1.3 1-1.9 1.2.2 1.7 1.7 3.4 3.6 3.9.4.1.5.6.1.8-.8.4-1.6.5-2.2.6-.1.5-.3 1-.7 1.1-.6.1-1.4-.2-2.1 0-1.2.3-2.1 1.9-4.7 1.9s-3.5-1.6-4.7-1.9c-.7-.2-1.5.1-2.1 0-.4-.1-.6-.6-.7-1.1-.6-.1-1.4-.2-2.2-.6-.4-.2-.3-.7.1-.8 1.9-.5 3.4-2.2 3.6-3.9-.6-.2-1.6-.5-1.9-1.2-.2-.5.2-.9.7-.7.5.2 1.1.4 1.6.2V7.9C6.4 4.5 8.8 2 12 2z"/></svg></a>
+            <a href="https://x.com/" title="X" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          </div>
+        </div>
+        <nav>
+          <a href="../">Landing page</a><a href="../Tools/preview_furniture.html">Catalog</a>
+          <a href="../#lens">The Lens</a><a href="https://github.com/mrnetwork0001/Spatialis#readme" target="_blank" rel="noopener">README</a>
+          <a href="https://lenslist.co/clad-summer-hackathon" target="_blank" rel="noopener">CLAD Hackathon</a>
+        </nav>
+        <div class="copy">© 2026 Spatialis · Apache-2.0 · built with Claude Code</div>
+      </div>
     </footer>
   </aside>
 </main>

@@ -390,23 +390,23 @@ const ASPECT = {
 function render() {
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = "#0e1117"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#060609"; ctx.fillRect(0, 0, W, H);
 
   const [fx, fz] = toPx(0, 0);
-  ctx.fillStyle = "#141922";
+  ctx.fillStyle = "#0a0a10";
   ctx.fillRect(fx, fz, ROOM.w * SCALE, ROOM.d * SCALE);
-  ctx.strokeStyle = "#1b2130"; ctx.lineWidth = 1;
+  ctx.strokeStyle = "#16161f"; ctx.lineWidth = 1;
   for (let x = 0; x <= ROOM.w; x += 50) {
     const [px] = toPx(x, 0); ctx.beginPath(); ctx.moveTo(px, fz); ctx.lineTo(px, fz + ROOM.d * SCALE); ctx.stroke();
   }
   for (let z = 0; z <= ROOM.d; z += 50) {
     const [, pz] = toPx(0, z); ctx.beginPath(); ctx.moveTo(fx, pz); ctx.lineTo(fx + ROOM.w * SCALE, pz); ctx.stroke();
   }
-  ctx.strokeStyle = "#3a4356"; ctx.lineWidth = 7; ctx.lineJoin = "round";
+  ctx.strokeStyle = "#2a2a37"; ctx.lineWidth = 7; ctx.lineJoin = "round";
   ctx.strokeRect(fx, fz, ROOM.w * SCALE, ROOM.d * SCALE);
 
   const [tx, tz] = toPx(TABLE.x, TABLE.z);
-  ctx.fillStyle = "#20283a"; ctx.strokeStyle = "#33405c"; ctx.lineWidth = 1.5;
+  ctx.fillStyle = "#12121a"; ctx.strokeStyle = "#2a2a37"; ctx.lineWidth = 1.5;
   roundRect(tx, tz, TABLE.w * SCALE, TABLE.d * SCALE, 5); ctx.fill(); ctx.stroke();
   ctx.fillStyle = "#66748f"; ctx.font = "10px ui-monospace, monospace";
   ctx.fillText("table  ·  75cm", tx + 8, tz + 15);
@@ -432,8 +432,8 @@ function drawGaze() {
   const [ox, oz] = toPx(WEARER.x, WEARER.z);
   const spread = 0.42, len = 330 * SCALE;
   const g = ctx.createRadialGradient(ox, oz, 0, ox, oz, len);
-  g.addColorStop(0, "rgba(255,216,77,.10)");
-  g.addColorStop(1, "rgba(255,216,77,0)");
+  g.addColorStop(0, "rgba(126,231,5,.10)");
+  g.addColorStop(1, "rgba(126,231,5,0)");
   ctx.fillStyle = g;
   ctx.beginPath(); ctx.moveTo(ox, oz);
   const a0 = Math.atan2(dz, dx);
@@ -443,11 +443,11 @@ function drawGaze() {
 function drawWearer() {
   const [ox, oz] = toPx(WEARER.x, WEARER.z);
   const [dx, dz] = gaze();
-  ctx.fillStyle = "#ffd84d";
+  ctx.fillStyle = "#7ee705";
   ctx.beginPath(); ctx.arc(ox, oz, 7, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = "#ffd84d"; ctx.lineWidth = 2;
+  ctx.strokeStyle = "#7ee705"; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(ox, oz); ctx.lineTo(ox + dx * 20, oz + dz * 20); ctx.stroke();
-  ctx.fillStyle = "#8a7c3f"; ctx.font = "10px ui-monospace, monospace";
+  ctx.fillStyle = "#a5966b"; ctx.font = "10px ui-monospace, monospace";
   ctx.fillText("wearer", ox - 17, oz + 21);
 }
 
@@ -482,8 +482,8 @@ function drawPiece(o) {
   }
 
   ctx.lineWidth = o.id === selectedId ? 2.5 : 1;
-  ctx.strokeStyle = o.id === selectedId ? "#ffd84d" : "rgba(255,255,255,.20)";
-  if (floating) { ctx.setLineDash([5, 4]); if (o.id !== selectedId) ctx.strokeStyle = "#6fa8ff"; }
+  ctx.strokeStyle = o.id === selectedId ? "#7ee705" : "rgba(255,255,255,.18)";
+  if (floating) { ctx.setLineDash([5, 4]); if (o.id !== selectedId) ctx.strokeStyle = "#a06bff"; }
   roundRect(x, y, w, h, 7); ctx.stroke(); ctx.setLineDash([]);
 
   const sub = statusOf(o);
@@ -491,11 +491,11 @@ function drawPiece(o) {
   ctx.font = "11px -apple-system, sans-serif";
   const lw = Math.max(ctx.measureText(o.spec.label).width, sub.length * 5.4) + 12;
   const ly = cz + h / 2 + 5;
-  ctx.fillStyle = "rgba(10,13,18,.78)";
+  ctx.fillStyle = "rgba(6,6,9,.8)";
   roundRect(cx - lw / 2, ly, lw, 27, 4); ctx.fill();
   ctx.fillStyle = "#d6dcea";
   ctx.fillText(o.spec.label, cx, ly + 12);
-  ctx.fillStyle = floating ? "#6fa8ff" : "#68738a";
+  ctx.fillStyle = floating ? "#a06bff" : "#8b8b98";
   ctx.font = "9.5px ui-monospace, monospace";
   ctx.fillText(sub, cx, ly + 23);
   ctx.textAlign = "left";
