@@ -22,14 +22,16 @@
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
+  html, body { height: 100%; }
   body {
+    display: flex; flex-direction: column;
     margin: 0; background: var(--bg); color: var(--ink);
     background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
     background-size: 44px 44px;
     font-family: var(--sans); font-size: 14px; overflow: hidden;
   }
   ::selection { background: var(--accent-dim); color: var(--accent); }
-  .logo { display: block; height: 30px; width: auto; mix-blend-mode: screen; }
+  .logo { display: block; height: 40px; width: auto; mix-blend-mode: screen; }
   .logo.sm { height: 24px; }
   /* ---------- icon set: monoline, current colour ---------- */
   .ico{width:1em;height:1em;display:inline-block;vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
@@ -38,8 +40,8 @@
   .tag .ico { width: .8em; height: .8em; vertical-align: -.05em; }
   #loading .ico { width: 1.2em; height: 1.2em; margin-right: 6px; color: var(--warn); }
   header {
-    display: flex; align-items: center; gap: 14px;
-    padding: 12px 20px; border-bottom: 1px solid var(--line);
+    flex: none; display: flex; align-items: center; gap: 16px;
+    padding: 10px 20px; border-bottom: 1px solid var(--line);
     background: var(--panel);
   }
   header h1 { font-family: var(--mono); font-size: 13px; font-weight: 700; margin: 0; letter-spacing: .14em; text-transform: uppercase; }
@@ -55,11 +57,11 @@
   .tag.real { color: var(--real); border-color: rgba(126,231,5,.4); background: var(--accent-dim); }
   .tag.sim  { color: var(--sim);  border-color: rgba(160,107,255,.4); background: var(--violet-dim); }
 
-  main { display: grid; grid-template-columns: 1fr 380px; height: calc(100% - 53px); }
+  main { display: grid; grid-template-columns: 1fr 380px; flex: 1; min-height: 0; }
 
   /* ---- room ---- */
   #stage { position: relative; display: grid; place-items: center; overflow: hidden; }
-  canvas { display: block; border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.55); cursor: crosshair; }
+  canvas { display: block; border-radius: 8px; border: 1px solid var(--line-2); box-shadow: 0 12px 48px rgba(0,0,0,.55); cursor: crosshair; }
   /* An author `display` beats the UA stylesheet's [hidden] rule, so the hidden
      canvas has to be switched off explicitly or both views stack. */
   canvas[hidden] { display: none !important; }
@@ -82,10 +84,16 @@
   #scene3d { border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.55); cursor: grab; }
   #scene3d:active { cursor: grabbing; }
   #hud {
-    position: absolute; left: 20px; bottom: 16px;
-    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
-    pointer-events: none; line-height: 1.7;
+    position: absolute; left: 20px; right: 20px; bottom: 14px; z-index: 3;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--ink-faint); pointer-events: none;
   }
+  #hud kbd {
+    display: inline-block; font: inherit; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-dim); border: 1px solid var(--line-2); border-radius: 4px; padding: 2px 6px; margin: 0 4px 0 8px;
+    background: rgba(6,6,9,.7);
+  }
+  #hud kbd:first-child { margin-left: 0; }
   #hud b { color: var(--ink-dim); font-weight: 500; }
 
   /* ---- panel ---- */
@@ -119,7 +127,8 @@
   button.mic.live { background: rgba(229,74,74,.12); border-color: rgba(229,74,74,.5); color: #f08c8c; }
   button:disabled { opacity: .4; cursor: not-allowed; }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .hint { font-family: var(--mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .chip {
     font-size: 11.5px; padding: 5px 9px; border-radius: 4px;
     background: transparent; border: 1px solid var(--line);
@@ -160,7 +169,15 @@
     padding: 14px 16px 16px; border-top: 1px solid var(--line-soft);
     font-size: 11px; color: var(--ink-faint); line-height: 1.7;
   }
-  footer .k { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  footer .k { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  footer > div { margin-top: 4px; }
+  footer > div:first-child { margin-top: 0; }
+  footer b { color: var(--ink-dim); font-weight: 600; }
+  footer details { margin-top: 10px; }
+  footer summary { cursor: pointer; font-family: var(--mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--label); list-style: none; }
+  footer summary::before { content: '+ '; }
+  footer details[open] summary::before { content: '- '; }
+  footer details p { margin: 8px 0 0; }
 </style>
 </head>
 <body>
@@ -192,8 +209,8 @@
     <canvas id="scene3d" width="900" height="640"></canvas>
     <canvas id="room" width="760" height="620" hidden></canvas>
     <div id="hud">
-      <div id="hud-wearer"><b>arrows</b> turn your head &nbsp; <b>drag</b> to move &nbsp; <b>scroll</b> to scale &nbsp; <b>scroll past the minimum</b> to crush-delete &nbsp; <b>backspace</b> to delete</div>
-      <div id="hud-sub">camera at the wearer's eye, 155cm &nbsp;·&nbsp; real .glb from <code>Assets/Prefabs</code></div>
+      <div id="hud-wearer"><kbd>&uarr;&darr;&larr;&rarr;</kbd> look <kbd>drag</kbd> move <kbd>scroll</kbd> scale <kbd>scroll past min</kbd> crush to delete <kbd>&#9003;</kbd> delete</div>
+      <div id="hud-sub">wearer view &middot; eye height 155 cm</div>
     </div>
     <div id="loading">loading furniture…</div>
   </div>
@@ -206,6 +223,7 @@
         <button class="primary" id="run">Run</button>
       </div>
       <button class="mic" id="mic"><svg class="ico"><use href="#i-mic"/></svg> Hold to speak (Web Speech API)</button>
+      <div class="hint">Try one</div>
       <div class="chips" id="chips"></div>
     </div>
 
@@ -230,9 +248,14 @@
     <div id="objects"></div>
 
     <footer>
-      <div><span class="k" style="background:var(--real)"></span><code>VoiceCommandController</code>, <code>SurfaceAnchorEngine</code> and <code>PBRMaterialSwapper</code> run here as instances of the shipped <code>Scripts/*.ts</code> - parsing, placement, materials, spawn animation, debounce, feedback.</div>
-      <div style="margin-top:5px"><span class="k" style="background:var(--sim)"></span>Simulated: the room and its hit tests (World Query on device), head pose and mouse-as-pinch (headset and SIK hand tracking - <code>SpatialGestureController</code> does not run here), Web Speech for the ASR module, three.js for the display.</div>
-      <div style="margin-top:5px"><span class="k" style="border:1px dashed var(--sim);background:transparent"></span>The table is the room's own, standing in for a real table in your space. <em>Clear the room</em> removes only what you placed.</div>
+      <div><span class="k" style="background:var(--real)"></span><b>Real:</b> the shipped voice parser, anchor engine and material swapper run here unchanged.</div>
+      <div><span class="k" style="background:var(--sim)"></span><b>Simulated:</b> the room and its surfaces, head pose (arrow keys), pinch (mouse), speech (Web Speech), display (three.js).</div>
+      <div><span class="k" style="border:1px dashed var(--sim);background:transparent"></span>The table is the room's own. <em>Clear the room</em> removes only what you placed.</div>
+      <details>
+        <summary>What runs where</summary>
+        <p><code>VoiceCommandController</code>, <code>SurfaceAnchorEngine</code> and <code>PBRMaterialSwapper</code> run as instances of the shipped <code>Scripts/*.ts</code>: parsing, placement, materials, spawn animation, debounce, feedback.</p>
+        <p>Stand-ins for hardware: the room and its hit tests (World Query on device), head pose from the arrow keys (headset tracking), mouse drag and scroll as pinch and scale (Spectacles Interaction Kit hand tracking; <code>SpatialGestureController</code> does not run here and is covered by tests), Web Speech for the ASR module, three.js for the display.</p>
+      </details>
     </footer>
   </aside>
 </main>
