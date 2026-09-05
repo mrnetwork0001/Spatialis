@@ -313,13 +313,18 @@ function runCommand(text) {
   const wallAdjacent = voice.parseWallAdjacent(" " + normalized + " ");
   showIntent(intent, wallAdjacent);
 
-  // handleTranscript advances lastTranscriptTime only when it acts; an
-  // identical sentence within two seconds leaves it untouched. That is the
-  // debounce - ASR emits the same final line twice, and the Lens must not
-  // spawn two sofas for it - and it is the only path that gives no feedback.
+  // The controller stamps lastTranscript and lastTranscriptTime for every
+  // sentence it acts on; an identical sentence within two seconds leaves both
+  // untouched. That is the debounce - ASR emits the same final line twice, and
+  // the Lens must not spawn two sofas for it - and it is the only path that
+  // gives no feedback. The time alone is not enough to detect it: a scripted
+  // boot delivers several different sentences in one clock tick, so the stamp
+  // does not move even though each one acted. A drop is only a drop when the
+  // text did not change either.
   const stamp = voice.lastTranscriptTime;
+  const prevText = voice.lastTranscript;
   voice.handleTranscript(text);
-  if (voice.lastTranscriptTime === stamp) {
+  if (voice.lastTranscriptTime === stamp && voice.lastTranscript === prevText && voice.normalize(text) === prevText) {
     heardEl.className = "interim";
     heardEl.textContent = "(identical transcript within 2s - dropped, as the Lens does for duplicate ASR output)";
   }
