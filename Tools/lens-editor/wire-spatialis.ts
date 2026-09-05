@@ -187,6 +187,7 @@
   setInput(anchor, "worldQueryAsset", worldQuery);
 
   setInput(gesture, "anchorEngine", anchor);
+  setInput(gesture, "materialSwapper", material);
 
   const prefabs = CATALOG_KEYS.map(prefabFor);
   const wiredKeys = CATALOG_KEYS.filter((_, i) => prefabs[i]);

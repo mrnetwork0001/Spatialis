@@ -23,7 +23,7 @@ serialisation; bypassing them fails silently.
 |---|---|
 | `Spatialis/Anchor Engine` + `SurfaceAnchorEngine` | `camera` ← scene main camera, `worldQueryAsset` ← World Query Module |
 | `Spatialis/Material Swapper` + `PBRMaterialSwapper` | — |
-| `Spatialis/Gesture` + `SpatialGestureController` | `anchorEngine` |
+| `Spatialis/Gesture` + `SpatialGestureController` | `anchorEngine`, `materialSwapper` |
 | `Spatialis/Voice` + `VoiceCommandController` | `asrModule`, `anchorEngine`, `materialSwapper`, `spawnParent`, `feedbackText`, `furnitureKeys[]`, `furniturePrefabs[]` |
 | `Spatialis/Spawn Root`, `Spatialis/Feedback` (Text) | parent for spawned furniture; the feedback line |
 | `Assets/Modules/` ASR + World Query native assets | — |
