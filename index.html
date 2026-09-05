@@ -54,8 +54,6 @@
   .logo.lg{height:48px}
   nav.top .links{display:flex;gap:22px;margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)}
   nav.top .links a{text-decoration:none;padding:8px 2px;transition:color .15s;white-space:nowrap}
-  nav.top .nav-cta{color:var(--accent);border:1px solid rgba(126,231,5,.45);border-radius:6px;padding:7px 12px !important}
-  nav.top .nav-cta:hover{background:var(--accent-dim);text-shadow:none}
   .menu-btn{display:none;width:40px;height:40px;padding:0;margin-left:auto;border:1px solid var(--line-2);border-radius:6px;background:transparent;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
   .menu-btn span{display:block;width:18px;height:1.5px;background:var(--ink);transition:transform .2s,opacity .2s}
   body.menu-open .menu-btn span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
@@ -69,8 +67,6 @@
     body.menu-open nav.top .links{opacity:1;transform:none;pointer-events:auto}
     nav.top .links a{padding:13px 0;border-bottom:1px solid var(--line-soft);font-size:12px}
     nav.top .links a:last-of-type{border-bottom:none}
-    nav.top .nav-cta{display:none}
-    nav.top .links a:nth-last-of-type(2){border-bottom:none}
   }
   nav.top .links a:hover{color:var(--accent);text-shadow:0 0 10px rgba(126,231,5,.45)}
   @media(max-width:720px){nav .links{display:none}}
@@ -353,7 +349,6 @@
     <a href="#clad">CLAD</a>
     <a href="#catalog">Catalog</a>
     <a href="#lens">Lens</a>
-    <a class="nav-cta" href="./Simulator/">Launch app</a>
   </div>
 <button class="menu-btn" id="menu" aria-label="Menu" aria-expanded="false" aria-controls="site-menu"><span></span><span></span><span></span></button></div></nav>
 
