@@ -339,7 +339,17 @@ test("feedback names the surface: 'on the floor' when anchored, 'in front of you
   eq(w.feedback(), "Added a lounge chair in front of you");
   const chair = SpatialisRegistry.last();
   eq(chair.surface, "unknown");
-  near(chair.transform.getWorldPosition().z, -160, 1e-9, "held at the engine's floatDistance ahead");
+  // The floor lamp from the previous command already floats at floatDistance
+  // on the gaze line, so the chair is held at least that far out and stepped
+  // clear of the lamp by overlap resolution rather than stacked on it.
+  const cp = chair.transform.getWorldPosition();
+  ok(cp.z <= -160 + 1e-9, "held at least floatDistance ahead (got z=" + cp.z.toFixed(2) + ")");
+  const lampObj = SpatialisRegistry.lastOfKind("lamp");
+  if (lampObj) {
+    const lp = lampObj.transform.getWorldPosition();
+    ok(Math.hypot(cp.x - lp.x, cp.z - lp.z) >= (chair.spec.footprint + lampObj.spec.footprint) * 0.75 - 1e-9,
+       "not stacked on the floating lamp");
+  }
 });
 
 test("hanging art reaches the wall path: level probe, eye height, surface 'wall'", () => {

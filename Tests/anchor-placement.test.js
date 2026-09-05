@@ -29,6 +29,11 @@ const { SpatialisRegistry, getFurnitureSpec, yawTowards, alignToNormal } = core;
 const EYE_HEIGHT = 155;
 const PROBE_DISTANCE = 700;
 const FLOAT_DISTANCE = 160;
+/**
+ * Where a piece floats when nothing can be hit: floatDistance, or further for
+ * big furniture so a 2.1m sofa does not fill the wearer's view with one face.
+ */
+const floatRange = (spec) => Math.max(FLOAT_DISTANCE, spec.footprint * 2.5);
 const FLOOR = (x, y, z) => ({ position: new vec3(x, y, z), normal: vec3.up() });
 const WALL = (x, y, z, nx, ny, nz) => ({
   position: new vec3(x, y, z),
@@ -355,7 +360,7 @@ test("a retry that finds nothing floats the piece rather than going silent", () 
   eq(r.surface, "unknown");
   near(r.position.x, 0, 1e-9);
   near(r.position.y, eye.y - sofa.height * 0.35, 1e-9);
-  near(r.position.z, eye.z - FLOAT_DISTANCE, 1e-9);
+  near(r.position.z, eye.z - floatRange(getFurnitureSpec("sofa")), 1e-9);
 });
 
 test("no surface at all floats the piece in front of the eye, lowered by 35% of its height", () => {
@@ -367,7 +372,7 @@ test("no surface at all floats the piece in front of the eye, lowered by 35% of 
   eq(r.surface, "unknown");
   near(r.position.x, 0, 1e-9);
   near(r.position.y, eye.y - sofa.height * 0.35, 1e-9);
-  near(r.position.z, -FLOAT_DISTANCE, 1e-9, "floatDistance along the gaze");
+  near(r.position.z, -floatRange(getFurnitureSpec("sofa")), 1e-9, "floatRange along the gaze (a sofa floats further than floatDistance)");
   eq(r.rotation, yawTowards(r.position, eye), "still turned to face the user");
   eq(session.log.length, 2, "a miss on the initial probe is not retried");
 });
@@ -381,7 +386,7 @@ test("a 'float' hint answers immediately and casts no ray", () => {
   ok(r !== null, "callback fires synchronously — no tick needed");
   eq(r.anchored, false);
   eq(session.log.length, 1, "only the calibration probe was ever cast");
-  near(r.position.z, eye.z - FLOAT_DISTANCE, 1e-9);
+  near(r.position.z, eye.z - floatRange(getFurnitureSpec("sofa")), 1e-9);
 });
 
 test("hints tolerate near-equivalent surfaces but a wall hint rejects the floor", () => {
@@ -678,6 +683,42 @@ test("an engine that never got a hit-test session floats requests instead of han
   eq(r.anchored, false);
   eq(r.surface, "unknown");
   // No camera: origin is the world origin, gaze is -Z.
-  eq(xyz(r.position), { x: 0, y: -sofa.height * 0.35, z: -FLOAT_DISTANCE });
+  eq(xyz(r.position), { x: 0, y: -sofa.height * 0.35, z: -floatRange(getFurnitureSpec("sofa")) });
   eq(session.log.length, 0, "hitTest is never called on an unready session");
+});
+
+suite("SurfaceAnchorEngine — floating distance and spacing");
+
+test("small pieces float at floatDistance; large ones float further so they do not fill the view", () => {
+  const lamp = getFurnitureSpec("lamp");       // footprint 22 -> 55 < 160
+  const sofa = getFurnitureSpec("sofa");       // footprint 105 -> 262.5
+  const a = makeEngine();
+  a.session.answer(null);
+  const rl = settle(a.engine, (cb) => a.engine.requestPlacement(lamp, "float", false, cb));
+  near(rl.position.z, a.eye.z - FLOAT_DISTANCE, 1e-9, "a lamp floats at floatDistance");
+  const b = makeEngine();
+  b.session.answer(null);
+  const rs = settle(b.engine, (cb) => b.engine.requestPlacement(sofa, "float", false, cb));
+  near(rs.position.z, b.eye.z - sofa.footprint * 2.5, 1e-9, "a sofa floats at 2.5 x its footprint");
+});
+
+test("two floated pieces do not share a spot", () => {
+  const { engine, session, eye } = makeEngine();
+  const lamp = getFurnitureSpec("lamp");
+  session.answer(null, null);
+  const first = settle(engine, (cb) => engine.requestPlacement(lamp, "float", false, cb));
+  // Register the first as if it had been spawned, then float a second lamp.
+  const spec = lamp;
+  const pos = first.position;
+  SpatialisRegistry.register({
+    sceneObject: { name: "lamp", destroyed: false, destroy() { this.destroyed = true; } },
+    transform: { getWorldPosition: () => pos, setWorldPosition: () => {}, getLocalScale: () => new vec3(1,1,1),
+                 setLocalScale: () => {}, getWorldRotation: () => quat.quatIdentity(), setWorldRotation: () => {} },
+    kind: "lamp", spec, placement: "float", surface: "unknown", surfaceNormal: vec3.up(),
+    baseScale: new vec3(1,1,1), materialKey: "", spawnedAtSeconds: 0, isGrabbed: false,
+  });
+  const second = settle(engine, (cb) => engine.requestPlacement(lamp, "float", false, cb));
+  const dx = second.position.x - first.position.x, dz = second.position.z - first.position.z;
+  ok(Math.hypot(dx, dz) >= (spec.footprint * 2) * 0.75 - 1e-9, "the second lamp is nudged clear of the first");
+  void eye;
 });
