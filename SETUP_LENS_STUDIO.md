@@ -160,7 +160,7 @@ The parser runs under plain Node, no Lens Studio required:
 ```bash
 npm install
 npm run typecheck   # strict type check of all four subsystems
-npm test            # 26 voice-command behaviour tests
+npm test            # 151 tests
 ```
 
 Inside Lens Studio's Preview (where there is no microphone), call
@@ -170,3 +170,21 @@ spawn → anchor → material pipeline:
 ```ts
 voiceCommandController.handleTranscript("Add a floating marble coffee table");
 ```
+
+
+## Project format (Lens Studio 5.x)
+
+A Lens Studio 5 project is **`<Name>.esproj`** — a small YAML metadata file —
+plus `Assets/` (the scene graph lives in `Assets/Scene.scene`), `Packages/`,
+`Workspaces/` and generated `.meta` sidecars carrying the GUID every reference
+uses. `.lsproj` is the Lens Studio 4 format and LS5 will not open it. Snap's
+docs make hand-authoring a project non-viable: only the editor's importers
+generate `.meta` files and GUIDs, so create the project in Lens Studio and add
+`Scripts/*.ts` and `Assets/Prefabs/*.glb` through it.
+
+## Desk simulator
+
+Everything except the Lens Studio project can be exercised without a headset:
+`npm run sim` serves a landing page and simulator on `http://localhost:8777/`
+that hosts the real `VoiceCommandController`, `SurfaceAnchorEngine` and
+`PBRMaterialSwapper` against a simulated room. See the README.
