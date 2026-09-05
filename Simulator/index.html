@@ -26,6 +26,12 @@
     font-family: var(--sans); font-size: 14px; overflow: hidden;
   }
   ::selection { background: var(--accent-dim); color: var(--accent); }
+  /* ---------- icon set: monoline, current colour ---------- */
+  .ico{width:1em;height:1em;display:inline-block;vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .ico.sm{width:.85em;height:.85em;vertical-align:-.08em;opacity:.8}
+  button .ico { width: 1.1em; height: 1.1em; }
+  .tag .ico { width: .8em; height: .8em; vertical-align: -.05em; }
+  #loading .ico { width: 1.2em; height: 1.2em; margin-right: 6px; color: var(--warn); }
   header {
     display: flex; align-items: center; gap: 14px;
     padding: 12px 20px; border-bottom: 1px solid var(--line);
@@ -165,14 +171,23 @@
 </style>
 </head>
 <body>
-
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+  <symbol id="i-surface" viewBox="0 0 24 24"><path d="M3 16l5-6h13l-5 6z"/><path d="M13.5 4v6"/><circle cx="13.5" cy="13" r="1.1" fill="currentColor" stroke="none"/><path d="M3 16v3h13"/></symbol>
+  <symbol id="i-material" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 20a8 8 0 0 0 8-8H12z" fill="currentColor" stroke="none" opacity=".28"/><path d="M8.2 9.6a4.2 4.2 0 0 1 3.4-2.1"/></symbol>
+  <symbol id="i-pinch" viewBox="0 0 24 24"><path d="M9 3v8M15 3v8"/><path d="M9 11c0 4 1.4 6.5 3 9 1.6-2.5 3-5 3-9"/><path d="M4.5 8.5l2 1M19.5 8.5l-2 1"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 15.5H3z"/><path d="M12 10v4.5"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 7l5 5-5 5"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24"><rect x="7.5" y="7.5" width="9" height="9" rx="1.2" transform="rotate(45 12 12)" fill="currentColor" stroke="none"/></symbol>
+</defs></svg>
 <header>
   <a class="brand" href="../" title="Back to the Spatialis landing page"><h1>Spatialis</h1></a>
   <span class="sub">desk simulator - no headset required</span>
   <span class="tag" id="build" title="loaded build - if this looks old, your browser cached a stale copy">build …</span>
   <span class="spacer"></span>
-  <span class="tag real">● real subsystem code</span>
-  <span class="tag sim">● simulated scene</span>
+  <span class="tag real"><svg class="ico"><use href="#i-dot"/></svg> real subsystem code</span>
+  <span class="tag sim"><svg class="ico"><use href="#i-dot"/></svg> simulated scene</span>
 </header>
 
 <main>
@@ -197,7 +212,7 @@
         <input type="text" id="cmd" placeholder="Add a floating marble coffee table" autocomplete="off">
         <button class="primary" id="run">Run</button>
       </div>
-      <button class="mic" id="mic">🎙 Hold to speak (Web Speech API)</button>
+      <button class="mic" id="mic"><svg class="ico"><use href="#i-mic"/></svg> Hold to speak (Web Speech API)</button>
       <div class="chips" id="chips"></div>
     </div>
 

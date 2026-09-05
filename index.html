@@ -108,6 +108,13 @@
   }
 
 
+  /* ---------- icon set: monoline, current colour ---------- */
+  .ico{width:1em;height:1em;display:inline-block;vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .ico.sm{width:.85em;height:.85em;vertical-align:-.08em;opacity:.8}
+  .card .ic .ico{width:18px;height:18px;color:var(--accent)}
+  h3 .ico{color:inherit;vertical-align:-.1em;margin-right:4px}
+  .btn .ico{width:.95em;height:.95em}
+
   /* ---------- hero: copy left, motion right ---------- */
   .hero .wrap{text-align:left;padding-top:64px;padding-bottom:64px}
   .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
@@ -275,6 +282,16 @@
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+  <symbol id="i-surface" viewBox="0 0 24 24"><path d="M3 16l5-6h13l-5 6z"/><path d="M13.5 4v6"/><circle cx="13.5" cy="13" r="1.1" fill="currentColor" stroke="none"/><path d="M3 16v3h13"/></symbol>
+  <symbol id="i-material" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 20a8 8 0 0 0 8-8H12z" fill="currentColor" stroke="none" opacity=".28"/><path d="M8.2 9.6a4.2 4.2 0 0 1 3.4-2.1"/></symbol>
+  <symbol id="i-pinch" viewBox="0 0 24 24"><path d="M9 3v8M15 3v8"/><path d="M9 11c0 4 1.4 6.5 3 9 1.6-2.5 3-5 3-9"/><path d="M4.5 8.5l2 1M19.5 8.5l-2 1"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 15.5H3z"/><path d="M12 10v4.5"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 7l5 5-5 5"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24"><rect x="7.5" y="7.5" width="9" height="9" rx="1.2" transform="rotate(45 12 12)" fill="currentColor" stroke="none"/></symbol>
+</defs></svg>
 
 <nav><div class="wrap">
   <a class="brand" href="./" style="text-decoration:none;color:inherit"><span class="dot"></span> Spatialis</a>
@@ -298,7 +315,7 @@
         scaled to life, snapped to your real floor, and restyled by voice or pinch.
       </p>
       <div class="cta">
-        <a class="btn primary lg" href="./Simulator/"><span>▶</span> Launch app</a>
+        <a class="btn primary lg" href="./Simulator/"><svg class="ico"><use href="#i-play"/></svg> Launch app</a>
         <a class="btn violet lg" href="./Tools/preview_furniture.html">Browse the catalog</a>
       </div>
       <div class="cta-note">runs in this browser · no headset, no Lens Studio, no install</div>
@@ -470,7 +487,7 @@
   <p class="sub">~3,065 lines of TypeScript, type-checked under <code>strict</code>, with 2,697 lines of tests behind them.</p>
   <div class="grid2">
     <div class="card">
-      <div class="hd"><div class="ic">🎙</div><div>
+      <div class="hd"><div class="ic"><svg class="ico"><use href="#i-mic"/></svg></div><div>
         <h3>Voice Intent Engine</h3>
         <div class="file">Scripts/VoiceCommandController.ts</div></div></div>
       <p>Turns a spoken sentence into an intent, then drives the other three.</p>
@@ -482,7 +499,7 @@
       </ul>
     </div>
     <div class="card">
-      <div class="hd"><div class="ic">📐</div><div>
+      <div class="hd"><div class="ic"><svg class="ico"><use href="#i-surface"/></svg></div><div>
         <h3>Surface Anchor Engine</h3>
         <div class="file">Scripts/SurfaceAnchorEngine.ts</div></div></div>
       <p>Finds real surfaces and seats furniture flush against them.</p>
@@ -494,7 +511,7 @@
       </ul>
     </div>
     <div class="card">
-      <div class="hd"><div class="ic">🎨</div><div>
+      <div class="hd"><div class="ic"><svg class="ico"><use href="#i-material"/></svg></div><div>
         <h3>PBR Material Swapper</h3>
         <div class="file">Scripts/PBRMaterialSwapper.ts</div></div></div>
       <p>11 finishes and 10 tints, applied without touching anything else.</p>
@@ -505,14 +522,14 @@
       </ul>
     </div>
     <div class="card">
-      <div class="hd"><div class="ic">✋</div><div>
+      <div class="hd"><div class="ic"><svg class="ico"><use href="#i-pinch"/></svg></div><div>
         <h3>Hand Gesture Controller</h3>
         <div class="file">Scripts/SpatialGestureController.ts</div></div></div>
       <p>SIK hand tracking for pinch, drag, rotate and two-hand scale.</p>
       <ul>
         <li><b>Thresholds scale to your hand</b> - 3cm is a firm pinch on a large hand, an open grip on a small one</li>
         <li>Hysteresis so joint jitter can’t chatter a grab</li>
-        <li>Two hands → one continues the drag, doesn’t drop</li>
+        <li>Two hands <svg class="ico sm"><use href="#i-arrow"/></svg> one continues the drag, doesn’t drop</li>
         <li>Lost tracking counts as a release, not a freeze</li>
         <li><b>Crush to delete</b> - squeeze a held piece well below its minimum and let go</li>
       </ul>
@@ -544,7 +561,7 @@
   </p>
   <div class="split">
     <div class="box real">
-      <h3>● Real shipped code</h3>
+      <h3><svg class="ico"><use href="#i-dot"/></svg> Real shipped code</h3>
       <p>Instances of the shipped <code>Scripts/*.ts</code>, compiled to ES modules and wired as the Inspector would wire them. Not reimplementations.</p>
       <ul>
         <li><code>VoiceCommandController</code> - parse, execute, spawn animation, debounce, feedback</li>
@@ -555,14 +572,14 @@
       </ul>
     </div>
     <div class="box sim">
-      <h3>● Simulated scaffolding</h3>
+      <h3><svg class="ico"><use href="#i-dot"/></svg> Simulated scaffolding</h3>
       <p>Stands in for hardware the browser doesn’t have. Replaced on device.</p>
       <ul>
-        <li>The room itself, and ray hit tests against it<br><span style="color:var(--ink-faint)">→ World Query on device</span></li>
-        <li>Head pose, from the arrow keys<br><span style="color:var(--ink-faint)">→ the headset’s tracking on device</span></li>
-        <li>Mouse drag and scroll as pinch and scale<br><span style="color:var(--ink-faint)">→ SIK hand tracking on device. <b>SpatialGestureController does not run here</b>; its state machine is covered by tests. Release does call the real <code>reseat()</code>.</span></li>
-        <li>Web Speech API<br><span style="color:var(--ink-faint)">→ the ASR module on device</span></li>
-        <li>three.js rendering<br><span style="color:var(--ink-faint)">→ the Spectacles display on device</span></li>
+        <li>The room itself, and ray hit tests against it<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> World Query on device</span></li>
+        <li>Head pose, from the arrow keys<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> the headset’s tracking on device</span></li>
+        <li>Mouse drag and scroll as pinch and scale<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> SIK hand tracking on device. <b>SpatialGestureController does not run here</b>; its state machine is covered by tests. Release does call the real <code>reseat()</code>.</span></li>
+        <li>Web Speech API<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> the ASR module on device</span></li>
+        <li>three.js rendering<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> the Spectacles display on device</span></li>
       </ul>
     </div>
   </div>
@@ -581,7 +598,7 @@
   </p>
   <div class="split">
     <div class="box sim">
-      <h3>● Browser simulator</h3>
+      <h3><svg class="ico"><use href="#i-dot"/></svg> Browser simulator</h3>
       <p>For judges, for the video, for anyone without a headset.</p>
       <ul>
         <li>Real parser, anchor engine, material swapper - hosted in a page</li>
@@ -590,10 +607,10 @@
       </ul>
     </div>
     <div class="box real">
-      <h3>● Lens Studio project</h3>
+      <h3><svg class="ico"><use href="#i-dot"/></svg> Lens Studio project</h3>
       <p><code>LensProject/</code> - SPECS target, scene wired by script, runs in the editor’s Preview.</p>
       <ul>
-        <li>Open <code>LensProject/LensProject.esproj</code> in Lens Studio 5.22+, sign in to My Lenses, press ▶ in Preview</li>
+        <li>Open <code>LensProject/LensProject.esproj</code> in Lens Studio 5.22+, sign in to My Lenses, press <svg class="ico"><use href="#i-play"/></svg> in Preview</li>
         <li>Say <i>“give me a navy velvet sofa”</i> - the runtime log shows the spawn, and the sofa appears</li>
         <li>No room surfaces in the desktop Preview, so pieces float; on Spectacles, World Query anchors them</li>
       </ul>

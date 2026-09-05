@@ -48,6 +48,14 @@ import { VoiceCommandController } from "./build/Scripts/VoiceCommandController.j
 import { Room3D } from "./room3d.js";
 import { BUILD } from "./build/build-id.js";
 
+// Inline icons from the page's sprite (see Simulator/index.html); used where text is set from JS.
+const ICON = {
+  mic:   '<svg class="ico"><use href="#i-mic"/></svg>',
+  dot:   '<svg class="ico"><use href="#i-dot"/></svg>',
+  alert: '<svg class="ico"><use href="#i-alert"/></svg>',
+};
+function escapeHtml(t) { return t.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
 // -----------------------------------------------------------------------------
 // The simulated room - centimetres, matching Lens Studio world units
 // -----------------------------------------------------------------------------
@@ -731,15 +739,15 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const mic = document.getElementById("mic");
 if (!SR) {
   mic.disabled = true;
-  mic.textContent = "🎙 Speech recognition unavailable in this browser";
+  mic.innerHTML = ICON.mic + " Speech recognition unavailable in this browser";
 } else {
   const rec = new SR();
   rec.continuous = false; rec.interimResults = true; rec.lang = "en-US";
   let live = false;
   mic.addEventListener("click", () => { live ? rec.stop() : rec.start(); });
-  rec.onstart = () => { live = true; mic.classList.add("live"); mic.textContent = "● Listening - speak now"; };
-  rec.onend = () => { live = false; mic.classList.remove("live"); mic.textContent = "🎙 Hold to speak (Web Speech API)"; };
-  rec.onerror = (e) => { mic.textContent = "🎙 Mic error: " + e.error; };
+  rec.onstart = () => { live = true; mic.classList.add("live"); mic.innerHTML = ICON.dot + " Listening - speak now"; };
+  rec.onend = () => { live = false; mic.classList.remove("live"); mic.innerHTML = ICON.mic + " Hold to speak (Web Speech API)"; };
+  rec.onerror = (e) => { mic.innerHTML = ICON.mic + " Mic error: " + escapeHtml(String(e.error)); };
   rec.onresult = (e) => {
     const res = e.results[e.results.length - 1];
     const text = res[0].transcript.trim();
@@ -807,9 +815,9 @@ if (report.failed.length) {
   console.warn("[Spatialis simulator] missing in 3D:", report.failed.join(", "));
   const hud = document.getElementById("hud-sub");
   hud.innerHTML = report.loaded.length
-    ? `⚠ ${report.failed.length} model(s) unavailable - switch to Floor plan to see them`
-    : `⚠ no models loaded - the Floor plan view still works`;
-  hud.style.color = "#fbbf24";
+    ? `${ICON.alert}${report.failed.length} model(s) unavailable - switch to Floor plan to see them`
+    : `${ICON.alert}no models loaded - the Floor plan view still works`;
+  hud.style.color = "var(--warn)";
   if (!report.loaded.length) setView("plan");
 }
 
