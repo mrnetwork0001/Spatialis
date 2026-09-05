@@ -11,7 +11,7 @@
 ## 📌 Core Directives for Spatialis Development
 
 1. **Master Spec Source of Truth:**  
-   Always consult [SPATIALIS_PROJECT_SPEC.md](file:///Users/mrnetwork/Spatialis/SPATIALIS_PROJECT_SPEC.md).
+   Always consult [SPATIALIS_PROJECT_SPEC.md](./SPATIALIS_PROJECT_SPEC.md).
 
 2. **Technical Architecture Guidelines:**
    - **Voice Intent Engine:** Implement voice command listener in `Scripts/VoiceCommandController.ts`.
