@@ -9,7 +9,7 @@
 
 [![CI](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml/badge.svg)](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-151%20passing-brightgreen.svg)](Tests/)
+[![Tests](https://img.shields.io/badge/tests-155%20passing-brightgreen.svg)](Tests/)
 
 ---
 
@@ -137,7 +137,7 @@ npm install
 
 npm run typecheck   # strict type check against the local API stubs (what CI runs)
 npm run typecheck:lens  # the same code against Snap's REAL API — needs Lens Studio installed
-npm test            # 151 behavioural tests across all four subsystems
+npm test            # 155 behavioural tests across all four subsystems
 npm run sim         # landing page + app on http://localhost:8777/
 ```
 
@@ -175,7 +175,7 @@ Scripts/
   PBRMaterialSwapper.ts        Subsystem 4 — PBR Material Swapper
 Simulator/                     browser desk simulator (real code, simulated room)
 types/lens-studio.d.ts         local Lens Studio API stubs (CI type-checking only)
-Tests/                         151 behavioural tests + Lens runtime and SIK stubs
+Tests/                         155 behavioural tests + Lens runtime and SIK stubs
 Tools/patch-build.js           makes tsc output loadable under Node and browsers
 .github/workflows/ci.yml       typecheck + test + simulator build on every push
 SETUP_LENS_STUDIO.md           scene wiring and on-device tuning
@@ -190,12 +190,12 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 | | |
 |---|---|
 | Four subsystems implemented | ✅ type-checked under `strict` |
-| Behavioural test suite | ✅ 151 passing |
+| Behavioural test suite | ✅ 155 passing |
 | Type-checked against Snap's real API (Lens Studio 5.23.2, `StudioLib.d.ts`) | ✅ 0 errors — `npm run typecheck:lens` |
 | Desk simulator | ✅ runs from a clone, no headset |
 | Lens Studio project (`LensProject/`, SPECS target) | ✅ created; all 5 scripts and 12 models imported and compiled by the editor |
 | Scene wiring | ✅ built through Lens Studio's MCP by `Tools/lens-editor/wire-spatialis.ts`; every input verified by read-back |
-| Runs in Lens Studio Preview | ✅ all four subsystems initialise (hit testing, hand tracking, materials, voice listening); speech itself needs a My Lenses login in Preview; voice input uses Snap's current `AsrModule`, not the deprecated VoiceML API |
+| Runs in Lens Studio Preview | ✅ a spoken *“give me a navy velvet sofa”* spawns a blue sofa in the runtime scene; scale (210 units), materials and spacing verified; speech needs a My Lenses login in Preview; voice input uses Snap's current `AsrModule` |
 | On-device pass on Spectacles | ⬜ not yet — pinch feel untested on a real hand |
 | Demo video | ⬜ |
 

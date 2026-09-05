@@ -240,6 +240,7 @@
     <a href="#how">How it works</a>
     <a href="#subsystems">Subsystems</a>
     <a href="#catalog">Catalog</a>
+    <a href="#lens">Lens</a>
     <a href="#status">Status</a>
   </div>
 </div></nav>
@@ -271,7 +272,7 @@
 
 <div class="stats"><div class="wrap">
   <div class="stat"><div class="n">4</div><div class="l">Subsystems</div></div>
-  <div class="stat"><div class="n">151</div><div class="l">Tests passing</div></div>
+  <div class="stat"><div class="n">155</div><div class="l">Tests passing</div></div>
   <div class="stat"><div class="n">12</div><div class="l">3D models</div></div>
   <div class="stat"><div class="n">38</div><div class="l">Commits</div></div>
 </div></div>
@@ -456,13 +457,13 @@
   <table class="status">
     <tr><td>✅</td><td>Type-checked against Snap’s <b>real</b> Lens Studio 5.23.2 API — 0 errors</td><td>typecheck:lens</td></tr>
     <tr><td>✅</td><td>Four subsystems implemented and type-checked under <code>strict</code></td><td>~3,000 LOC</td></tr>
-    <tr><td>✅</td><td>Behavioural test suite across all four subsystems, including end-to-end</td><td>151 passing</td></tr>
+    <tr><td>✅</td><td>Behavioural test suite across all four subsystems, including end-to-end</td><td>155 passing</td></tr>
     <tr><td>✅</td><td>Full furniture catalog, validated for scale and pivot</td><td>12 models</td></tr>
     <tr><td>✅</td><td>Browser simulator — wearer view and floor plan</td><td>runs from a clone</td></tr>
     <tr><td>✅</td><td>CI: typecheck, tests and simulator build on every push</td><td>green</td></tr>
     <tr><td>✅</td><td>Lens Studio project created (SPECS); scripts and models imported and compiled by the editor</td><td>LensProject/</td></tr>
     <tr><td>✅</td><td>Scene wired through Lens Studio’s MCP; every input read back and verified</td><td>wire-spatialis</td></tr>
-    <tr><td>✅</td><td>Runs in Lens Studio Preview — hit testing, hand tracking, materials and voice all initialise</td><td>first run</td></tr>
+    <tr><td>✅</td><td>Runs in Lens Studio Preview — a spoken “give me a navy velvet sofa” spawns a blue sofa; materials, scale and spacing verified in the runtime scene</td><td>Preview</td></tr>
     <tr><td>⬜</td><td>On-device pass on Spectacles</td><td>needs hardware</td></tr>
     <tr><td>⬜</td><td>Demo video</td><td>not recorded</td></tr>
   </table>
@@ -471,6 +472,38 @@
     Lens Studio API and tested in isolation, but no Lens Studio project exists yet and
     no headset has worn it. Pinch feel in particular is reasoned, not measured — the
     logic is tested, the <i>feel</i> is not. Saying otherwise would be easy and untrue.
+  </div>
+</div></section>
+
+<section id="lens"><div class="wrap">
+  <div class="kicker">The real thing</div>
+  <h2>Two front doors, one codebase</h2>
+  <p class="sub">
+    The app you can launch above is the <b>browser simulator</b> — it hosts the shipped
+    subsystems against a simulated room so anyone can try Spatialis without hardware.
+    The <b>Lens</b> is the same four <code>Scripts/*.ts</code> files running inside Lens Studio
+    for Spectacles. <code>npm run sync:lens</code> keeps the Lens project’s copy identical
+    to the source; nothing is forked.
+  </p>
+  <div class="split">
+    <div class="box sim">
+      <h3>● Browser simulator</h3>
+      <p>For judges, for the video, for anyone without a headset.</p>
+      <ul>
+        <li>Real parser, anchor engine, material swapper — hosted in a page</li>
+        <li>Room, hit tests, head pose and pinch are simulated</li>
+        <li><a href="./Simulator/">Launch app</a></li>
+      </ul>
+    </div>
+    <div class="box real">
+      <h3>● Lens Studio project</h3>
+      <p><code>LensProject/</code> — SPECS target, scene wired by script, runs in the editor’s Preview.</p>
+      <ul>
+        <li>Open <code>LensProject/LensProject.esproj</code> in Lens Studio 5.22+, sign in to My Lenses, press ▶ in Preview</li>
+        <li>Say <i>“give me a navy velvet sofa”</i> — the runtime log shows the spawn, and the sofa appears</li>
+        <li>No room surfaces in the desktop Preview, so pieces float; on Spectacles, World Query anchors them</li>
+      </ul>
+    </div>
   </div>
 </div></section>
 

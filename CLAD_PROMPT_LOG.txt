@@ -406,18 +406,42 @@ Result: running the shipped code where the reimplementation used to run
   code because the Preview has no My Lenses login. The unused VoiceML asset
   was removed from the project.
 
+[SESSION 5, FINAL — 2026-09-05] A SPOKEN COMMAND SPAWNS FURNITURE IN THE LENS
+  The user spoke "Give me a navy velvet sofa." into the Preview. Verbatim
+  from the Lens runtime: heard ... -> spawn sofa [velvet] {navy} @auto
+  (confidence 1.00); No surface for sofa; floating it instead; sofa ->
+  velvet; sofa tinted navy. Nothing appeared on screen. Three defects,
+  found by querying the running scene through the MCP, fixed in order:
+   1. IMPORT SCALE. The editor's glTF import applies "Convert meters to
+      centimeters" by default (prefab root scale 100), so the centimetre
+      set became a 21,000-unit sofa with the camera inside it. The project
+      now imports the metre set: sofa 210 x 62 x 85 in the runtime scene.
+   2. MATERIAL NAMES. glTF-imported materials expose baseColorFactor,
+      metallicFactor and roughnessFactor; the swapper knew only the built-in
+      PBR names, so its guarded writes skipped and "sofa -> velvet" changed
+      nothing. It now speaks both vocabularies (two regression tests).
+   3. FLOAT DISTANCE. A 2.1m sofa held 160cm from the eye filled the view
+      with one face. Floating distance now scales with the piece and floated
+      pieces avoid each other (tests updated and extended).
+  A previewCommands input (empty in release) runs sentences on start so the
+  pipeline can be verified in the Preview without a microphone. Final
+  screenshot via MCP: a blue sofa behind a white marble table with a
+  walnut-framed painting, none interpenetrating, all floating (no surfaces
+  in the desktop Preview). 155 tests. The frontend and the Lens are the same
+  Scripts/ files; sync-lens keeps the project copy identical.
+
 ==============================================================================
  VERIFICATION SUMMARY (as of 2026-09-05)
 ==============================================================================
   npm run typecheck   -> clean (strict; against the local API stubs)
   typecheck:lens      -> clean against Snap's REAL API (Lens Studio 5.23.2
                          StudioLib.d.ts); mutation-verified
-  npm test            -> 151 passed, 0 failed (7 suites, incl. end to end)
+  npm test            -> 155 passed, 0 failed (7 suites, incl. end to end)
   npm run build:web   -> clean (simulator ES module bundle)
   fresh clone         -> npm ci, typecheck, test, build:web all green
   CI                  -> green on every push
-  Lens Studio         -> 5.23.2; LensProject wired; RUNS in Preview (all four
-                         subsystems initialise); not yet run on device
+  Lens Studio         -> 5.23.2; LensProject wired; RUNS in Preview - a spoken
+                         command spawns and restyles furniture; not on device
   Simulator           -> hosts the real subsystems; verified via DOM, logs
                          and pixel sampling (image viewing unavailable to
                          the agent in session 4)
