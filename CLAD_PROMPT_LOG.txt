@@ -459,3 +459,47 @@ Result: running the shipped code where the reimplementation used to run
                          and pixel sampling (image viewing unavailable to
                          the agent in session 4)
 ==============================================================================
+
+======================================================================
+SESSION 6 - 2026-09-02 to 2026-09-05 - crush-to-delete, frontend restyle
+======================================================================
+
+Prompts (verbatim, in order) and what the agent did with each:
+
+"so, when one adds a feature and wants to remove it; how does it work?"
+  -> Explained the three routes (voice "remove", the panel's Delete, and a
+     gesture) and that only the first two existed.
+"build it; so it serves as an addition"
+  -> Crush-to-delete: hold a piece in both hands, squeeze below 0.15 of its
+     base size, release; scale-out tween, material clone released, registry
+     entry removed. Four tests. Re-wired the Lens Studio scene through the
+     MCP so the gesture controller sees the material swapper; verified by
+     read-back and by running the runtime.
+"add this kind of footer to the spatialis app" / "check footer: <site>"
+  -> Read the reference site's HTML and stylesheet directly (the pasted
+     image could not be viewed) and rebuilt the footer and, on the earlier
+     "look more good" ask, the whole frontend on its design language:
+     near-black ground with a faint grid, system Helvetica / SF Mono,
+     gold mono labels, lime accent, violet secondary. Selectors kept,
+     values changed; nothing behavioural moved.
+"on the landing page, reduce the side margins to 50%"
+  -> Column grows to (viewport + 1120) / 2.
+"...two sections; left side for the text and right for the image or an
+ image with continuous action/motion, then the /app screenshot ... removed"
+  -> Two-column hero with an animated SVG product loop (caption cycles,
+     matching piece pops in, sofa recolours, repeat every 15 s); the app
+     screenshot removed.
+"this should not be on the landing page: Status ..." / "is it true?"
+  -> Removed. Answered honestly: "never run on Spectacles" true; "no Lens
+     Studio project exists" had been stale since Session 5 and contradicted
+     the table above it - the agent's omission. README wording confirmed
+     accurate; stale test counts corrected (155 -> 161).
+"replace all em-dashes with -"  -> 337 in 39 project-owned files.
+"remove all basic emojis from the app and replace with a custom emoji..."
+  -> A monoline SVG icon sprite (mic, surface-with-pin, PBR sphere, pinch,
+     play, alert, arrow, marker) in the current colour; zero emoji left in
+     the app by codepoint scan. README heading emoji left as docs.
+
+State at the end of the session: 161 tests, both type checks clean, CI
+green, Lens project in sync, HEAD pushed. Still outside the agent's hands:
+making the repo public, the demo video, the submission form, a device pass.
