@@ -15,6 +15,10 @@
 
 ## 🎬 Demo
 
+![Spatialis in Lens Studio Preview](docs/lens-preview.png)
+
+*Lens Studio 5.23.2 Preview, captured through the editor's MCP server: "give me a navy velvet sofa" and "add a floating marble coffee table" spoken by the preview script, parsed, spawned and styled by the shipped code. No room surfaces in the desktop Preview, so both float.*
+
 > **Video walkthrough:** _(link to be added before submission)_
 
 ![Spatialis desk simulator](docs/simulator.png)

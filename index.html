@@ -237,6 +237,9 @@
   .split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media(max-width:800px){.split{grid-template-columns:1fr}}
   .box{border-radius:6px;padding:22px;border:1px solid}
+  .lens-shot{margin:18px 0 0;max-width:380px}
+  .lens-shot img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:6px}
+  .lens-shot figcaption{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--ink-faint);margin-top:10px;line-height:1.6}
   .box.real{border-color:rgba(126,231,5,.3);background:rgba(126,231,5,.04)}
   .box.sim{border-color:rgba(160,107,255,.3);background:rgba(160,107,255,.05)}
   .box h3{margin:0 0 6px;font-size:15px;display:flex;align-items:center;gap:8px}
@@ -647,6 +650,10 @@
         <li>Say <i>“give me a navy velvet sofa”</i> - the runtime log shows the spawn, and the sofa appears</li>
         <li>No room surfaces in the desktop Preview, so pieces float. On Spectacles, World Query should anchor them - Spatialis has not yet been run on hardware, and the pinch feel is untested on a real hand</li>
       </ul>
+      <figure class="shot lens-shot">
+        <img src="./docs/lens-preview.png" alt="Spatialis running in Lens Studio Preview: a navy velvet sofa and a marble coffee table spawned by spoken commands" width="1503" height="1590" loading="lazy">
+        <figcaption>Lens Studio 5.23.2 Preview, captured through the editor’s MCP server. The preview script spoke “give me a navy velvet sofa” and “add a floating marble coffee table”; both were parsed, spawned and styled by the shipped code. The desktop Preview has no room surfaces, so both float.</figcaption>
+      </figure>
     </div>
   </div>
 </div></section>
