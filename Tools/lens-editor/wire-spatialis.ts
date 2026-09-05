@@ -32,12 +32,17 @@
  */
 
 (() => {
-  // ExecuteEditorCode wraps this file in a function body, so `declare` is not
-  // allowed here and `model` is not injected; resolve it the way Snap's own
-  // Editor API examples do.
-  const model: Editor.Model.IModel =
-    (globalThis as any).model ??
-    ((this as any).pluginSystem.findInterface(Editor.Model.IModel) as Editor.Model.IModel);
+  // ExecuteEditorCode wraps this file in a function body and injects
+  // `pluginSystem` as a parameter of that function. A bare reference to an
+  // undeclared name fails the tool's TypeScript compile and `declare` is not
+  // legal inside a function body, so reach it through a direct eval, which
+  // sees the enclosing scope and which TypeScript does not type-check.
+  const pluginSys: any =
+    (globalThis as any).pluginSystem ??
+    // eslint-disable-next-line no-eval
+    eval("typeof pluginSystem !== 'undefined' ? pluginSystem : undefined");
+  if (!pluginSys) throw new Error("wire-spatialis: no pluginSystem in this context");
+  const model = pluginSys.findInterface(Editor.Model.IModel) as Editor.Model.IModel;
   const log = (m: string) => console.log("[wire-spatialis] " + m);
   const warn = (m: string) => console.warn("[wire-spatialis] WARNING " + m);
 
