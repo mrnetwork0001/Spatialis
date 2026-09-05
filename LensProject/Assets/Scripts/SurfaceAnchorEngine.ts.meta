@@ -24,11 +24,15 @@
   VersionPatch: 0
   VersionPrerelease: ""
   UpdateOrder: 0
-  ComponentUid: 00000000-0000-0000-0000-000000000000
+  ComponentUid: 9fe5d2db-2b12-4abf-9aef-71f14edc84c0
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
-    {}
+    avoidOverlap: false
+    camera: false
+    floatDistance: false
+    probeDistance: false
+    worldQueryAsset: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -38,10 +42,17 @@
   Attachments:
     []
   DefaultScriptInputs:
-    -
-      {}
+    - camera: !<reference.Camera> 00000000-0000-0000-0000-000000000000
+      worldQueryAsset: !<reference.Asset> 00000000-0000-0000-0000-000000000000
+      probeDistance: !<float> 700.000000
+      floatDistance: !<float> 160.000000
+      avoidOverlap: true
   ScriptTypes:
     -
       {}
   InputLines:
-    []
+    - "// @input Component.Camera camera {\"hint\":\"Camera the user is looking through. Leave empty to auto-find 'Camera'.\"}"
+    - '// @input Asset.Asset worldQueryAsset {"hint":"World Query module asset. Add via Asset Browser > Add > World Query."}'
+    - '// @input float probeDistance = 700 {"hint":"Metres of ray to cast when searching for a surface, in cm.", "widget":"slider", "min":100, "max":1500, "step":10}'
+    - '// @input float floatDistance = 160 {"hint":"Fallback distance in front of the user when no surface is found, cm.", "widget":"slider", "min":60, "max":400, "step":5}'
+    - '// @input bool avoidOverlap = true {"hint":"Nudge new furniture aside if it lands inside an existing piece."}'

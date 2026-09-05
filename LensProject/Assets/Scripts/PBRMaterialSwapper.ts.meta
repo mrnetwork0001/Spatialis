@@ -24,11 +24,13 @@
   VersionPatch: 0
   VersionPrerelease: ""
   UpdateOrder: 0
-  ComponentUid: 00000000-0000-0000-0000-000000000000
+  ComponentUid: 8a97d275-e3c6-480c-8fac-5398623e591d
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
-    {}
+    blendDuration: false
+    presetTextureKeys: false
+    presetTextures: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -38,10 +40,15 @@
   Attachments:
     []
   DefaultScriptInputs:
-    -
-      {}
+    - blendDuration: 0.450000
+      presetTextures: !<reference.Texture[]>
+        []
+      presetTextureKeys: !<string[]>
+        []
   ScriptTypes:
     -
       {}
   InputLines:
-    []
+    - '// @input float blendDuration = 0.45 {"hint":"Seconds to cross-fade between two finishes.", "widget":"slider", "min":0, "max":2, "step":0.05}'
+    - '// @input Asset.Texture[] presetTextures = {} {"hint":"Optional albedo textures, parallel to Texture Preset Keys below."}'
+    - '// @input string[] presetTextureKeys = {} {"hint":"Preset keys matching Preset Textures, e.g. oak, walnut, marble."}'

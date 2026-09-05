@@ -24,11 +24,20 @@
   VersionPatch: 0
   VersionPrerelease: ""
   UpdateOrder: 0
-  ComponentUid: 00000000-0000-0000-0000-000000000000
+  ComponentUid: 9c3ba5b8-9335-4d4e-8f3f-5b0fd76f0a23
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
-    {}
+    adaptToHandSize: false
+    anchorEngine: false
+    dragSmoothing: false
+    grabIndicator: false
+    grabRadius: false
+    maxScaleFactor: false
+    minScaleFactor: false
+    pinchDownDistance: false
+    pinchUpDistance: false
+    singleHandRotate: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -38,10 +47,27 @@
   Attachments:
     []
   DefaultScriptInputs:
-    -
-      {}
+    - anchorEngine: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      pinchDownDistance: !<float> 3.000000
+      pinchUpDistance: 4.500000
+      adaptToHandSize: true
+      grabRadius: !<float> 45.000000
+      dragSmoothing: 0.350000
+      minScaleFactor: 0.300000
+      maxScaleFactor: !<float> 3.000000
+      singleHandRotate: false
+      grabIndicator: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
   InputLines:
-    []
+    - '// @input AssignableType_1 anchorEngine {"hint":"Surface Anchor Engine used to re-seat a piece when it is released."}'
+    - '// @input float pinchDownDistance = 3 {"hint":"Thumb-to-index distance that closes a pinch, cm.", "widget":"slider", "min":1, "max":6, "step":0.1}'
+    - '// @input float pinchUpDistance = 4.5 {"hint":"Thumb-to-index distance that opens it again, cm. Keep above Pinch Down.", "widget":"slider", "min":1.5, "max":9, "step":0.1}'
+    - "// @input bool adaptToHandSize = true {\"hint\":\"Scale the pinch distances by the wearer's own hand size. The two distances above then describe a nominal adult hand.\"}"
+    - '// @input float grabRadius = 45 {"hint":"How far from a piece a pinch still counts as grabbing it, cm.", "widget":"slider", "min":10, "max":120, "step":5}'
+    - '// @input float dragSmoothing = 0.35 {"hint":"Drag smoothing. 0 = rigidly follow the hand, 0.9 = heavy and damped.", "widget":"slider", "min":0, "max":0.95, "step":0.01}'
+    - "// @input float minScaleFactor = 0.3 {\"hint\":\"Smallest and largest scale allowed, as a multiple of the piece's own size.\", \"widget\":\"slider\", \"min\":0.1, \"max\":1, \"step\":0.05}"
+    - '// @input float maxScaleFactor = 3 {"widget":"slider", "min":1, "max":6, "step":0.1}'
+    - "// @input bool singleHandRotate {\"hint\":\"Also yaw a piece to follow a single hand's twist while dragging.\"}"
+    - '// @input SceneObject grabIndicator {"hint":"Optional marker moved onto whichever piece is currently held."}'

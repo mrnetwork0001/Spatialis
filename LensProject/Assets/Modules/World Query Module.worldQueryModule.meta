@@ -1,0 +1,16 @@
+- !<AssetImportMetadata/e738b40a-5fc4-4d23-afbf-c9de647f9f62>
+  ImportedAssetIds:
+    WorldQueryModule: !<reference> 9d5200a7-768c-4786-95cd-e6b2919b89da
+  ImporterName: WorldQueryModuleImporter
+  PrimaryAsset: !<reference> 9d5200a7-768c-4786-95cd-e6b2919b89da
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    {}
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
