@@ -284,7 +284,6 @@
     <a href="#subsystems">Subsystems</a>
     <a href="#catalog">Catalog</a>
     <a href="#lens">Lens</a>
-    <a href="#status">Status</a>
   </div>
 </div></nav>
 
@@ -569,31 +568,6 @@
   </div>
 </div></section>
 
-<section id="status"><div class="wrap">
-  <div class="kicker">Status</div>
-  <h2>Where this actually stands</h2>
-  <p class="sub">Stated plainly, including what isn’t done.</p>
-  <table class="status">
-    <tr><td>✅</td><td>Type-checked against Snap’s <b>real</b> Lens Studio 5.23.2 API — 0 errors</td><td>typecheck:lens</td></tr>
-    <tr><td>✅</td><td>Four subsystems implemented and type-checked under <code>strict</code></td><td>~3,000 LOC</td></tr>
-    <tr><td>✅</td><td>Behavioural test suite across all four subsystems, including end-to-end</td><td>155 passing</td></tr>
-    <tr><td>✅</td><td>Full furniture catalog, validated for scale and pivot</td><td>12 models</td></tr>
-    <tr><td>✅</td><td>Browser simulator — wearer view and floor plan</td><td>runs from a clone</td></tr>
-    <tr><td>✅</td><td>CI: typecheck, tests and simulator build on every push</td><td>green</td></tr>
-    <tr><td>✅</td><td>Lens Studio project created (SPECS); scripts and models imported and compiled by the editor</td><td>LensProject/</td></tr>
-    <tr><td>✅</td><td>Scene wired through Lens Studio’s MCP; every input read back and verified</td><td>wire-spatialis</td></tr>
-    <tr><td>✅</td><td>Runs in Lens Studio Preview — a spoken “give me a navy velvet sofa” spawns a blue sofa; materials, scale and spacing verified in the runtime scene</td><td>Preview</td></tr>
-    <tr><td>✅</td><td>Gestures exercised on the runtime in the SPECS simulation — pinch, 61 cm drag, reseat on release</td><td>simulated hands</td></tr>
-    <tr><td>⬜</td><td>On-device pass on Spectacles</td><td>needs hardware</td></tr>
-    <tr><td>⬜</td><td>Demo video</td><td>not recorded</td></tr>
-  </table>
-  <div class="note">
-    <b>This has never run on Spectacles.</b> The subsystems are written against the
-    Lens Studio API and tested in isolation, but no Lens Studio project exists yet and
-    no headset has worn it. Pinch feel in particular is reasoned, not measured — the
-    logic is tested, the <i>feel</i> is not. Saying otherwise would be easy and untrue.
-  </div>
-</div></section>
 
 <section id="lens"><div class="wrap">
   <div class="kicker">The real thing</div>

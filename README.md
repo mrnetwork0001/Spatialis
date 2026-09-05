@@ -190,7 +190,7 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 | | |
 |---|---|
 | Four subsystems implemented | ✅ type-checked under `strict` |
-| Behavioural test suite | ✅ 155 passing |
+| Behavioural test suite | ✅ 161 passing |
 | Type-checked against Snap's real API (Lens Studio 5.23.2, `StudioLib.d.ts`) | ✅ 0 errors — `npm run typecheck:lens` |
 | Desk simulator | ✅ runs from a clone, no headset |
 | Lens Studio project (`LensProject/`, SPECS target) | ✅ created; all 5 scripts and 12 models imported and compiled by the editor |
