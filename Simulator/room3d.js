@@ -79,7 +79,7 @@ export class Room3D {
 
     // A faint grid keeps the sense of scale the plan view gives for free.
     const grid = new THREE.GridHelper(Math.max(W, D), Math.round(Math.max(W, D) / 0.5),
-                                      0x2a2a37, 0x20202b);
+                                      0x3a3a4e, 0x30303f);
     grid.position.set(W / 2, 0.002, D / 2);
     this.scene.add(grid);
 
@@ -149,7 +149,7 @@ export class Room3D {
   }
 
   buildLights() {
-    this.scene.add(new THREE.HemisphereLight(0xc9d8ff, 0x1a1d24, 1.76));
+    this.scene.add(new THREE.HemisphereLight(0xc9d8ff, 0x2a2d38, 2.4));
     const key = new THREE.DirectionalLight(0xfff2dd, 2.0);
     key.position.set(this.room.w * CM * 0.8, 3.2, this.room.d * CM * 0.15);
     key.castShadow = true;
