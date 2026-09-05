@@ -363,6 +363,36 @@ Result: running the shipped code where the reimplementation used to run
   component's inputNames back. typecheck:lens now checks the gesture
   controller against the real SIK source from the project cache: clean.
 
+[SESSION 5, LATER — 2026-09-05] THE LENS RUNS
+  The editor had been on its Home screen with a temp "Default" project;
+  every recompile had been hitting an empty project. Opened LensProject via
+  Editor.Model.IModel.openProject through ExecuteEditorCode. Recompile then
+  SUCCEEDED - the blocker had been a @hint given a concatenated string,
+  which Lens Studio's decorator processor rejects and plain tsc accepts -
+  and all four component wrappers appeared.
+  wire-spatialis.ts ran clean after three defects of its own were fixed on
+  live runs: 'declare' is illegal in the tool's function wrapper and the
+  model comes from an injected pluginSystem; component proxies are fresh on
+  every access, so duplicate detection must match by asset name from a
+  single components read; and duplicates are removed with
+  SceneObject.removeComponentAt, not destroy(). Result: one component per
+  object, Anchor 5/5 inputs, Voice 10/10 with 12/12 prefabs, Gesture and
+  Material missing only optional fields. Verified by API read-back and by
+  the serialised Scene.scene: each script asset referenced once, no
+  zero-GUID references.
+  FIRST RUN IN PREVIEW (SPECS device simulation, 10s), verbatim from the
+  Lens's own log: "[Spatialis:Material] 11 finishes, 10 tints loaded.",
+  "[Spatialis:Anchor] Hit test session started (filtered).",
+  "[Spatialis:Gesture] Tracking 2 hand(s).", "[Spatialis:Anchor] Floor
+  estimated from eye height at y=-5.0cm.", "[Spatialis:Voice] Listening."
+  No runtime errors. Two findings: VoiceML returned 401 - the Preview
+  requires a My Lenses login for speech - and every VoiceML call used is
+  flagged deprecated ("will stop functioning in an upcoming Lens Studio
+  version"); migration to the current API is the next code change.
+  One editor crash occurred earlier in the session (ES_ASSERT in
+  MapOperations::get) while a diagnostic read scriptInputInfo on an
+  uncompiled asset; that read is now avoided.
+
 ==============================================================================
  VERIFICATION SUMMARY (as of 2026-09-05)
 ==============================================================================
@@ -373,7 +403,8 @@ Result: running the shipped code where the reimplementation used to run
   npm run build:web   -> clean (simulator ES module bundle)
   fresh clone         -> npm ci, typecheck, test, build:web all green
   CI                  -> green on every push
-  Lens Studio         -> 5.23.2 installed; no .esproj yet; never run on device
+  Lens Studio         -> 5.23.2; LensProject wired; RUNS in Preview (all four
+                         subsystems initialise); not yet run on device
   Simulator           -> hosts the real subsystems; verified via DOM, logs
                          and pixel sampling (image viewing unavailable to
                          the agent in session 4)
