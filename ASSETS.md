@@ -25,27 +25,25 @@ arbitrary scale.
 The one deliberate exception: **`artwork` has its origin at its vertical centre**,
 not its base, because it hangs on a wall rather than standing on a floor.
 
-## Units — resolved
+## Units — resolved, then corrected by the editor
 
-Lens Studio world units are **centimetres**, and Snap's glTF importer does
-**not** rescale metre-authored files on its own: the import dialog has a
-**"Convert meters to centimeters"** option ("if enabled, converts meters to
-centimeters… the units for linear distances in glTF are meters, whereas in
-Lens Studio they are centimeters"). So the models are shipped in the unit
-Lens Studio actually uses, with a spec-conformant alternate:
+Lens Studio world units are centimetres. Snap's glTF importer has a
+"Convert meters to centimeters" option — and **in the editor it is ON by
+default**: importing a file applies a ×100 scale on the prefab root. (The
+runtime `GltfSettings` API defaults it to off, which is what an earlier note
+here relied on; the editor's import dialog does not.) We found this the first
+time a spawned sofa was invisible — its root had scale 100 on top of
+centimetre-sized meshes, a 21,000-unit couch with the camera inside it.
+
+So the two sets are used like this:
 
 ```
-Assets/Prefabs/*.glb      CENTIMETRES  — import with the option UNTICKED   (default)
-Assets/Prefabs/m/*.glb    metres       — import with the option TICKED
+Assets/Prefabs/m/*.glb    METRES       — what the Lens Studio project imports (default import, ×100 → 210 units)
+Assets/Prefabs/*.glb      centimetres  — for the simulator, tooling, and any importer that does NOT convert
 ```
 
-Either way a sofa should read **~210 units wide** in the Inspector after
-import. If it reads ~2.1 you imported the metre set unticked; if ~21000 you
-imported the centimetre set ticked. Getting it wrong is not subtle.
-
-Sources: Snap's glTF import guide and the `GltfSettings.convertMetersToCentimeters`
-API reference. Snap's own authoring guidance — pivot at the bottom-centre, model
-facing +Z — matches how these were generated.
+`npm run sync:lens` copies the metre set into `LensProject/Assets/Prefabs`.
+Either way a sofa should read **~210 units wide** in the Inspector.
 
 ## Regenerating
 
