@@ -172,6 +172,8 @@ declare class ObjectPrefab extends Asset {
 // -----------------------------------------------------------------------------
 
 declare class SceneEvent {
+  /** DelayedCallbackEvent: fire after `delay` seconds. */
+  reset(delay: number): void;
   bind(callback: (args?: any) => void): void;
   enabled: boolean;
 }

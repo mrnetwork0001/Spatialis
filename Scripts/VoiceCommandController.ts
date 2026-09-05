@@ -134,6 +134,11 @@ export class VoiceCommandController extends BaseScriptComponent {
   @allowUndefined
   feedbackText: Text;
 
+  @input
+  @hint("Preview only: sentences to run one second after start, as if spoken. Leave empty for release.")
+  @allowUndefined
+  previewCommands: string[] = [];
+
   private tweens: TweenPool = new TweenPool();
   private isListening: boolean = false;
   private lastTranscript: string = "";
@@ -151,6 +156,19 @@ export class VoiceCommandController extends BaseScriptComponent {
   }
 
   private onStart(): void {
+    // A microphone-free way to exercise the whole pipeline in Lens Studio's
+    // Preview: sentences listed in the Inspector are handled exactly as if
+    // the ASR module had transcribed them. Empty in a shipping Lens.
+    if (this.previewCommands && this.previewCommands.length > 0) {
+      const delayed = this.createEvent("DelayedCallbackEvent");
+      delayed.bind(() => {
+        for (let i = 0; i < this.previewCommands.length; i++) {
+          this.handleTranscript(this.previewCommands[i]);
+        }
+      });
+      delayed.reset(1.0);
+    }
+
     if (!this.asrModule) {
       warn("Voice", "No ASR module assigned — voice commands are disabled.");
       return;
