@@ -53,7 +53,24 @@
   .logo{display:block;height:36px;width:auto;mix-blend-mode:screen}
   .logo.lg{height:48px}
   nav.top .links{display:flex;gap:22px;margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)}
-  nav.top .links a{text-decoration:none;padding:8px 2px;transition:color .15s}
+  nav.top .links a{text-decoration:none;padding:8px 2px;transition:color .15s;white-space:nowrap}
+  nav.top .nav-cta{color:var(--accent);border:1px solid rgba(126,231,5,.45);border-radius:6px;padding:7px 12px !important}
+  nav.top .nav-cta:hover{background:var(--accent-dim);text-shadow:none}
+  .menu-btn{display:none;width:40px;height:40px;padding:0;margin-left:auto;border:1px solid var(--line-2);border-radius:6px;background:transparent;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+  .menu-btn span{display:block;width:18px;height:1.5px;background:var(--ink);transition:transform .2s,opacity .2s}
+  body.menu-open .menu-btn span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+  body.menu-open .menu-btn span:nth-child(2){opacity:0}
+  body.menu-open .menu-btn span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+  @media(max-width:960px){
+    .menu-btn{display:flex}
+    nav.top .links{position:fixed;top:58px;left:0;right:0;z-index:49;flex-direction:column;gap:0;margin:0;padding:8px 24px 16px;
+      background:rgba(6,6,9,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+      opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .18s,transform .18s}
+    body.menu-open nav.top .links{opacity:1;transform:none;pointer-events:auto}
+    nav.top .links a{padding:13px 0;border-bottom:1px solid var(--line-soft);font-size:12px}
+    nav.top .links a:last-of-type{border-bottom:none}
+    nav.top .nav-cta{margin-top:10px;text-align:center;padding:12px !important;border-bottom:none}
+  }
   nav.top .links a:hover{color:var(--accent);text-shadow:0 0 10px rgba(126,231,5,.45)}
   @media(max-width:720px){nav .links{display:none}}
 
@@ -328,15 +345,16 @@
 
 <nav class="top"><div class="wrap">
   <a class="brand" href="./"><img class="logo" src="./brand/spatialis-header.png" alt="Spatialis" width="800" height="234"></a>
-  <div class="links">
+  <div class="links" id="site-menu">
     <a href="#commands">Commands</a>
     <a href="#how">How it works</a>
     <a href="#subsystems">Subsystems</a>
     <a href="#clad">CLAD</a>
     <a href="#catalog">Catalog</a>
     <a href="#lens">Lens</a>
+    <a class="nav-cta" href="./Simulator/">Launch app</a>
   </div>
-</div></nav>
+<button class="menu-btn" id="menu" aria-label="Menu" aria-expanded="false" aria-controls="site-menu"><span></span><span></span><span></span></button></div></nav>
 
 <header class="hero"><div class="wrap">
   <div class="hero-grid">
@@ -736,6 +754,17 @@
   }
 </script>
 
+<script>
+// Narrow screens: the bar keeps the logo and a menu button; the links drop down beneath.
+(function () {
+  var btn = document.getElementById("menu"), links = document.getElementById("site-menu"); if (!btn || !links) return;
+  function setOpen(open) { document.body.classList.toggle("menu-open", open); btn.setAttribute("aria-expanded", String(open)); }
+  btn.addEventListener("click", function () { setOpen(!document.body.classList.contains("menu-open")); });
+  links.addEventListener("click", function (e) { if (e.target.tagName === "A") setOpen(false); });
+  addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
+  addEventListener("resize", function () { if (innerWidth > 960) setOpen(false); });
+})();
+</script>
 <script>
 // Sections arrive as they scroll into view. Classes are added here, so with
 // scripting off nothing is ever hidden; reduced-motion users see no animation.
