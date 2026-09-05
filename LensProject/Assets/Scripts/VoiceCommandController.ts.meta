@@ -29,6 +29,7 @@
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
     anchorEngine: false
+    asrModule: false
     feedbackText: false
     furnitureKeys: false
     furniturePrefabs: false
@@ -36,7 +37,6 @@
     requireWakeWord: false
     spawnDuration: false
     spawnParent: false
-    voiceMLModule: false
     wakeWord: false
   ScriptTypesHidden:
     {}
@@ -47,7 +47,7 @@
   Attachments:
     []
   DefaultScriptInputs:
-    - voiceMLModule: !<reference.VoiceMLModule> 00000000-0000-0000-0000-000000000000
+    - asrModule: !<reference.AsrModule> 00000000-0000-0000-0000-000000000000
       anchorEngine: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
       materialSwapper: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
       spawnParent: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
@@ -63,7 +63,7 @@
     -
       {}
   InputLines:
-    - '// @input Asset.VoiceMLModule voiceMLModule {"hint":"VoiceML module asset. Asset Browser > Add > VoiceML Module."}'
+    - '// @input Asset.AsrModule asrModule {"hint":"ASR Module asset (speech-to-text). Asset Browser > Add > ASR Module."}'
     - '// @input AssignableType_1 anchorEngine {"hint":"Surface Anchor Engine that decides where spawned furniture lands."}'
     - '// @input AssignableType_2 materialSwapper {"hint":"PBR Material Swapper that applies finishes and tints."}'
     - '// @input SceneObject spawnParent {"hint":"Parent for all spawned furniture. Defaults to this SceneObject."}'
