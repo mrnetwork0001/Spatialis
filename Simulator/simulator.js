@@ -326,7 +326,7 @@ function runCommand(text) {
   voice.handleTranscript(text);
   if (voice.lastTranscriptTime === stamp && voice.lastTranscript === prevText && voice.normalize(text) === prevText) {
     heardEl.className = "interim";
-    heardEl.textContent = "(identical transcript within 2s - dropped, as the Lens does for duplicate ASR output)";
+    heardEl.textContent = "Same sentence twice within 2 seconds - ignored, as the Lens ignores a repeated speech result";
   }
 }
 
@@ -427,9 +427,9 @@ function render() {
   roundRect(tx, tz, TABLE.w * SCALE, TABLE.d * SCALE, 5); ctx.fill(); ctx.stroke();
   ctx.restore();
   ctx.fillStyle = "#a06bff"; ctx.font = "9px ui-monospace, monospace";
-  ctx.fillText("YOUR TABLE · PART OF THE ROOM", tx + 8, tz + 14);
+  ctx.fillText("THE ROOM'S TABLE · NOT A PLACED PIECE", tx + 8, tz + 14);
   ctx.fillStyle = "#8b8b98";
-  ctx.fillText("75cm high · clear keeps it", tx + 8, tz + 26);
+  ctx.fillText("75cm high · stays when you clear the room", tx + 8, tz + 26);
 
   drawGaze();
   // Painter's order: what sits higher in the room draws over what is below it.
@@ -474,7 +474,7 @@ function drawWearer() {
 /** A piece's status word for the plan view, from what the Lens actually records. */
 function statusOf(o) {
   if (o.transform.s.x <= 0.0011) return "placing…";     // hidden until the anchor answers
-  if (o.surface === "unknown") return "no surface";     // the floating fallback
+  if (o.surface === "unknown") return o.placement === "float" ? "floating" : "floating - no surface found";     // the floating fallback
   return o.surface;
 }
 
@@ -531,16 +531,19 @@ function setSlot(id, value) {
   el.className = value ? "" : "empty";
 }
 
+const ACTION_LABEL = { spawn: "add", material: "restyle", color: "recolour", scale: "resize", delete: "remove", clear: "clear the room", move: "move" };
+const PLACEMENT_LABEL = { auto: "any surface", floor: "floor", table: "table", wall: "wall", ceiling: "ceiling", float: "floating" };
 function showIntent(intent, wallAdjacent) {
-  setSlot("s-action", intent.action === "unknown" ? "" : intent.action);
+  setSlot("s-action", intent.action === "unknown" ? "" : (ACTION_LABEL[intent.action] || intent.action));
   setSlot("s-furniture", intent.furniture);
   setSlot("s-material", intent.material && PBRMaterialSwapper.getPresetLabel(intent.material));
   setSlot("s-color", intent.color);
-  setSlot("s-placement", intent.placement + (wallAdjacent ? " + by wall" : ""));
+  setSlot("s-placement", (PLACEMENT_LABEL[intent.placement] || intent.placement) + (wallAdjacent ? ", by the wall" : ""));
   setSlot("s-style", intent.style);
   const last = SpatialisRegistry.last();
   setSlot("s-surface", last ? statusOf(last) : "");
   document.getElementById("s-conf").style.width = Math.round(intent.confidence * 100) + "%";
+  document.getElementById("s-conf-n").textContent = Math.round(intent.confidence * 100) + "%";
 }
 
 function renderList() {
@@ -548,7 +551,7 @@ function renderList() {
   const all = SpatialisRegistry.all();
   document.getElementById("count").textContent = all.length ? `· ${all.length}` : "";
   if (!all.length) {
-    wrap.innerHTML = `<div class="empty-note">Nothing placed yet. Try a chip above, or speak a command.</div>`;
+    wrap.innerHTML = `<div class="empty-note">Nothing placed yet. Try one of the examples above, or speak a command.</div>`;
     return;
   }
   wrap.innerHTML = all.map((o) => `
@@ -556,7 +559,7 @@ function renderList() {
       <div class="sw" style="background:${cssOf(look(o))}"></div>
       <div style="flex:1;min-width:0">
         <div class="nm">${o.spec.label}</div>
-        <div class="meta">${o.materialKey || "default"} · ${statusOf(o)} · ×${o.transform.s.x.toFixed(2)}</div>
+        <div class="meta">${o.materialKey ? PBRMaterialSwapper.getPresetLabel(o.materialKey) : "original finish"} · ${statusOf(o)} · ×${o.transform.s.x.toFixed(2)}</div>
       </div>
     </div>`).join("");
   wrap.querySelectorAll(".obj").forEach((el) =>
@@ -622,7 +625,7 @@ function endDrag() {
   });
 }
 
-canvas.addEventListener("mousedown", (e) => {
+canvas.addEventListener("pointerdown", (e) => {
   const r = canvas.getBoundingClientRect();
   const hit = pickPlan(e.clientX - r.left, e.clientY - r.top);
   if (!hit) { select(null); return; }
@@ -631,7 +634,7 @@ canvas.addEventListener("mousedown", (e) => {
   dragSurface = "plan";
 });
 
-canvas3d.addEventListener("mousedown", (e) => {
+canvas3d.addEventListener("pointerdown", (e) => {
   const r = canvas3d.getBoundingClientRect();
   const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
   const ny = -((e.clientY - r.top) / r.height) * 2 + 1;
@@ -644,7 +647,7 @@ canvas3d.addEventListener("mousedown", (e) => {
   dragSurface = "3d";
 });
 
-window.addEventListener("mousemove", (e) => {
+window.addEventListener("pointermove", (e) => {
   if (!dragging) return;
   if (dragSurface === "plan") {
     const r = canvas.getBoundingClientRect();
@@ -659,7 +662,7 @@ window.addEventListener("mousemove", (e) => {
   }
 });
 
-window.addEventListener("mouseup", () => { if (dragging) endDrag(); });
+window.addEventListener("pointerup", () => { if (dragging) endDrag(); });
 
 // A mouse has no second hand, so the two-hand "crush to delete" gesture is
 // stood in for by scrolling past the minimum: three more notches once a piece
@@ -741,7 +744,7 @@ const EXAMPLES = [
   "Clear the room",
 ];
 document.getElementById("chips").innerHTML =
-  EXAMPLES.map((e) => `<span class="chip">${e}</span>`).join("");
+  EXAMPLES.map((e) => `<button type="button" class="chip">${e}</button>`).join("");
 document.querySelectorAll(".chip").forEach((c) =>
   c.addEventListener("click", () => runCommand(c.textContent)));
 
@@ -751,15 +754,21 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const mic = document.getElementById("mic");
 if (!SR) {
   mic.disabled = true;
-  mic.innerHTML = ICON.mic + " Speech recognition unavailable in this browser";
+  mic.title = "Speech recognition is not available in this browser - type a command instead";
 } else {
   const rec = new SR();
   rec.continuous = false; rec.interimResults = true; rec.lang = "en-US";
   let live = false;
   mic.addEventListener("click", () => { live ? rec.stop() : rec.start(); });
-  rec.onstart = () => { live = true; mic.classList.add("live"); mic.innerHTML = ICON.dot + " Listening - speak now"; };
-  rec.onend = () => { live = false; mic.classList.remove("live"); mic.innerHTML = ICON.mic + " Hold to speak (Web Speech API)"; };
-  rec.onerror = (e) => { mic.innerHTML = ICON.mic + " Mic error: " + escapeHtml(String(e.error)); };
+  rec.onstart = () => { live = true; mic.classList.add("live"); mic.title = "Listening - tap to stop"; voice.feedbackText.text = "… Listening - speak now"; };
+  rec.onend = () => { live = false; mic.classList.remove("live"); mic.title = "Tap to speak"; };
+  const MIC_ERRORS = {
+      "not-allowed": "Microphone blocked - allow it in the address bar and try again",
+      "no-speech": "Didn't hear anything - try again",
+      "audio-capture": "No microphone found - type a command instead",
+      "network": "Speech service unreachable - type a command instead",
+    };
+    rec.onerror = (e) => { voice.feedbackText.text = MIC_ERRORS[e.error] || ("Mic error: " + e.error); };
   rec.onresult = (e) => {
     const res = e.results[e.results.length - 1];
     const text = res[0].transcript.trim();
@@ -774,15 +783,30 @@ if (!SR) {
 
 const buildEl = document.getElementById("build");
 if (buildEl) buildEl.textContent = "build " + BUILD;
+const buildM = document.getElementById("build-m"); if (buildM) buildM.textContent = "build " + BUILD;
 
 function fitStage() {
   const stage = document.getElementById("stage");
-  const w = Math.max(320, stage.clientWidth - 60);
-  const h = Math.max(280, stage.clientHeight - 60);
+  const margin = innerWidth <= 820 ? 16 : 60;
+  const w = Math.max(240, stage.clientWidth - margin * 2);
+  const h = Math.max(170, stage.clientHeight - margin * 2);
   const side = Math.min(w, h * 1.4);
   canvas3d.style.width = side + "px";
   canvas3d.style.height = side / 1.4 + "px";
   room3d.resize(Math.round(side), Math.round(side / 1.4));
+}
+
+// Narrow screens: the header collapses into a menu button and a drawer.
+{
+  const menu = document.getElementById("menu"), drawer = document.getElementById("drawer"), backdrop = document.getElementById("backdrop");
+  const setOpen = (open) => {
+    document.body.classList.toggle("menu-open", open);
+    menu.setAttribute("aria-expanded", String(open)); drawer.setAttribute("aria-hidden", String(!open)); backdrop.hidden = !open;
+  };
+  menu.addEventListener("click", () => setOpen(!document.body.classList.contains("menu-open")));
+  backdrop.addEventListener("click", () => setOpen(false));
+  drawer.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  addEventListener("keydown", (e) => { if (e.key === "Escape") setOpen(false); });
 }
 addEventListener("resize", fitStage);
 fitStage();
@@ -796,8 +820,8 @@ function setView(mode) {
   btnWearer.classList.toggle("on", wearer);
   btnPlan.classList.toggle("on", !wearer);
   document.getElementById("hud-sub").textContent = wearer
-    ? "wearer view · eye height 155 cm"
-    : "floor plan · top-down · 1 square = 50 cm";
+    ? "seen from the wearer's eyes · 155 cm up"
+    : "floor plan from above · each grid square is 50 cm";
   if (wearer) fitStage();
 }
 btnWearer.addEventListener("click", () => setView("wearer"));
@@ -827,11 +851,15 @@ if (report.failed.length) {
   console.warn("[Spatialis simulator] missing in 3D:", report.failed.join(", "));
   const hud = document.getElementById("hud-sub");
   hud.innerHTML = report.loaded.length
-    ? `${ICON.alert}${report.failed.length} model(s) unavailable - switch to Floor plan to see them`
-    : `${ICON.alert}no models loaded - the Floor plan view still works`;
+    ? `${ICON.alert}${report.failed.length} ${report.failed.length === 1 ? "model" : "models"} did not load - ${report.failed.length === 1 ? "it" : "they"} still appear in the Floor plan`
+    : `${ICON.alert}No models loaded - the Floor plan still works`;
   hud.style.color = "var(--warn)";
   if (!report.loaded.length) setView("plan");
 }
 
 requestAnimationFrame(frame);
 for (const c of BOOT) runCommand(c);
+if (!fromUrl) {
+  heardEl.className = "interim";
+  heardEl.textContent = `Ready - ${BOOT.length} pieces were placed for you. Type a command, tap an example, or speak.`;
+}

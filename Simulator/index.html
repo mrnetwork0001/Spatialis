@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" sizes="192x192" href="../brand/spatialis-logo-192.png">
 <title>Spatialis - Desk Simulator</title>
 <style>
-  :root{
+  :root{ color-scheme: dark;
     --bg:#060609; --panel:#0a0a10; --panel-2:#0e0e15; --panel-3:#12121a;
     --line:#20202b; --line-soft:#16161f; --line-2:#2a2a37;
     --grid:hsla(0,0%,100%,.032);
@@ -104,43 +104,50 @@
   .sec { padding: 14px 16px; border-bottom: 1px solid var(--line); }
   .sec h2 {
     font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .22em;
-    color: var(--label); margin: 0 0 10px; font-weight: 600;
+    color: var(--label); margin: 0 0 10px; font-weight: 400;
   }
   .row { display: flex; gap: 8px; }
   input[type=text] {
     flex: 1; min-width: 0; background: var(--panel-2); color: var(--ink);
-    border: 1px solid var(--line-2); border-radius: 5px;
+    border: 1px solid var(--line-2); border-radius: 6px;
     padding: 9px 11px; font-family: var(--sans); font-size: 13px; outline: none;
   }
   input[type=text]:focus { border-color: rgba(126,231,5,.45); }
   button {
     background: transparent; color: var(--ink-dim); border: 1px solid var(--line-2);
-    border-radius: 5px; padding: 9px 12px; font-size: 11px; cursor: pointer;
+    border-radius: 6px; padding: 9px 12px; font-size: 11px; cursor: pointer;
     font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
     transition: background .15s, box-shadow .15s, color .15s;
   }
   button:hover { color: var(--ink); border-color: var(--ink-dim); }
   button.primary { color: var(--accent); border-color: rgba(126,231,5,.45); }
   button.primary:hover { background: var(--accent-dim); box-shadow: 0 0 14px rgba(126,231,5,.2); }
-  button.mic { width: 100%; margin-top: 8px; color: var(--violet); border-color: rgba(160,107,255,.45); }
+  button.mic { padding: 9px 11px; color: var(--violet); border-color: rgba(160,107,255,.45); }
   button.mic:hover { background: var(--violet-dim); box-shadow: 0 0 14px rgba(160,107,255,.2); }
-  button.mic.live { background: rgba(229,74,74,.12); border-color: rgba(229,74,74,.5); color: #f08c8c; }
+  button.mic:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  button.mic.live { background: var(--accent-dim); border-color: rgba(126,231,5,.5); color: var(--accent); box-shadow: 0 0 14px rgba(126,231,5,.2); }
+  button.mic.live .ico { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
   button:disabled { opacity: .4; cursor: not-allowed; }
 
   .hint { font-family: var(--mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 14px; }
+  .lead { margin: -4px 0 10px; font-size: 12.5px; color: var(--ink-dim); line-height: 1.5; }
+  .list-hd { border-bottom: none; padding-bottom: 6px; }
+  .list-hd .hint { margin-top: 2px; }
+  .sec h2 .tag { margin-left: 6px; padding: 2px 6px; font-size: 9px; vertical-align: 1px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .chip {
-    font-size: 11.5px; padding: 5px 9px; border-radius: 4px;
-    background: transparent; border: 1px solid var(--line);
-    color: var(--ink-dim); cursor: pointer; transition: color .15s, border-color .15s;
+  button.chip {
+    font-family: var(--sans); font-size: 12px; letter-spacing: 0; text-transform: none;
+    padding: 5px 10px; border-radius: 4px; border: 1px solid var(--line);
+    color: var(--ink-dim); background: transparent; cursor: pointer; transition: color .15s, border-color .15s;
   }
-  .chip:hover { color: var(--accent); border-color: rgba(126,231,5,.4); }
+  button.chip:hover { color: var(--accent); border-color: rgba(126,231,5,.4); box-shadow: none; }
 
   /* ---- intent inspector ---- */
   #heard {
     font-family: var(--mono); font-size: 12px; color: var(--accent);
     background: var(--accent-dim); border: 1px solid rgba(126,231,5,.3);
-    border-radius: 5px; padding: 8px 10px; margin-bottom: 10px;
+    border-radius: 6px; padding: 8px 10px; margin-bottom: 0;
     min-height: 33px; word-break: break-word;
   }
   #heard.interim { color: var(--ink-faint); border-color: var(--line-2); background: var(--panel-2); }
@@ -153,7 +160,8 @@
   .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
 
   /* ---- object list ---- */
-  #objects { flex: none; }
+  #objects { flex: none; max-height: 38vh; overflow-y: auto; border-bottom: 1px solid var(--line); }
+  .obj:last-child { border-bottom: none; }
   .obj {
     display: flex; align-items: center; gap: 10px;
     padding: 8px 16px; border-bottom: 1px solid var(--line); cursor: pointer;
@@ -166,7 +174,7 @@
   .empty-note { padding: 16px; color: var(--ink-faint); font-size: 12.5px; line-height: 1.6; }
 
   footer {
-    padding: 14px 16px 16px; border-top: 1px solid var(--line-soft);
+    margin-top: auto; padding: 14px 16px 16px; border-top: 1px solid var(--line-soft);
     font-size: 11px; color: var(--ink-faint); line-height: 1.7;
   }
   footer .k { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
@@ -178,6 +186,60 @@
   footer summary::before { content: '+ '; }
   footer details[open] summary::before { content: '- '; }
   footer details p { margin: 8px 0 0; }
+
+  /* ---- details sections, confidence row, code, scrollbars ---- */
+  details.sec summary { list-style: none; cursor: pointer; }
+  details.sec summary::-webkit-details-marker { display: none; }
+  details.sec summary h2 { margin: 0; display: flex; align-items: center; }
+  details.sec summary h2::after { content: "+"; margin-left: auto; color: var(--ink-faint); font-size: 12px; }
+  details.sec[open] summary h2::after { content: "-"; }
+  details.sec[open] summary h2 { margin-bottom: 10px; }
+  .conf { display: flex; justify-content: space-between; margin-top: 10px; font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
+  .conf #s-conf-n { color: var(--ink-dim); letter-spacing: 0; }
+  code { font-family: var(--mono); font-size: .95em; color: var(--ink-dim); }
+  aside { scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+  aside::-webkit-scrollbar { width: 8px; }
+  aside::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+  #loading { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  #loading::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+  #loading.done { display: none; }
+  canvas { touch-action: none; }
+
+  /* ---- menu button + drawer (shown on narrow screens) ---- */
+  #menu { display: none; width: 40px; height: 40px; padding: 0; border: 1px solid var(--line-2); border-radius: 6px; background: transparent; flex-direction: column; align-items: center; justify-content: center; gap: 5px; margin-left: auto; }
+  #menu span { display: block; width: 18px; height: 1.5px; background: var(--ink); transition: transform .2s, opacity .2s; }
+  body.menu-open #menu span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  body.menu-open #menu span:nth-child(2) { opacity: 0; }
+  body.menu-open #menu span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+  #drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(320px, 86vw); background: var(--panel); border-left: 1px solid var(--line); z-index: 40; padding: 72px 20px 24px; transform: translateX(100%); transition: transform .22s ease; overflow-y: auto; }
+  body.menu-open #drawer { transform: none; }
+  #backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 30; }
+  .d-sec { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+  .d-sec:last-child { border-bottom: none; }
+  .d-label { font-family: var(--mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--label); margin-bottom: 10px; }
+  .d-sec p { margin: 0; font-size: 13px; color: var(--ink-dim); line-height: 1.6; }
+  .d-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-dim); margin-top: 8px; }
+  .d-row .tag { flex: none; }
+  .d-sec a { display: block; font-family: var(--mono); font-size: 12.5px; letter-spacing: .04em; color: var(--ink-dim); text-decoration: none; padding: 7px 0; }
+  .d-sec a:hover { color: var(--accent); }
+
+  /* ---- narrow screens: one column, viewport on top, panel below, header collapses into the menu ---- */
+  @media (max-width: 820px) {
+    html, body { height: auto; min-height: 100%; }
+    body { overflow: auto; display: block; }
+    header { position: sticky; top: 0; z-index: 20; padding: 8px 14px; gap: 10px; }
+    header .sub, header .tag, header .spacer { display: none; }
+    #menu { display: flex; }
+    .logo { height: 34px; }
+    main { display: block; }
+    #stage { height: min(78vw, 62vh); min-height: 230px; border-bottom: 1px solid var(--line); }
+    #views { top: 10px; left: 12px; }
+    #hud { left: 12px; right: 12px; bottom: 8px; flex-direction: column; align-items: flex-start; gap: 4px; }
+    #hud-wearer { display: none; }
+    aside { border-left: none; overflow: visible; }
+    #objects { max-height: none; }
+    footer { margin-top: 0; }
+  }
 </style>
 </head>
 <body>
@@ -194,23 +256,44 @@
 <header>
   <a class="brand" href="../" title="Back to the Spatialis landing page"><h1><img class="logo" src="../brand/spatialis-header.png" alt="Spatialis" width="800" height="234"></h1></a>
   <span class="sub">desk simulator - no headset required</span>
-  <span class="tag" id="build" title="loaded build - if this looks old, your browser cached a stale copy">build …</span>
   <span class="spacer"></span>
-  <span class="tag real"><svg class="ico"><use href="#i-dot"/></svg> real subsystem code</span>
-  <span class="tag sim"><svg class="ico"><use href="#i-dot"/></svg> simulated scene</span>
+  <span class="tag real" title="Lime marks code that ships in the Lens and runs here unchanged"><svg class="ico"><use href="#i-dot"/></svg> real subsystem code</span>
+  <span class="tag sim" title="Violet marks browser stand-ins for the room, the headset and the hands"><svg class="ico"><use href="#i-dot"/></svg> simulated scene</span>
+  <span class="tag" id="build" title="loaded build - if this looks old, your browser cached a stale copy">build …</span>
+  <button id="menu" aria-label="Menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
 </header>
+<div id="backdrop" hidden></div>
+<nav id="drawer" aria-hidden="true">
+  <div class="d-sec">
+    <div class="d-label">Desk simulator</div>
+    <p>The real Spatialis subsystems, running in your browser against a simulated room. No headset required.</p>
+  </div>
+  <div class="d-sec">
+    <div class="d-label">Key</div>
+    <div class="d-row"><span class="tag real"><svg class="ico"><use href="#i-dot"/></svg> real</span> code that ships in the Lens, unchanged</div>
+    <div class="d-row"><span class="tag sim"><svg class="ico"><use href="#i-dot"/></svg> simulated</span> stand-ins for the room, headset and hands</div>
+    <div class="d-row"><span class="tag" id="build-m">build …</span> loaded build</div>
+  </div>
+  <div class="d-sec">
+    <div class="d-label">Go to</div>
+    <a href="../">Landing page</a>
+    <a href="../Tools/preview_furniture.html">Furniture catalog</a>
+    <a href="../#clad">How it was built</a>
+    <a href="https://github.com/mrnetwork0001/Spatialis" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</nav>
 
 <main>
   <div id="stage">
     <div id="views">
-      <button id="v-wearer" class="vbtn on">Wearer view</button>
+      <button id="v-wearer" class="vbtn on">Headset view</button>
       <button id="v-plan" class="vbtn">Floor plan</button>
     </div>
     <canvas id="scene3d" width="900" height="640"></canvas>
     <canvas id="room" width="760" height="620" hidden></canvas>
     <div id="hud">
-      <div id="hud-wearer"><kbd>&uarr;&darr;&larr;&rarr;</kbd> look <kbd>drag</kbd> move <kbd>scroll</kbd> scale <kbd>scroll past min</kbd> crush to delete <kbd>&#9003;</kbd> delete</div>
-      <div id="hud-sub">wearer view &middot; eye height 155 cm</div>
+      <div id="hud-wearer"><kbd>&uarr;&darr;&larr;&rarr;</kbd> look around <kbd>drag</kbd> move <kbd>scroll</kbd> resize <kbd>keep shrinking</kbd> crush to remove <kbd>&#9003;</kbd> remove</div>
+      <div id="hud-sub">seen from the wearer's eyes · 155 cm up</div>
     </div>
     <div id="loading">loading furniture…</div>
   </div>
@@ -218,18 +301,29 @@
   <aside>
     <div class="sec">
       <h2>Command</h2>
+      <p class="lead">Type what you want in the room, tap an example, or speak.</p>
       <div class="row">
-        <input type="text" id="cmd" placeholder="Add a floating marble coffee table" autocomplete="off">
+        <input type="text" id="cmd" placeholder="Tell the room what you want…" autocomplete="off">
+        <button class="mic" id="mic" title="Tap to speak" aria-label="Tap to speak"><svg class="ico"><use href="#i-mic"/></svg></button>
         <button class="primary" id="run">Run</button>
       </div>
-      <button class="mic" id="mic"><svg class="ico"><use href="#i-mic"/></svg> Hold to speak (Web Speech API)</button>
       <div class="hint">Try one</div>
       <div class="chips" id="chips"></div>
     </div>
 
     <div class="sec">
-      <h2>Parsed intent <span style="color:var(--real)">· real parser</span></h2>
-      <div id="heard">-</div>
+      <h2>Response</h2>
+      <div id="heard" class="interim">Nothing heard yet</div>
+    </div>
+
+    <div class="sec list-hd">
+      <h2>In the room <span id="count"></span></h2>
+      <div class="hint">click to select · drag to move · scroll to resize · backspace removes</div>
+    </div>
+    <div id="objects"></div>
+
+    <details class="sec" id="intent" open>
+      <summary><h2>Parsed intent <span class="tag real">real parser</span></h2></summary>
       <table class="slots">
         <tr><td>action</td><td id="s-action" class="empty">-</td></tr>
         <tr><td>furniture</td><td id="s-furniture" class="empty">-</td></tr>
@@ -237,24 +331,20 @@
         <tr><td>colour</td><td id="s-color" class="empty">-</td></tr>
         <tr><td>placement</td><td id="s-placement" class="empty">-</td></tr>
         <tr><td>style</td><td id="s-style" class="empty">-</td></tr>
-        <tr><td>surface</td><td id="s-surface" class="empty">-</td></tr>
+        <tr><td>landed on</td><td id="s-surface" class="empty">-</td></tr>
       </table>
-      <div class="bar"><i id="s-conf"></i></div>
-    </div>
-
-    <div class="sec" style="border-bottom:none;padding-bottom:6px">
-      <h2>In the room <span id="count" style="color:var(--ink-faint)"></span></h2>
-    </div>
-    <div id="objects"></div>
+      <div class="conf"><span>confidence</span><span id="s-conf-n">-</span></div>
+      <div class="bar" title="Parser confidence"><i id="s-conf"></i></div>
+    </details>
 
     <footer>
-      <div><span class="k" style="background:var(--real)"></span><b>Real:</b> the shipped voice parser, anchor engine and material swapper run here unchanged.</div>
-      <div><span class="k" style="background:var(--sim)"></span><b>Simulated:</b> the room and its surfaces, head pose (arrow keys), pinch (mouse), speech (Web Speech), display (three.js).</div>
-      <div><span class="k" style="border:1px dashed var(--sim);background:transparent"></span>The table is the room's own. <em>Clear the room</em> removes only what you placed.</div>
+      <div><span class="k" style="background:var(--real)"></span><b>Real</b> - the voice parser, surface anchor engine and material swapper are the shipped Lens scripts, running unchanged.</div>
+      <div><span class="k" style="background:var(--sim)"></span><b>Simulated</b> - the room and its surfaces, head pose (arrow keys), pinch (mouse or touch), speech (Web Speech), display (three.js).</div>
+      <div><span class="k" style="border:1px dashed var(--sim);background:transparent"></span>The dashed table is the room's own, standing in for a real table in your space. <em>Clear the room</em> removes only what you placed.</div>
       <details>
         <summary>What runs where</summary>
-        <p><code>VoiceCommandController</code>, <code>SurfaceAnchorEngine</code> and <code>PBRMaterialSwapper</code> run as instances of the shipped <code>Scripts/*.ts</code>: parsing, placement, materials, spawn animation, debounce, feedback.</p>
-        <p>Stand-ins for hardware: the room and its hit tests (World Query on device), head pose from the arrow keys (headset tracking), mouse drag and scroll as pinch and scale (Spectacles Interaction Kit hand tracking; <code>SpatialGestureController</code> does not run here and is covered by tests), Web Speech for the ASR module, three.js for the display.</p>
+        <p><code>VoiceCommandController</code>, <code>SurfaceAnchorEngine</code> and <code>PBRMaterialSwapper</code> run as instances of the shipped <code>Scripts/*.ts</code>: parsing, placement, materials, spawn animation, the repeated-speech filter, feedback.</p>
+        <p>Stand-ins for hardware: the room and its hit tests (World Query on device), head pose from the arrow keys (headset tracking), drag and scroll as pinch and scale (Spectacles Interaction Kit hand tracking; <code>SpatialGestureController</code> does not run here and is covered by tests), Web Speech for the speech module, three.js for the display.</p>
       </details>
     </footer>
   </aside>
@@ -279,7 +369,7 @@
     var el = document.getElementById("loading");
     if (!el || el.classList.contains("done")) return;
     el.innerHTML = '<div style="max-width:460px;text-align:center;line-height:1.7">' +
-      '<b style="color:#f87171">The app failed to start</b><br>' +
+      '<b style="color:var(--warn)">The app failed to start</b><br>' +
       '<span style="color:#9aa4b6">' + String(e.message || e.type) + '</span><br>' +
       '<span style="color:#626d80;font-size:11px">Serve over HTTP (npm run sim), not file://</span></div>';
   });

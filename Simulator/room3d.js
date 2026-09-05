@@ -124,7 +124,7 @@ export class Room3D {
         this.addEdges(leg, edgeMat);
       }
     }
-    this.scene.add(this.makeLabel("YOUR TABLE · PART OF THE ROOM", (t.x + t.w / 2) * CM, t.top * CM + 0.22, (t.z + t.d / 2) * CM));
+    this.scene.add(this.makeLabel("THE ROOM'S TABLE · NOT A PLACED PIECE", (t.x + t.w / 2) * CM, t.top * CM + 0.22, (t.z + t.d / 2) * CM));
   }
 
   /** Dashed violet outline on an environment mesh so it reads like the walls, not like a placed piece. */
