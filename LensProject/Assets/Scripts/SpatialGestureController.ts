@@ -23,12 +23,16 @@ import { SIK } from "SpectaclesInteractionKit.lspkg/SIK";
 import {
   SpatialisObject,
   SpatialisRegistry,
+  Tween,
+  TweenPool,
   clamp,
   dampVec3,
+  easeOutCubic,
   log,
   warn,
 } from "./SpatialisCore";
 import { AnchorResult, SurfaceAnchorEngine } from "./SurfaceAnchorEngine";
+import { PBRMaterialSwapper } from "./PBRMaterialSwapper";
 
 type HandSide = "left" | "right";
 
@@ -55,6 +59,8 @@ interface TwoHandAnchor {
   startScale: vec3;
   startYaw: number;
   startRotation: quat;
+  /** True once the hands have squeezed the piece below crushDeleteFactor. */
+  crushing: boolean;
   startMidpoint: vec3;
   startPosition: vec3;
 }
@@ -117,9 +123,26 @@ export class SpatialGestureController extends BaseScriptComponent {
   singleHandRotate: boolean = false;
 
   @input
+  @hint("Squeeze a piece held in both hands well below its minimum size, then let go, to remove it.")
+  crushToDelete: boolean = true;
+
+  @input
+  @hint("How far below base size the two-hand squeeze must go to arm a crush. Keep it under Min Scale Factor.")
+  @widget(new SliderWidget(0.05, 0.3, 0.01))
+  crushDeleteFactor: number = 0.15;
+
+  @input
+  @hint("PBR Material Swapper, so a crushed piece's material clone is released with it.")
+  @allowUndefined
+  materialSwapper: PBRMaterialSwapper;
+
+  @input
   @hint("Optional marker moved onto whichever piece is currently held.")
   @allowUndefined
   grabIndicator: SceneObject;
+
+  /** Drives the crush scale-out; stepped from onUpdate. */
+  private tweens: TweenPool = new TweenPool();
 
   private hands: HandState[] = [];
   private twoHand: TwoHandAnchor | null = null;
@@ -195,6 +218,7 @@ export class SpatialGestureController extends BaseScriptComponent {
   // ---------------------------------------------------------------------------
 
   private onUpdate(): void {
+    this.tweens.update(getDeltaTime());
     if (!this.handsAvailable) {
       return;
     }
@@ -391,6 +415,18 @@ export class SpatialGestureController extends BaseScriptComponent {
       return;
     }
 
+    // A crush completes on the FIRST hand to let go: the piece is removed,
+    // and the other hand is emptied so it is not left holding a destroyed object.
+    if (this.twoHand && this.twoHand.crushing && this.twoHand.object.id === released.id) {
+      const partner = this.otherHand(state);
+      if (partner && partner.grabbed && partner.grabbed.id === released.id) {
+        partner.grabbed = null;
+      }
+      this.twoHand = null;
+      this.removePiece(released);
+      return;
+    }
+
     // If the other hand still holds it, this is a two-hand gesture collapsing
     // back to a one-hand drag — not a release.
     const other = this.otherHand(state);
@@ -508,6 +544,43 @@ export class SpatialGestureController extends BaseScriptComponent {
   // Two-hand scale and rotate
   // ---------------------------------------------------------------------------
 
+  /**
+   * Remove a piece the way the voice controller does: scale it out, then
+   * release its material clone and destroy it. Shared semantics, separate
+   * pool - each controller steps its own tweens from its own UpdateEvent.
+   */
+  private removePiece(obj: SpatialisObject): void {
+    obj.isGrabbed = false;
+    const id = obj.id;
+    const label = obj.spec.label;
+    const transform = obj.transform;
+    const from = transform.getLocalScale();
+    this.setIndicatorVisible(false);
+    this.tweens.add(
+      new Tween(
+        0.25,
+        easeOutCubic,
+        (t: number) => {
+          if (!isNull(obj.sceneObject)) {
+            transform.setLocalScale(vec3.lerp(from, vec3.zero(), t));
+          }
+        },
+        () => {
+          if (this.materialSwapper && !isNull(this.materialSwapper)) {
+            this.materialSwapper.forget(id);
+          }
+          SpatialisRegistry.remove(id);
+          log("Gesture", "Crushed " + label + " #" + id + ".");
+        }
+      )
+    );
+  }
+
+  /** True while a two-hand squeeze is deep enough that letting go removes the piece. */
+  isCrushing(): boolean {
+    return this.twoHand !== null && this.twoHand.crushing;
+  }
+
   private beginTwoHand(obj: SpatialisObject, first: HandState, second: HandState): void {
     const separation = first.pinchPoint.distance(second.pinchPoint);
     if (separation < 1.0) {
@@ -522,6 +595,7 @@ export class SpatialGestureController extends BaseScriptComponent {
       startRotation: obj.transform.getWorldRotation(),
       startMidpoint: vec3.lerp(first.pinchPoint, second.pinchPoint, 0.5),
       startPosition: obj.transform.getWorldPosition(),
+      crushing: false,
     };
     obj.isGrabbed = true;
     log("Gesture", "Two-hand transform on " + obj.spec.label + " #" + obj.id + ".");
@@ -565,6 +639,18 @@ export class SpatialGestureController extends BaseScriptComponent {
     const factor = rawScale.x / Math.max(obj.baseScale.x, 0.0001);
     const clampedFactor = clamp(factor, this.minScaleFactor, this.maxScaleFactor);
     obj.transform.setLocalScale(obj.baseScale.uniformScale(clampedFactor));
+
+    // Crush to delete: the visible size stops at the minimum, but if the hands
+    // keep squeezing well past it the gesture arms, and letting go removes
+    // the piece. The margin between minScaleFactor and crushDeleteFactor is
+    // what keeps an ordinary "make it small" from destroying anything.
+    if (this.crushToDelete) {
+      const armed = factor < this.crushDeleteFactor;
+      if (armed && !this.twoHand.crushing) {
+        log("Gesture", "Squeezing " + obj.spec.label + " #" + obj.id + " - let go to remove it.");
+      }
+      this.twoHand.crushing = armed;
+    }
 
     // Rotate about world up by how far the hand-to-hand line has swept.
     const deltaYaw = this.pairYaw(a.pinchPoint, b.pinchPoint) - this.twoHand.startYaw;

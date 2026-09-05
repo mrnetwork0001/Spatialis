@@ -13,7 +13,7 @@ const path = require("path");
 const { suite, test, eq, ok, near } = require("./harness");
 const B = path.join(__dirname, "..", ".build", "Scripts");
 const { SpatialGestureController } = require(path.join(B, "SpatialGestureController.js"));
-const { SpatialisRegistry, getFurnitureSpec } = require(path.join(B, "SpatialisCore.js"));
+const { SpatialisRegistry, getFurnitureSpec, TweenPool } = require(path.join(B, "SpatialisCore.js"));
 const sik = require("./stubs/SIK");
 
 /** A controller wired to the stub hands, with a recording anchor engine. */
@@ -31,6 +31,10 @@ function makeController(overrides = {}) {
     minScaleFactor: 0.3,
     maxScaleFactor: 3.0,
     singleHandRotate: false,
+    crushToDelete: true,
+    crushDeleteFactor: 0.15,
+    materialSwapper: null,
+    tweens: new TweenPool(),
     grabIndicator: null,
     hands: [],
     twoHand: null,
@@ -358,4 +362,73 @@ test("hysteresis still holds once thresholds are scaled", () => {
   RIGHT(new vec3(0, 0, 0), 6.1, 24);
   g.onUpdate();
   eq(g.isPinching("right"), false, "must open at the scaled up-threshold");
+});
+
+suite("SpatialGestureController — crush to delete");
+
+/** Hold the sofa in both hands 40cm apart, then squeeze to `ratio` of that. */
+function squeeze(g, ratio) {
+  LEFT(new vec3(-20, 0, 0), 2.0);
+  RIGHT(new vec3(20, 0, 0), 2.0);
+  g.onUpdate();
+  ok(g.twoHand !== null, "two-hand transform engaged");
+  LEFT(new vec3(-20 * ratio, 0, 0), 2.0);
+  RIGHT(new vec3(20 * ratio, 0, 0), 2.0);
+  g.onUpdate();
+}
+
+test("squeezing well below the minimum arms a crush, and letting go removes the piece", () => {
+  const g = makeController();
+  const forgotten = [];
+  g.materialSwapper = { forget(id) { forgotten.push(id); } };
+  const sofa = place("sofa", 0, 0, 0);
+  squeeze(g, 0.05);                                  // factor 0.05 < 0.15
+  eq(g.isCrushing(), true, "armed");
+  near(sofa.transform.getLocalScale().x, 0.3, 1e-9, "on screen it stops at the minimum");
+
+  LEFT(new vec3(-1, 0, 0), 6.0);                     // one hand lets go
+  g.onUpdate();
+  eq(g.reseatCalls, [], "a crush is not a release - nothing to re-seat");
+  ok(SpatialisRegistry.byId(sofa.id) !== null, "still present until the scale-out finishes");
+  g.tweens.update(0.3);
+  eq(SpatialisRegistry.byId(sofa.id), null, "removed after the scale-out");
+  ok(sofa.sceneObject.destroyed, "SceneObject destroyed");
+  eq(forgotten, [sofa.id], "the material swapper released its clone");
+  eq(g.heldObject(), null, "no hand is left holding a destroyed piece");
+});
+
+test("shrinking only to the minimum is a resize, never a delete", () => {
+  const g = makeController();
+  const sofa = place("sofa", 0, 0, 0);
+  squeeze(g, 0.25);                                  // factor 0.25: below min, above crush
+  eq(g.isCrushing(), false);
+  near(sofa.transform.getLocalScale().x, 0.3, 1e-9, "clamped at the minimum");
+  LEFT(new vec3(-5, 0, 0), 6.0); g.onUpdate();
+  RIGHT(new vec3(5, 0, 0), 6.0); g.onUpdate();
+  g.tweens.update(0.5);
+  ok(SpatialisRegistry.byId(sofa.id) !== null, "kept");
+  eq(g.reseatCalls, [sofa.id], "and re-seated like any release");
+});
+
+test("with crushToDelete off, even a hard squeeze only resizes", () => {
+  const g = makeController({ crushToDelete: false });
+  const sofa = place("sofa", 0, 0, 0);
+  squeeze(g, 0.02);
+  eq(g.isCrushing(), false);
+  LEFT(new vec3(-1, 0, 0), 6.0); g.onUpdate();
+  RIGHT(new vec3(1, 0, 0), 6.0); g.onUpdate();
+  g.tweens.update(0.5);
+  ok(SpatialisRegistry.byId(sofa.id) !== null, "kept");
+});
+
+test("spreading back out before letting go disarms the crush", () => {
+  const g = makeController();
+  const sofa = place("sofa", 0, 0, 0);
+  squeeze(g, 0.05);
+  eq(g.isCrushing(), true);
+  LEFT(new vec3(-20, 0, 0), 2.0); RIGHT(new vec3(20, 0, 0), 2.0); g.onUpdate();
+  eq(g.isCrushing(), false, "back to a normal hold");
+  LEFT(new vec3(-20, 0, 0), 6.0); g.onUpdate(); RIGHT(new vec3(20, 0, 0), 6.0); g.onUpdate();
+  g.tweens.update(0.5);
+  ok(SpatialisRegistry.byId(sofa.id) !== null, "kept");
 });
