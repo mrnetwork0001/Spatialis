@@ -31,11 +31,13 @@
  * License: Apache-2.0
  */
 
-// `model` is provided by the ExecuteEditorCode context. If it is not, fall back
-// to the plugin-system lookup Snap's own examples use.
-declare const model: Editor.Model.IModel;
-
 (() => {
+  // ExecuteEditorCode wraps this file in a function body, so `declare` is not
+  // allowed here and `model` is not injected; resolve it the way Snap's own
+  // Editor API examples do.
+  const model: Editor.Model.IModel =
+    (globalThis as any).model ??
+    ((this as any).pluginSystem.findInterface(Editor.Model.IModel) as Editor.Model.IModel);
   const log = (m: string) => console.log("[wire-spatialis] " + m);
   const warn = (m: string) => console.warn("[wire-spatialis] WARNING " + m);
 
@@ -95,10 +97,20 @@ declare const model: Editor.Model.IModel;
 
   const ensureScript = (obj: Editor.Model.SceneObject, asset: Editor.Assets.ScriptAsset | null): Editor.Components.ScriptComponent | null => {
     if (!asset) return null;
-    const existing = obj.components.find(
-      (c) => c.isOfType("ScriptComponent") && (c as Editor.Components.ScriptComponent).scriptAsset === asset
-    ) as Editor.Components.ScriptComponent | undefined;
-    if (existing) return existing;
+    // Compare by asset NAME: the editor hands out fresh proxy objects on each
+    // run, so identity comparison misses and duplicates the component.
+    const matches = obj.components.filter(
+      (c) => c.isOfType("ScriptComponent") &&
+        (c as Editor.Components.ScriptComponent).scriptAsset &&
+        (c as Editor.Components.ScriptComponent).scriptAsset.name === asset.name
+    ) as Editor.Components.ScriptComponent[];
+    if (matches.length > 1) {
+      for (let i = 1; i < matches.length; i++) {
+        try { (matches[i] as any).destroy(); log(`removed duplicate ${asset.name} on '${obj.name}'`); }
+        catch (e) { warn(`could not remove duplicate ${asset.name} on '${obj.name}': ${e}`); }
+      }
+    }
+    if (matches.length) return matches[0];
     const comp = obj.addComponent("ScriptComponent");
     comp.scriptAsset = asset;
     log(`attached ${asset.name} to '${obj.name}'`);
@@ -117,10 +129,21 @@ declare const model: Editor.Model.IModel;
   /** Assign one script input, tolerating the two ways the editor exposes them. */
   const setInput = (comp: Editor.Components.ScriptComponent | null, name: string, value: any) => {
     if (!comp) return;
+    const names = comp.inputNames || [];
+    if (!names.length) {
+      // No compiled input metadata: the script asset has not compiled cleanly
+      // yet, and a property write would land on nothing. Say so instead.
+      warn(`${comp.scriptAsset ? comp.scriptAsset.name : "?"} exposes no inputs - the TypeScript has not compiled; run RecompileTypeScript, fix any errors, re-run`);
+      return;
+    }
+    if (names.indexOf(name) < 0) {
+      warn(`${comp.scriptAsset.name} has no input named '${name}' (has: ${names.join(", ")})`);
+      return;
+    }
     try {
       (comp as any)[name] = value;
     } catch (e) {
-      warn(`could not set ${name} on ${comp.scriptAsset ? comp.scriptAsset.name : "?"}: ${e}`);
+      warn(`could not set ${name} on ${comp.scriptAsset.name}: ${e}`);
     }
   };
 
