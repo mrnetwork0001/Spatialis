@@ -26,6 +26,8 @@
     background: var(--panel);
   }
   header h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: .2px; }
+  header .brand { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+  header .brand:hover h1 { color: var(--accent); }
   header .sub { color: var(--ink-faint); font-size: 12px; }
   .spacer { flex: 1; }
   .tag {
@@ -144,7 +146,7 @@
 <body>
 
 <header>
-  <h1>Spatialis</h1>
+  <a class="brand" href="../" title="Back to the Spatialis landing page"><h1>Spatialis</h1></a>
   <span class="sub">desk simulator — no headset required</span>
   <span class="tag" id="build" title="loaded build — if this looks old, your browser cached a stale copy">build …</span>
   <span class="spacer"></span>
