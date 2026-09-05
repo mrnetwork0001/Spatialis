@@ -37,3 +37,9 @@ jobs:
       # it here keeps that path from rotting unnoticed.
       - name: Build simulator
         run: npm run build:web
+
+      # The simulator is plain ES modules that tsc never sees. Catch a syntax
+      # error there before it ships as a page that silently fails to start.
+      - name: Syntax-check simulator modules
+        run: |
+          for f in Simulator/*.js; do cp "$f" /tmp/check.mjs && node --check /tmp/check.mjs; done
