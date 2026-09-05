@@ -9,7 +9,9 @@
     "test": "npm run build:test && node Tests/run.js",
     "sim": "npm run build:web && python3 Tools/serve.py 8777",
     "clean": "rm -rf .build Simulator/build",
-    "typecheck:lens": "node Tools/typecheck-lens.js"
+    "typecheck:lens": "node Tools/typecheck-lens.js",
+    "sync:lens": "sh Tools/sync-lens.sh",
+    "sync:lens:check": "sh Tools/sync-lens.sh --check"
   },
   "dependencies": {
     "typescript": "^5.3.3"
