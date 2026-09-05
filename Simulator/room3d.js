@@ -70,7 +70,7 @@ export class Room3D {
 
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(W, D),
-      new THREE.MeshStandardMaterial({ color: 0x1c1c26, roughness: 0.95, metalness: 0 })
+      new THREE.MeshStandardMaterial({ color: 0x262633, roughness: 0.95, metalness: 0 })
     );
     floor.rotation.x = -Math.PI / 2;
     floor.position.set(W / 2, 0, D / 2);
@@ -84,7 +84,7 @@ export class Room3D {
     this.scene.add(grid);
 
     const wallMat = new THREE.MeshStandardMaterial({
-      color: 0x2a2a37, roughness: 0.92, metalness: 0, side: THREE.DoubleSide,
+      color: 0x343446, roughness: 0.92, metalness: 0, side: THREE.DoubleSide,
     });
     const wall = (w, h, x, y, z, ry) => {
       const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
@@ -149,7 +149,7 @@ export class Room3D {
   }
 
   buildLights() {
-    this.scene.add(new THREE.HemisphereLight(0xc9d8ff, 0x1a1d24, 1.1));
+    this.scene.add(new THREE.HemisphereLight(0xc9d8ff, 0x1a1d24, 1.76));
     const key = new THREE.DirectionalLight(0xfff2dd, 2.0);
     key.position.set(this.room.w * CM * 0.8, 3.2, this.room.d * CM * 0.15);
     key.castShadow = true;
