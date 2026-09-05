@@ -739,26 +739,46 @@
 <script>
 // Sections arrive as they scroll into view. Classes are added here, so with
 // scripting off nothing is ever hidden; reduced-motion users see no animation.
+// Revealing is driven by direct measurement on load, scroll and resize, so it
+// cannot depend on IntersectionObserver being delivered; the observer only
+// adds precision where it is available.
 (function () {
-  if (!("IntersectionObserver" in window)) return;
-  var groups = [".flow > .step", ".cmds > .cmd", ".grid2 > .card", ".split > .box", ".catalog-grid > *"];
-  document.querySelectorAll("section .wrap").forEach(function (wrap) {
-    var head = wrap.querySelectorAll(":scope > .kicker, :scope > h2, :scope > .sub, :scope > p, :scope > figure, :scope > .note");
-    head.forEach(function (el, i) { el.classList.add("reveal"); el.style.setProperty("--d", (i * 90) + "ms"); });
+  var groups = [".flow > .step", ".cmds > .cmd", ".grid2 > .card", ".split > .box"];
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section"));
+  sections.forEach(function (sec) {
+    var wrap = sec.querySelector(".wrap"); if (!wrap) return;
+    var i = 0;
+    Array.prototype.forEach.call(wrap.children, function (el) {
+      if (el.matches(".kicker, h2, .sub, p, figure, .note")) { el.classList.add("reveal"); el.style.setProperty("--d", (i++ * 90) + "ms"); }
+    });
     groups.forEach(function (sel) {
-      wrap.querySelectorAll(sel).forEach(function (el, i) { el.classList.add("reveal"); el.style.setProperty("--d", (120 + i * 90) + "ms"); });
+      Array.prototype.forEach.call(wrap.querySelectorAll(sel), function (el, k) { el.classList.add("reveal"); el.style.setProperty("--d", (120 + k * 90) + "ms"); });
     });
   });
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      var sec = e.target;
-      sec.classList.add("in");
-      sec.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
-      io.unobserve(sec);
+  function show(sec) {
+    if (sec.classList.contains("in")) return;
+    sec.classList.add("in");
+    Array.prototype.forEach.call(sec.querySelectorAll(".reveal"), function (el) { el.classList.add("in"); });
+  }
+  var pending = sections.slice();
+  function check() {
+    if (!pending.length) return;
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    pending = pending.filter(function (sec) {
+      var r = sec.getBoundingClientRect();
+      var visible = r.top < vh * 0.92 && r.bottom > 0;
+      if (visible) show(sec);
+      return !visible;
     });
-  }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-  document.querySelectorAll("section").forEach(function (sec) { io.observe(sec); });
+  }
+  var queued = false;
+  function onScroll() { if (queued) return; queued = true; setTimeout(function () { queued = false; check(); }, 16); }
+  addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onScroll); addEventListener("load", check);
+  check();
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) { entries.forEach(function (e) { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }); }, { threshold: 0.05 });
+    sections.forEach(function (sec) { io.observe(sec); });
+  }
 })();
 </script>
 </body>
