@@ -66,4 +66,16 @@ for (const file of walk(dir)) {
   }
 }
 
+if (mode === "esm") {
+  // Stamp the bundle with the commit it was built from, so the simulator's
+  // header shows which code is loaded - a stale cached module looks exactly
+  // like a real failure otherwise. Lives in the (gitignored) bundle dir, so
+  // it can never lag behind the source the way a hand-edited constant did.
+  let sha = "dev";
+  try {
+    sha = require("child_process").execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim() || "dev";
+  } catch (e) { /* not a git checkout */ }
+  fs.writeFileSync(path.join(dir, "build-id.js"), `export const BUILD = ${JSON.stringify(sha)};\n`);
+  console.log(`patch-build(esm): stamped build-id.js = ${sha}`);
+}
 console.log(`patch-build(${mode}): rewrote ${patched} file(s) in ${dir}`);

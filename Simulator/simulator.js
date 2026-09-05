@@ -46,6 +46,7 @@ import { PBRMaterialSwapper } from "./build/Scripts/PBRMaterialSwapper.js";
 import { SurfaceAnchorEngine } from "./build/Scripts/SurfaceAnchorEngine.js";
 import { VoiceCommandController } from "./build/Scripts/VoiceCommandController.js";
 import { Room3D } from "./room3d.js";
+import { BUILD } from "./build/build-id.js";
 
 // -----------------------------------------------------------------------------
 // The simulated room - centimetres, matching Lens Studio world units
@@ -726,7 +727,6 @@ if (!SR) {
 // Boot
 // =============================================================================
 
-const BUILD = "65df3e7";
 const buildEl = document.getElementById("build");
 if (buildEl) buildEl.textContent = "build " + BUILD;
 
