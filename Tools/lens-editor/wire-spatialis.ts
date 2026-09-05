@@ -110,8 +110,14 @@
         (c as Editor.Components.ScriptComponent).scriptAsset.name === asset.name
     ) as Editor.Components.ScriptComponent[];
     if (matches.length > 1) {
-      for (let i = 1; i < matches.length; i++) {
-        try { (matches[i] as any).destroy(); log(`removed duplicate ${asset.name} on '${obj.name}'`); }
+      // Editor component proxies have no destroy(); the owner removes them by
+      // index. Walk from the end so earlier indices stay valid, keep the first.
+      const indices = obj.components
+        .map((c, i) => (matches.indexOf(c as Editor.Components.ScriptComponent) > 0 ? i : -1))
+        .filter((i) => i >= 0)
+        .sort((a, b) => b - a);
+      for (const i of indices) {
+        try { obj.removeComponentAt(i); log(`removed duplicate ${asset.name} on '${obj.name}' (component #${i})`); }
         catch (e) { warn(`could not remove duplicate ${asset.name} on '${obj.name}': ${e}`); }
       }
     }
