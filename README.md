@@ -9,7 +9,7 @@
 
 [![CI](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml/badge.svg)](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-155%20passing-brightgreen.svg)](Tests/)
+[![Tests](https://img.shields.io/badge/tests-161%20passing-brightgreen.svg)](Tests/)
 
 ---
 
