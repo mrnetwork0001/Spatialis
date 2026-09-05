@@ -8,7 +8,8 @@
     "build:web": "tsc -p tsconfig.web.json && node Tools/patch-build.js --mode=esm --dir=Simulator/build",
     "test": "npm run build:test && node Tests/run.js",
     "sim": "npm run build:web && python3 Tools/serve.py 8777",
-    "clean": "rm -rf .build Simulator/build"
+    "clean": "rm -rf .build Simulator/build",
+    "typecheck:lens": "node Tools/typecheck-lens.js"
   },
   "dependencies": {
     "typescript": "^5.3.3"
