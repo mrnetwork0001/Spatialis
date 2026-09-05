@@ -102,26 +102,23 @@
 
   const ensureScript = (obj: Editor.Model.SceneObject, asset: Editor.Assets.ScriptAsset | null): Editor.Components.ScriptComponent | null => {
     if (!asset) return null;
-    // Compare by asset NAME: the editor hands out fresh proxy objects on each
-    // run, so identity comparison misses and duplicates the component.
-    const matches = obj.components.filter(
-      (c) => c.isOfType("ScriptComponent") &&
-        (c as Editor.Components.ScriptComponent).scriptAsset &&
-        (c as Editor.Components.ScriptComponent).scriptAsset.name === asset.name
-    ) as Editor.Components.ScriptComponent[];
-    if (matches.length > 1) {
-      // Editor component proxies have no destroy(); the owner removes them by
-      // index. Walk from the end so earlier indices stay valid, keep the first.
-      const indices = obj.components
-        .map((c, i) => (matches.indexOf(c as Editor.Components.ScriptComponent) > 0 ? i : -1))
-        .filter((i) => i >= 0)
-        .sort((a, b) => b - a);
-      for (const i of indices) {
-        try { obj.removeComponentAt(i); log(`removed duplicate ${asset.name} on '${obj.name}' (component #${i})`); }
-        catch (e) { warn(`could not remove duplicate ${asset.name} on '${obj.name}': ${e}`); }
+    // Read `components` ONCE. The editor hands out fresh proxy objects on every
+    // access, so matches computed from one read never compare equal to entries
+    // of another - identity only holds within a single array. Match by asset
+    // name, keep the first, remove the rest by index from the end.
+    const comps = obj.components;
+    const matchIdx: number[] = [];
+    comps.forEach((c, i) => {
+      if (c.isOfType("ScriptComponent")) {
+        const sc = c as Editor.Components.ScriptComponent;
+        if (sc.scriptAsset && sc.scriptAsset.name === asset.name) matchIdx.push(i);
       }
+    });
+    for (const i of matchIdx.slice(1).sort((a, b) => b - a)) {
+      try { obj.removeComponentAt(i); log(`removed duplicate ${asset.name} on '${obj.name}' (component #${i})`); }
+      catch (e) { warn(`could not remove duplicate ${asset.name} on '${obj.name}': ${e}`); }
     }
-    if (matches.length) return matches[0];
+    if (matchIdx.length) return comps[matchIdx[0]] as Editor.Components.ScriptComponent;
     const comp = obj.addComponent("ScriptComponent");
     comp.scriptAsset = asset;
     log(`attached ${asset.name} to '${obj.name}'`);
