@@ -503,3 +503,35 @@ Prompts (verbatim, in order) and what the agent did with each:
 State at the end of the session: 161 tests, both type checks clean, CI
 green, Lens project in sync, HEAD pushed. Still outside the agent's hands:
 making the repo public, the demo video, the submission form, a device pass.
+
+--- Session 6, continued (2026-09-05) ---
+
+"are you aware that if i clear the room, we still have a table left?"
+  -> Explained: the table is the simulated room's own, standing in for a
+     real table; clear removes only placed pieces. On "go ahead", marked it
+     as environment in both views with a label and a legend line. While
+     verifying, found and fixed a false "dropped as duplicate" report: the
+     controller's clock is millisecond-resolution, so a scripted boot could
+     stamp several sentences identically; a drop now also requires the
+     text to repeat.
+"give me a detailed copyable prompt about this app for branding"
+  -> Written from the codebase and the current design tokens.
+"on the stats; is the commits necessary? ... analyze the landing page data"
+  -> Commit count dropped (not a product fact, and stale). Ran three
+     independent reviewers over the landing page - copy editor, fact-
+     checker against the repository, hackathon judge - and applied what
+     held: a CLAD section (half the judging weight had one footer link),
+     plain-language rewrites, claims cut to what was verified (on-device
+     anchoring as intent beside "not run on hardware"), version and
+     dependency corrections, dead X icon removed, a Pages deploy gated on
+     the repo being public. Repo visibility and the demo video remain the
+     author's.
+"check the download folder; use spatialis-header as the header and footer
+ logo; spatialis-logo as the favicon"
+  -> Placed in both headers and footers, favicon on all three pages;
+     header artwork centre-cropped to its mark. Then, with Lens Studio
+     open, a headless session set the preview script's two sentences, ran
+     the Preview, read the runtime log (both commands parsed, spawned and
+     styled) and captured the panel for the landing page and README; the
+     in-memory preview input is being reset so nothing leaks into the
+     saved scene.
