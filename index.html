@@ -191,6 +191,8 @@
   .pill.k{color:var(--accent);border-color:rgba(126,231,5,.35)}
   .pill.m{color:var(--violet);border-color:rgba(160,107,255,.35)}
   .pill.p{color:var(--label);border-color:rgba(165,150,107,.4)}
+  a.pill{text-decoration:none}
+  a.pill:hover{border-color:currentColor}
   @media(max-width:820px){.cmd{grid-template-columns:1fr}.cmd .out{justify-content:flex-start}}
 
   /* ---------- pipeline ---------- */
@@ -308,6 +310,7 @@
     <a href="#commands">Commands</a>
     <a href="#how">How it works</a>
     <a href="#subsystems">Subsystems</a>
+    <a href="#clad">CLAD</a>
     <a href="#catalog">Catalog</a>
     <a href="#lens">Lens</a>
   </div>
@@ -316,18 +319,18 @@
 <header class="hero"><div class="wrap">
   <div class="hero-grid">
     <div class="hero-copy">
-      <div class="eyebrow">Snap Spectacles · Lens Studio · TypeScript</div>
+      <div class="eyebrow">CLAD Summer Hackathon · Week 4: Create · Snap Spectacles · built with Claude Code</div>
       <h1>Talk to your room.<br><span class="grad">Watch it furnish itself.</span></h1>
       <p class="lede">
         Spatialis is a spatial interior design tool for Snap Spectacles. Stand in your
         actual room, say <b>“add a floating marble coffee table”</b>, and it appears -
-        scaled to life, snapped to your real floor, and restyled by voice or pinch.
-      </p>
+        scaled to life, snapped to your real floor, restyled by voice, moved and resized by pinch. For anyone furnishing or restaging a room: design it from inside, at true scale, with the two inputs Spectacles already give you - your voice and your hands.</p>
       <div class="cta">
         <a class="btn primary lg" href="./Simulator/"><svg class="ico"><use href="#i-play"/></svg> Launch app</a>
         <a class="btn violet lg" href="./Tools/preview_furniture.html">Browse the catalog</a>
       </div>
       <div class="cta-note">runs in this browser · no headset, no Lens Studio, no install</div>
+      <div class="cta-note">the Lens itself: verified in Lens Studio Preview · not yet run on Spectacles hardware</div>
     </div>
 
     <div class="hero-art" aria-label="Animated: spoken commands placing furniture in a room">
@@ -417,17 +420,16 @@
   <div class="stat"><div class="n">4</div><div class="l">Subsystems</div></div>
   <div class="stat"><div class="n">161</div><div class="l">Tests passing</div></div>
   <div class="stat"><div class="n">12</div><div class="l">3D models</div></div>
-  <div class="stat"><div class="n">4</div><div class="l">Surfaces anchored</div></div>
+  <div class="stat"><div class="n">6</div><div class="l">CLAD sessions logged</div></div>
 </div></div>
 
 <section id="commands"><div class="wrap">
   <div class="kicker">Natural speech</div>
-  <h2>It’s a slot filler, not a grammar</h2>
+  <h2>No set phrases to learn. Just talk.</h2>
   <p class="sub">
     Real speech is “uh, put a like, dark wood coffee table over there”. The parser
     scans the whole sentence for a verb, a noun, a finish, a colour and a placement,
-    then acts on whatever it found - no fixed phrasing required.
-  </p>
+    then acts on whatever it found - no fixed phrasing required. Below: what you might say, and what the parser pulled out of it - the piece, its finish or colour, and where it goes.</p>
   <div class="cmds">
     <div class="cmd">
       <div class="say"><span class="q">“</span>Spawn a Scandinavian lounge chair by the wall<span class="q">”</span></div>
@@ -465,22 +467,22 @@
 <section id="how"><div class="wrap">
   <div class="kicker">The pipeline</div>
   <h2>What happens between speaking and seeing</h2>
-  <p class="sub">Four subsystems, each doing one job, talking through a shared registry rather than holding references to each other.</p>
+  <p class="sub">Four subsystems, each doing one job, sharing one registry of what is in the room; the voice and gesture controllers call into the anchor engine and material swapper through inputs wired in Lens Studio.</p>
   <div class="flow">
     <div class="step">
       <div class="n">01 · HEAR</div>
       <h3>Voice intent</h3>
-      <p>The ASR module transcribes. Interim text is shown, only the final acted on - and duplicates are debounced, because ASR emits them.</p>
+      <p>Speech recognition transcribes what you say. You see the words as they arrive, but only the finished sentence is acted on - and the recogniser's habit of sending the same result twice is filtered out.</p>
     </div>
     <div class="step">
       <div class="n">02 · PLACE</div>
       <h3>Surface anchor</h3>
-      <p>World Query rays hit the room mesh. Height above the running floor estimate is what separates a <code>table</code> from the <code>floor</code>.</p>
+      <p>Spectacles' World Query scans the real room and reports the surface you are looking at. Its height above the estimated floor is what tells a <code>table</code> apart from the <code>floor</code>.</p>
     </div>
     <div class="step">
       <div class="n">03 · DRESS</div>
-      <h3>PBR materials</h3>
-      <p>Each object gets a private material clone, then cross-fades colour, metalness and roughness together.</p>
+      <h3>Realistic materials</h3>
+      <p>Each piece gets its own copy of its material, then colour, shine and roughness blend together into the new finish.</p>
     </div>
     <div class="step">
       <div class="n">04 · ADJUST</div>
@@ -523,7 +525,7 @@
       <div class="hd"><div class="ic"><svg class="ico"><use href="#i-material"/></svg></div><div>
         <h3>PBR Material Swapper</h3>
         <div class="file">Scripts/PBRMaterialSwapper.ts</div></div></div>
-      <p>11 finishes and 10 tints, applied without touching anything else.</p>
+      <p>11 physically based (PBR) finishes and 10 tints, applied to one piece without repainting the rest of the room.</p>
       <ul>
         <li><b>Per-object material clones</b> - else one command repaints every sofa in the room</li>
         <li>Every uniform write guarded for custom shaders</li>
@@ -534,10 +536,10 @@
       <div class="hd"><div class="ic"><svg class="ico"><use href="#i-pinch"/></svg></div><div>
         <h3>Hand Gesture Controller</h3>
         <div class="file">Scripts/SpatialGestureController.ts</div></div></div>
-      <p>SIK hand tracking for pinch, drag, rotate and two-hand scale.</p>
+      <p>Spectacles Interaction Kit (SIK) hand tracking for pinch, drag, rotate and two-hand scale.</p>
       <ul>
         <li><b>Thresholds scale to your hand</b> - 3cm is a firm pinch on a large hand, an open grip on a small one</li>
-        <li>Hysteresis so joint jitter can’t chatter a grab</li>
+        <li>Separate close and open thresholds, so a trembling hand can’t flicker a grab on and off</li>
         <li>Two hands <svg class="ico sm"><use href="#i-arrow"/></svg> one continues the drag, doesn’t drop</li>
         <li>Lost tracking counts as a release, not a freeze</li>
         <li><b>Crush to delete</b> - squeeze a held piece well below its minimum and let go</li>
@@ -548,7 +550,7 @@
 
 <section id="catalog"><div class="wrap">
   <div class="kicker">Assets</div>
-  <h2>Every catalog entry has a model</h2>
+  <h2>Twelve pieces of furniture, built to scale</h2>
   <p class="sub">
     Generated rather than downloaded, because the anchor engine depends on two things
     sourced models never come with: <b>origins at the base</b> (a centre pivot sinks
@@ -571,7 +573,7 @@
   <div class="split">
     <div class="box real">
       <h3><svg class="ico"><use href="#i-dot"/></svg> Real shipped code</h3>
-      <p>Instances of the shipped <code>Scripts/*.ts</code>, compiled to ES modules and wired as the Inspector would wire them. Not reimplementations.</p>
+      <p>The shipped <code>Scripts/*.ts</code> files themselves, compiled for the browser and connected exactly as Lens Studio would connect them. Not reimplementations.</p>
       <ul>
         <li><code>VoiceCommandController</code> - parse, execute, spawn animation, debounce, feedback</li>
         <li><code>SurfaceAnchorEngine</code> - probe queue, floor calibration, classify, retry, overlap, wall-adjacent, reseat</li>
@@ -586,7 +588,7 @@
       <ul>
         <li>The room itself, and ray hit tests against it<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> World Query on device</span></li>
         <li>Head pose, from the arrow keys<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> the headset’s tracking on device</span></li>
-        <li>Mouse drag and scroll as pinch and scale<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> SIK hand tracking on device. <b>SpatialGestureController does not run here</b>; its state machine is covered by tests. Release does call the real <code>reseat()</code>.</span></li>
+        <li>Mouse drag and scroll as pinch and scale<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg>Spectacles Interaction Kit hand tracking on device. The gesture controller itself does not run in the browser - it is covered by tests instead - but letting go still calls the real re-seating code.</span></li>
         <li>Web Speech API<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> the ASR module on device</span></li>
         <li>three.js rendering<br><span style="color:var(--ink-faint)"><svg class="ico sm"><use href="#i-arrow"/></svg> the Spectacles display on device</span></li>
       </ul>
@@ -594,6 +596,33 @@
   </div>
 </div></section>
 
+
+<section id="clad"><div class="wrap">
+  <div class="kicker">CLAD - how it was built</div>
+  <h2>Built with Claude Code, then made to prove itself</h2>
+  <p class="sub">
+    Spatialis is a Closed Loop Agentic Development project: prompt, generate, verify against
+    something the agent cannot talk its way past, fix, repeat. Six sessions from 31 Aug to
+    5 Sep 2026, every prompt and outcome in the
+    <a href="https://github.com/mrnetwork0001/Spatialis/blob/main/CLAD_PROMPT_LOG.txt" target="_blank" rel="noopener">transcript</a>,
+    including the places the agent was wrong and said so.
+  </p>
+  <div class="flow">
+    <div class="step"><div class="n">01 · PROMPT</div><h3>One brief, four subsystems</h3>
+      <p>A written spec named the four subsystems and the demo script. Claude Code designed the shared registry, the parser, the anchor engine, the material swapper and the gesture state machine from it.</p></div>
+    <div class="step"><div class="n">02 · GENERATE</div><h3>Code, tests, models, project</h3>
+      <p>About 3,300 lines of TypeScript, 161 behavioural tests, twelve furniture models generated to scale, the browser simulator, and the Lens Studio project itself.</p></div>
+    <div class="step"><div class="n">03 · VERIFY</div><h3>Against things that don’t flatter</h3>
+      <p>A type check against Snap’s real Lens Studio API, tests on every push, and the scene wired through Lens Studio’s MCP server with every input read back. Then the Lens was run in Preview and the runtime log read.</p></div>
+    <div class="step"><div class="n">04 · FIX</div><h3>What the loop caught</h3>
+      <p>A 100× import scale that hid the sofa, glTF material names the swapper didn’t know, a float distance that filled the view, a retry ray aimed below the floor, and “on the table” landing on the floor. Each found by running, fixed, and re-run.</p></div>
+  </div>
+  <div class="cmds" style="margin-top:22px">
+    <div class="cmd"><div class="say">Wiring script - builds the Lens Studio scene through the editor API and verifies it by read-back</div><div class="out"><a class="pill k" href="https://github.com/mrnetwork0001/Spatialis/blob/main/Tools/lens-editor/wire-spatialis.ts" target="_blank" rel="noopener">wire-spatialis.ts</a></div></div>
+    <div class="cmd"><div class="say">The transcript - six sessions of prompts, outcomes and retractions</div><div class="out"><a class="pill k" href="https://github.com/mrnetwork0001/Spatialis/blob/main/CLAD_PROMPT_LOG.txt" target="_blank" rel="noopener">CLAD_PROMPT_LOG.txt</a></div></div>
+    <div class="cmd"><div class="say">Tests and CI - 161 behavioural tests, type check and simulator build on every push</div><div class="out"><a class="pill k" href="https://github.com/mrnetwork0001/Spatialis/tree/main/Tests" target="_blank" rel="noopener">Tests/</a><a class="pill m" href="https://github.com/mrnetwork0001/Spatialis/actions" target="_blank" rel="noopener">Actions</a></div></div>
+  </div>
+</div></section>
 
 <section id="lens"><div class="wrap">
   <div class="kicker">The real thing</div>
@@ -608,7 +637,7 @@
   <div class="split">
     <div class="box sim">
       <h3><svg class="ico"><use href="#i-dot"/></svg> Browser simulator</h3>
-      <p>For judges, for the video, for anyone without a headset.</p>
+      <p>For judges and for anyone without a headset.</p>
       <ul>
         <li>Real parser, anchor engine, material swapper - hosted in a page</li>
         <li>Room, hit tests, head pose and pinch are simulated</li>
@@ -617,11 +646,11 @@
     </div>
     <div class="box real">
       <h3><svg class="ico"><use href="#i-dot"/></svg> Lens Studio project</h3>
-      <p><code>LensProject/</code> - SPECS target, scene wired by script, runs in the editor’s Preview.</p>
+      <p><code>LensProject/</code> - a Lens Studio project set to the Spectacles target. The scene was wired by Claude Code through Lens Studio’s MCP server (<code>Tools/lens-editor/wire-spatialis.ts</code>), every input verified by read-back, then run in the editor’s Preview.</p>
       <ul>
-        <li>Open <code>LensProject/LensProject.esproj</code> in Lens Studio 5.22+, sign in to My Lenses, press <svg class="ico"><use href="#i-play"/></svg> in Preview</li>
+        <li>Open <code>LensProject/LensProject.esproj</code> in Lens Studio 5.23.2 or later (the version it was built and run in), sign in to My Lenses, press <svg class="ico"><use href="#i-play"/></svg> in Preview</li>
         <li>Say <i>“give me a navy velvet sofa”</i> - the runtime log shows the spawn, and the sofa appears</li>
-        <li>No room surfaces in the desktop Preview, so pieces float; on Spectacles, World Query anchors them</li>
+        <li>No room surfaces in the desktop Preview, so pieces float. On Spectacles, World Query should anchor them - Spatialis has not yet been run on hardware, and the pinch feel is untested on a real hand</li>
       </ul>
     </div>
   </div>
@@ -629,7 +658,7 @@
 
 <section id="run"><div class="wrap">
   <div class="kicker">Run it yourself</div>
-  <h2>Node is the only dependency</h2>
+  <h2>Node and Python 3 are the only dependencies</h2>
   <p class="sub">No Lens Studio, no headset, no account.</p>
   <pre class="sh"><span class="c"># clone and verify</span>
 <span class="p">$</span> git clone https://github.com/mrnetwork0001/Spatialis.git &amp;&amp; cd Spatialis
@@ -645,11 +674,10 @@
   <div class="footer-grid">
     <div class="footer-brand">
       <a class="brand" href="./"><img class="logo lg" src="./brand/spatialis-header.png" alt="Spatialis" width="800" height="234"></a>
-      <p class="footer-desc">Voice &amp; gesture interior design for Snap Spectacles. Stand in your room, speak, and furniture appears - scaled to life, snapped to your real floor, restyled by voice or pinch. Same code in the Lens and in this browser.</p>
+      <p class="footer-desc">Voice &amp; gesture interior design for Snap Spectacles. Stand in your room, speak, and furniture appears - scaled to life, snapped to your real floor, restyled by voice, moved and resized by pinch. Same code in the Lens and in this browser. Built pair-programming with Claude Code; the full transcript is linked below.</p>
       <div class="footer-social">
         <a href="https://github.com/mrnetwork0001/Spatialis" title="GitHub" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
         <a href="https://ar.snap.com/lens-studio" title="Lens Studio" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c3.2 0 5.6 2.5 5.6 5.9v2.4c.5.2 1.1 0 1.6-.2.5-.2.9.2.7.7-.3.7-1.3 1-1.9 1.2.2 1.7 1.7 3.4 3.6 3.9.4.1.5.6.1.8-.8.4-1.6.5-2.2.6-.1.5-.3 1-.7 1.1-.6.1-1.4-.2-2.1 0-1.2.3-2.1 1.9-4.7 1.9s-3.5-1.6-4.7-1.9c-.7-.2-1.5.1-2.1 0-.4-.1-.6-.6-.7-1.1-.6-.1-1.4-.2-2.2-.6-.4-.2-.3-.7.1-.8 1.9-.5 3.4-2.2 3.6-3.9-.6-.2-1.6-.5-1.9-1.2-.2-.5.2-.9.7-.7.5.2 1.1.4 1.6.2V7.9C6.4 4.5 8.8 2 12 2z"/></svg></a>
-        <a href="https://x.com/" title="X" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
       </div>
     </div>
     <div class="footer-col"><span class="label">Product</span><nav>
@@ -663,7 +691,7 @@
       <a href="https://github.com/mrnetwork0001/Spatialis#readme" target="_blank" rel="noopener">README</a>
       <a href="https://github.com/mrnetwork0001/Spatialis/blob/main/SETUP_LENS_STUDIO.md" target="_blank" rel="noopener">Lens Studio setup</a>
       <a href="https://github.com/mrnetwork0001/Spatialis/blob/main/ASSETS.md" target="_blank" rel="noopener">Assets &amp; units</a>
-      <a href="https://github.com/mrnetwork0001/Spatialis/blob/main/CLAD_PROMPT_LOG.txt" target="_blank" rel="noopener">CLAD transcript</a>
+      <a href="https://github.com/mrnetwork0001/Spatialis/blob/main/CLAD_PROMPT_LOG.txt" target="_blank" rel="noopener">How it was built - Claude Code transcript</a>
       <a href="https://github.com/mrnetwork0001/Spatialis/tree/main/Tests" target="_blank" rel="noopener">161 tests</a>
     </nav></div>
     <div class="footer-col"><span class="label">Ecosystem</span><nav>
