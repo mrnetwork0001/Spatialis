@@ -700,7 +700,7 @@ document.querySelectorAll(".chip").forEach((c) =>
   c.addEventListener("click", () => runCommand(c.textContent)));
 
 // Web Speech API stands in for VoiceML. The interim/final rule is the
-// controller's own: onListeningUpdate shows partials and acts only on finals.
+// controller's own: onTranscriptionUpdate shows partials and acts only on finals.
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const mic = document.getElementById("mic");
 if (!SR) {
@@ -718,7 +718,7 @@ if (!SR) {
     const res = e.results[e.results.length - 1];
     const text = res[0].transcript.trim();
     if (res.isFinal) runCommand(text);
-    else voice.onListeningUpdate({ transcription: text, isFinalTranscription: false });
+    else voice.onTranscriptionUpdate({ text: text, isFinal: false });
   };
 }
 

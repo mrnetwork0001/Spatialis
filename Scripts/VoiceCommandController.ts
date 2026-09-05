@@ -3,7 +3,7 @@
  * -----------------------------------------------------------------------------
  * Subsystem 1 of 4 — natural-language intent parsing and 3D instantiation.
  *
- * Listens through VoiceML, turns a spoken sentence into a SpatialisIntent, then
+ * Listens through the ASR module, turns a spoken sentence into a SpatialisIntent, then
  * drives the other three subsystems: the Anchor engine decides where the piece
  * goes, the Material swapper decides how it looks, and the Gesture controller
  * takes over once it exists.
@@ -92,8 +92,8 @@ const STYLE_WORDS = [
 @component
 export class VoiceCommandController extends BaseScriptComponent {
   @input
-  @hint("VoiceML module asset. Asset Browser > Add > VoiceML Module.")
-  voiceMLModule: VoiceMLModule;
+  @hint("ASR Module asset (speech-to-text). Asset Browser > Add > ASR Module.")
+  asrModule: AsrModule;
 
   @input
   @hint("Surface Anchor Engine that decides where spawned furniture lands.")
@@ -151,8 +151,8 @@ export class VoiceCommandController extends BaseScriptComponent {
   }
 
   private onStart(): void {
-    if (!this.voiceMLModule) {
-      warn("Voice", "No VoiceML module assigned — voice commands are disabled.");
+    if (!this.asrModule) {
+      warn("Voice", "No ASR module assigned — voice commands are disabled.");
       return;
     }
     if (!this.anchorEngine) {
@@ -169,43 +169,41 @@ export class VoiceCommandController extends BaseScriptComponent {
       );
     }
 
-    this.startListening();
+    this.startTranscribing();
   }
 
-  private startListening(): void {
-    const options = VoiceML.ListeningOptions.create();
-    options.shouldReturnAsrTranscription = true;
-    // Interim results let us show live text without acting on partials.
-    options.shouldReturnInterimAsrTranscription = true;
-    options.languageCode = "en_US";
-
-    this.voiceMLModule.onListeningEnabled.add(() => {
-      this.voiceMLModule.startListening(options);
-      this.isListening = true;
-      log("Voice", "Listening.");
-      this.showFeedback("Listening — try “add a walnut coffee table”");
+  private startTranscribing(): void {
+    // AsrModule replaces the deprecated VoiceML listening API (Lens Scripting
+    // 309+): higher-quality transcription, many more languages, and the
+    // update event carries `isFinal`, which is the one bit the pipeline
+    // depends on - interim text is shown, only the final line is acted on.
+    const options = AsrModule.AsrTranscriptionOptions.create();
+    options.mode = AsrModule.AsrMode.Balanced;
+    // A pause this long ends the utterance and produces the final transcript.
+    options.silenceUntilTerminationMs = 1200;
+    options.onTranscriptionUpdateEvent.add((e: AsrModule.TranscriptionUpdateEvent) => {
+      this.onTranscriptionUpdate(e);
     });
 
-    this.voiceMLModule.onListeningDisabled.add(() => {
+    options.onTranscriptionErrorEvent.add((code: AsrModule.AsrStatusCode) => {
       this.isListening = false;
-      log("Voice", "Listening stopped.");
+      warn("Voice", "ASR error: " + code + (code === AsrModule.AsrStatusCode.Unauthenticated
+        ? " (Preview needs a My Lenses login for speech)" : ""));
     });
 
-    this.voiceMLModule.onListeningError.add((args: any) => {
-      warn("Voice", "VoiceML error: " + (args && args.error ? args.error : "unknown"));
-    });
-
-    this.voiceMLModule.onListeningUpdate.add((args: VoiceML.ListeningUpdateEventArgs) => {
-      this.onListeningUpdate(args);
-    });
+    this.asrModule.startTranscribing(options);
+    this.isListening = true;
+    log("Voice", "Transcribing.");
+    this.showFeedback("Listening — try “add a walnut coffee table”");
   }
 
-  private onListeningUpdate(args: VoiceML.ListeningUpdateEventArgs): void {
-    const transcript = args.transcription;
+  /** ASR update: interim text is echoed to the feedback line; only a final one executes. */
+  onTranscriptionUpdate(e: { text: string; isFinal: boolean }): void {
+    const transcript = e.text;
     if (!transcript || transcript.length === 0) {
       return;
     }
-    if (!args.isFinalTranscription) {
+    if (!e.isFinal) {
       this.showFeedback("… " + transcript);
       return;
     }

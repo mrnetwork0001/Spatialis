@@ -220,33 +220,7 @@ declare class WorldQueryModule extends Asset {
 // VoiceML
 // -----------------------------------------------------------------------------
 
-declare namespace VoiceML {
-  class ListeningOptions {
-    shouldReturnAsrTranscription: boolean;
-    shouldReturnInterimAsrTranscription: boolean;
-    languageCode: string;
-    static create(): ListeningOptions;
-  }
 
-  interface ListeningUpdateEventArgs {
-    transcription: string;
-    isFinalTranscription: boolean;
-  }
-
-  interface ListeningErrorEventArgs {
-    error: string;
-    description: string;
-  }
-}
-
-declare class VoiceMLModule extends Asset {
-  startListening(options: VoiceML.ListeningOptions): void;
-  stopListening(): void;
-  onListeningEnabled: LensEvent<void>;
-  onListeningDisabled: LensEvent<void>;
-  onListeningError: LensEvent<VoiceML.ListeningErrorEventArgs>;
-  onListeningUpdate: LensEvent<VoiceML.ListeningUpdateEventArgs>;
-}
 
 // -----------------------------------------------------------------------------
 // Inspector decorators
@@ -321,4 +295,25 @@ declare module "SpectaclesInteractionKit.lspkg/SIK" {
     HandInputData: HandInputDataProvider;
     [key: string]: any;
   };
+}
+
+/** Speech-to-text (Lens Scripting 309+). Replaces the deprecated VoiceML listening API. */
+declare class AsrModule extends Asset {
+  startTranscribing(options: AsrModule.AsrTranscriptionOptions): void;
+  stopTranscribing(streamType?: number | null): Promise<void>;
+}
+declare namespace AsrModule {
+  enum AsrMode { HighAccuracy, Balanced, HighSpeed }
+  enum AsrStatusCode { Success, InternalError, Unauthenticated, NoInternet }
+  class TranscriptionUpdateEvent {
+    text: string;
+    isFinal: boolean;
+  }
+  class AsrTranscriptionOptions {
+    static create(): AsrTranscriptionOptions;
+    mode: AsrMode;
+    silenceUntilTerminationMs: number;
+    readonly onTranscriptionUpdateEvent: EventRegistration<TranscriptionUpdateEvent>;
+    readonly onTranscriptionErrorEvent: EventRegistration<AsrStatusCode>;
+  }
 }

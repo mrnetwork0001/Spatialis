@@ -684,18 +684,18 @@ test("with the wake word required, only sentences carrying it are acted on, and 
 
 test("interim transcripts only echo to the feedback text; the final one executes", () => {
   const w = makeWorld();
-  w.voice.onListeningUpdate({ transcription: "add a", isFinalTranscription: false });
+  w.voice.onTranscriptionUpdate({ text: "add a", isFinal: false });
   eq(w.feedback(), "… add a");
   eq(SpatialisRegistry.count(), 0);
 
-  w.voice.onListeningUpdate({ transcription: "add a sofa", isFinalTranscription: false });
+  w.voice.onTranscriptionUpdate({ text: "add a sofa", isFinal: false });
   eq(w.feedback(), "… add a sofa");
   eq(SpatialisRegistry.count(), 0, "a partial that happens to parse must still not execute");
 
-  w.voice.onListeningUpdate({ transcription: "", isFinalTranscription: true });
+  w.voice.onTranscriptionUpdate({ text: "", isFinal: true });
   eq(w.feedback(), "… add a sofa", "an empty final is ignored");
 
-  w.voice.onListeningUpdate({ transcription: "add a sofa", isFinalTranscription: true });
+  w.voice.onTranscriptionUpdate({ text: "add a sofa", isFinal: true });
   eq(SpatialisRegistry.count(), 1);
   eq(SpatialisRegistry.last().kind, "sofa");
 });
