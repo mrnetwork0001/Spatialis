@@ -14,7 +14,7 @@
   .err { color:#f87171; font-family:ui-monospace,monospace; font-size:11px; padding:10px; }
 </style>
 <h1>Spatialis furniture catalog</h1>
-<p class="sub">Generated .glb, parsed by three.js GLTFLoader — an independent reader, not the generator. Grid squares are 50&nbsp;cm.</p>
+<p class="sub">Generated .glb, parsed by three.js GLTFLoader — an independent reader, not the generator. Grid squares are 50&nbsp;cm. Models are centimetre-authored, shown at 1/100.</p>
 <div id="grid"></div>
 <script type="importmap">
 {"imports":{
@@ -59,6 +59,7 @@ for (const key of KEYS) {
 
   loader.load(`/Assets/Prefabs/${key}.glb`, (gltf) => {
     const obj = gltf.scene;
+    obj.scale.setScalar(0.01);            // models are authored in centimetres
     scene.add(obj);
     const bb = new THREE.Box3().setFromObject(obj);
     const size = bb.getSize(new THREE.Vector3());

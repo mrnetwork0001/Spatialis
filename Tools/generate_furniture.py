@@ -31,10 +31,11 @@ override at runtime.
 Usage:
     python3 Tools/generate_furniture.py [--units cm|m] [--out DIR]
 
-    --units m   (default) emit metres, per the glTF 2.0 specification, which
-                states that "the units for all linear distances are meters".
-    --units cm  emit raw centimetre values, for the case where the importer
-                does no unit conversion. See ASSETS.md.
+    --units cm  (default) emit centimetre magnitudes. Lens Studio world units
+                are centimetres and its glTF importer does NOT convert metres
+                unless "Convert meters to centimeters" is ticked (Snap docs).
+    --units m   emit metres per the glTF 2.0 specification, for import with
+                that option ticked. See ASSETS.md.
 
 License: Apache-2.0
 """
@@ -432,7 +433,7 @@ def build_glb(name, parts, scale):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--units", choices=["m", "cm"], default="m")
+    ap.add_argument("--units", choices=["m", "cm"], default="cm")
     ap.add_argument("--out", default="Assets/Prefabs")
     a = ap.parse_args()
 

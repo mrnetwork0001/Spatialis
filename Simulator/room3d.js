@@ -29,7 +29,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const CM = 0.01; // models are authored in metres; the Lens and the sim think in centimetres
+const CM = 0.01; // the Lens and the sim think in centimetres; the three.js scene is metres
+// The .glb files are authored in CENTIMETRES (Lens Studio's unit), so a clone is
+// scaled by CM to sit in the metre-based scene.
 
 export class Room3D {
   constructor(canvas, room, table, wearer) {
@@ -236,7 +238,7 @@ export class Room3D {
     const p = entry.transform.getWorldPosition();
     obj.position.set(p.x * CM, p.y * CM, p.z * CM);
     const s = entry.transform.getLocalScale();
-    obj.scale.set(s.x, s.y, s.z);
+    obj.scale.set(s.x * CM, s.y * CM, s.z * CM);
     const q = entry.transform.getWorldRotation();
     if (q && typeof q.w === 'number') obj.quaternion.set(q.x, q.y, q.z, q.w);
   }

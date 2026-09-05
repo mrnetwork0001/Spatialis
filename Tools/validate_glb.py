@@ -161,7 +161,7 @@ def check(path, key, scale_to_cm):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default="Assets/Prefabs")
-    ap.add_argument("--units", choices=["m", "cm"], default="m")
+    ap.add_argument("--units", choices=["m", "cm"], default="cm")
     a = ap.parse_args()
     scale_to_cm = 100.0 if a.units == "m" else 1.0
 

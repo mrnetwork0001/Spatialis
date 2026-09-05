@@ -25,35 +25,34 @@ arbitrary scale.
 The one deliberate exception: **`artwork` has its origin at its vertical centre**,
 not its base, because it hangs on a wall rather than standing on a floor.
 
-## ⚠️ Units — read this before importing
+## Units — resolved
 
-glTF 2.0 specifies metres. Lens Studio world space is centimetres. **Whether
-Lens Studio converts on import is not confirmed in this repo**, so both variants
-are provided:
+Lens Studio world units are **centimetres**, and Snap's glTF importer does
+**not** rescale metre-authored files on its own: the import dialog has a
+**"Convert meters to centimeters"** option ("if enabled, converts meters to
+centimeters… the units for linear distances in glTF are meters, whereas in
+Lens Studio they are centimeters"). So the models are shipped in the unit
+Lens Studio actually uses, with a spec-conformant alternate:
 
 ```
-Assets/Prefabs/*.glb        metres      (spec-correct: a 210cm sofa is 2.1 units)
-Assets/Prefabs/cm/*.glb     centimetres (raw: a 210cm sofa is 210 units)
+Assets/Prefabs/*.glb      CENTIMETRES  — import with the option UNTICKED   (default)
+Assets/Prefabs/m/*.glb    metres       — import with the option TICKED
 ```
 
-**Import one `sofa.glb` and read its size in the Inspector.** A sofa should be
-about **210 units wide**, since Lens Studio world units are centimetres.
+Either way a sofa should read **~210 units wide** in the Inspector after
+import. If it reads ~2.1 you imported the metre set unticked; if ~21000 you
+imported the centimetre set ticked. Getting it wrong is not subtle.
 
-- Reads ~210 → keep that variant, delete the other.
-- Reads ~2.1 → you imported the metres variant and Lens Studio did **not**
-  convert. Use `Assets/Prefabs/cm/` instead.
-- Reads ~21000 → you imported the centimetre variant and Lens Studio **did**
-  convert. Use `Assets/Prefabs/` instead.
-
-Getting this wrong is not subtle — furniture will be either invisible or the
-size of a building — so one import settles it in under a minute.
+Sources: Snap's glTF import guide and the `GltfSettings.convertMetersToCentimeters`
+API reference. Snap's own authoring guidance — pivot at the bottom-centre, model
+facing +Z — matches how these were generated.
 
 ## Regenerating
 
 ```bash
-python3 Tools/generate_furniture.py --units m  --out Assets/Prefabs
-python3 Tools/generate_furniture.py --units cm --out Assets/Prefabs/cm
-python3 Tools/validate_glb.py --dir Assets/Prefabs --units m
+python3 Tools/generate_furniture.py --units cm --out Assets/Prefabs
+python3 Tools/generate_furniture.py --units m  --out Assets/Prefabs/m
+python3 Tools/validate_glb.py --dir Assets/Prefabs --units cm
 ```
 
 `validate_glb.py` re-parses each `.glb` from raw bytes without reusing the
