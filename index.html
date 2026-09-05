@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spatialis - voice &amp; gesture spatial interior design for Snap Spectacles</title>
 <meta name="description" content="Stand in your room, speak, and furniture appears - anchored to your real floor, tables and walls. Built for Snap Spectacles in Lens Studio.">
+<link rel="icon" type="image/png" sizes="32x32" href="./brand/spatialis-logo-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./brand/spatialis-logo-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./brand/spatialis-logo-192.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Spatialis - talk to your room, watch it furnish itself">
 <meta property="og:description" content="Voice and gesture interior design for Snap Spectacles. Say it, and life-size furniture appears on your real floor, table or wall. Try it in the browser.">
@@ -47,6 +50,8 @@
   .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);
     box-shadow:0 0 12px var(--accent)}
   nav .brand{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:13px}
+  .logo{display:block;height:36px;width:auto;mix-blend-mode:screen}
+  .logo.lg{height:48px}
   nav .links{display:flex;gap:22px;margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)}
   nav .links a{text-decoration:none;padding:8px 2px;transition:color .15s}
   nav .links a:hover{color:var(--accent);text-shadow:0 0 10px rgba(126,231,5,.45)}
@@ -298,7 +303,7 @@
 </defs></svg>
 
 <nav><div class="wrap">
-  <a class="brand" href="./" style="text-decoration:none;color:inherit"><span class="dot"></span> Spatialis</a>
+  <a class="brand" href="./"><img class="logo lg" src="./brand/spatialis-header.png" alt="Spatialis" width="800" height="234"></a>
   <div class="links">
     <a href="#commands">Commands</a>
     <a href="#how">How it works</a>
