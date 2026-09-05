@@ -329,17 +329,34 @@ Result: running the shipped code where the reimplementation used to run
   importer does not convert metres unless "Convert meters to centimeters"
   is ticked, so centimetre-authored models are now the default set.
 
+[SESSION 4, LATER — 2026-09-05] THE REAL API CHECK
+  Lens Studio 5.23.2 was installed (macOS arm). On first launch it writes
+  ~/Library/Caches/Snap/Lens Studio/DtsCache/StudioLib.d.ts - 34,393 lines,
+  662 top-level declarations: the entire runtime API. The four subsystems
+  were compiled against it plus the app bundle's base declarations, with
+  Snap's own project compiler settings (es2021, commonjs, isolatedModules,
+  standard decorators): 0 ERRORS. Proven non-vacuous by mutation - a fake
+  method, lengthSquared() called as a function, and `new SceneObject()`
+  each produced the expected error. Signatures the agent had guessed
+  (getComponents<K extends keyof ComponentNameMap>, vec3.uniformScale,
+  lengthSquared as a property, hitTest's callback shape, VoiceML's
+  transcription flags, ObjectPrefab.instantiate) all match.
+  What the check cannot validate: writes to Pass uniforms go through `any`
+  by design (custom shaders), so baseColor/metallic/roughness remain a
+  runtime concern. Everything else the "false green" worry covered is now
+  a real green. Repeatable: npm run typecheck:lens (local; needs the app).
+
 ==============================================================================
  VERIFICATION SUMMARY (as of 2026-09-05)
 ==============================================================================
-  npm run typecheck   -> clean (strict; against the local hand-written Lens
-                         Studio type declarations - real Lens Studio has not
-                         yet validated them)
+  npm run typecheck   -> clean (strict; against the local API stubs)
+  typecheck:lens      -> clean against Snap's REAL API (Lens Studio 5.23.2
+                         StudioLib.d.ts); mutation-verified
   npm test            -> 151 passed, 0 failed (7 suites, incl. end to end)
   npm run build:web   -> clean (simulator ES module bundle)
   fresh clone         -> npm ci, typecheck, test, build:web all green
   CI                  -> green on every push
-  Lens Studio         -> NOT installed; no .esproj; never run on device
+  Lens Studio         -> 5.23.2 installed; no .esproj yet; never run on device
   Simulator           -> hosts the real subsystems; verified via DOM, logs
                          and pixel sampling (image viewing unavailable to
                          the agent in session 4)

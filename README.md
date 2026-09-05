@@ -135,7 +135,8 @@ git clone https://github.com/mrnetwork0001/Spatialis.git
 cd Spatialis
 npm install
 
-npm run typecheck   # strict type check of all four subsystems
+npm run typecheck   # strict type check against the local API stubs (what CI runs)
+npm run typecheck:lens  # the same code against Snap's REAL API — needs Lens Studio installed
 npm test            # 151 behavioural tests across all four subsystems
 npm run sim         # landing page + app on http://localhost:8777/
 ```
@@ -190,6 +191,7 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 |---|---|
 | Four subsystems implemented | ✅ type-checked under `strict` |
 | Behavioural test suite | ✅ 151 passing |
+| Type-checked against Snap's real API (Lens Studio 5.23.2, `StudioLib.d.ts`) | ✅ 0 errors — `npm run typecheck:lens` |
 | Desk simulator | ✅ runs from a clone, no headset |
 | Lens Studio scene wiring | ⬜ needs prefabs — see [SETUP_LENS_STUDIO.md](SETUP_LENS_STUDIO.md) |
 | On-device pass on Spectacles | ⬜ pinch distances are reasoned defaults, not yet tuned on a hand |
