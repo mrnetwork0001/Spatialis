@@ -40,21 +40,21 @@
   .wrap{max-width:calc(50vw + 560px);margin:0 auto;padding:0 24px}
 
   /* ---------- nav ---------- */
-  nav{
+  nav.top{
     position:sticky;top:0;z-index:50;
-    background:rgba(11,13,17,.82);backdrop-filter:blur(14px);
+    background:rgba(6,6,9,.82);backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
-  nav .wrap{display:flex;align-items:center;gap:22px;height:58px}
+  nav.top .wrap{display:flex;align-items:center;gap:22px;height:58px}
   .brand{display:flex;align-items:center;gap:9px;font-weight:650;letter-spacing:-.2px}
   .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);
     box-shadow:0 0 12px var(--accent)}
-  nav .brand{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:13px}
+  nav.top .brand{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:13px}
   .logo{display:block;height:36px;width:auto;mix-blend-mode:screen}
   .logo.lg{height:48px}
-  nav .links{display:flex;gap:22px;margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)}
-  nav .links a{text-decoration:none;padding:8px 2px;transition:color .15s}
-  nav .links a:hover{color:var(--accent);text-shadow:0 0 10px rgba(126,231,5,.45)}
+  nav.top .links{display:flex;gap:22px;margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)}
+  nav.top .links a{text-decoration:none;padding:8px 2px;transition:color .15s}
+  nav.top .links a:hover{color:var(--accent);text-shadow:0 0 10px rgba(126,231,5,.45)}
   @media(max-width:720px){nav .links{display:none}}
 
   /* ---------- buttons ---------- */
@@ -307,7 +307,7 @@
   <symbol id="i-dot" viewBox="0 0 24 24"><rect x="7.5" y="7.5" width="9" height="9" rx="1.2" transform="rotate(45 12 12)" fill="currentColor" stroke="none"/></symbol>
 </defs></svg>
 
-<nav><div class="wrap">
+<nav class="top"><div class="wrap">
   <a class="brand" href="./"><img class="logo" src="./brand/spatialis-header.png" alt="Spatialis" width="800" height="234"></a>
   <div class="links">
     <a href="#commands">Commands</a>
