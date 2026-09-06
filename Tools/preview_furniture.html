@@ -1,5 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spatialis furniture contact sheet</title>
 <link rel="icon" type="image/png" sizes="32x32" href="../brand/spatialis-logo-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../brand/spatialis-logo-192.png">
@@ -9,7 +10,8 @@
          font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
   h1 { font-size:15px; margin:14px 20px 2px; font-weight:600; }
   p.sub { margin:0 20px 12px; color:#8b8b98; font-size:12px; }
-  #grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:#20202b; }
+  #grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1px; background:#20202b; }
+  #grid canvas { display:block; width:100%; height:auto; }
   .cell { background:#0a0a10; position:relative; }
   .cap { position:absolute; left:10px; bottom:8px; pointer-events:none; }
   .cap b { display:block; font-size:12.5px; }
@@ -17,6 +19,7 @@
   .err { color:#f87171; font-family:ui-monospace,monospace; font-size:11px; padding:10px; }
 </style>
 <h1>Spatialis furniture catalog</h1>
+<p class="sub"><a class="back" href="../" style="color:#7ee705">&larr; Back to Spatialis</a></p>
 <p class="sub">Generated .glb, parsed by three.js GLTFLoader - an independent reader, not the generator. Grid squares are 50&nbsp;cm. Models are centimetre-authored, shown at 1/100.</p>
 <div id="grid"></div>
 <script type="importmap">
@@ -77,10 +80,10 @@ for (const key of KEYS) {
     cap.innerHTML = `<b>${key}</b><span>${(size.x*100).toFixed(0)} × ${(size.z*100).toFixed(0)} × ${(size.y*100).toFixed(0)} cm` +
                     ` · base y=${(bb.min.y*100).toFixed(1)}</span>`;
     cell.appendChild(cap);
-    if (++done === KEYS.length) document.title = 'READY';
+    if (++done === KEYS.length) document.documentElement.dataset.ready = '1';
   }, undefined, (err) => {
     cell.innerHTML = `<div class="err">${key}: LOAD FAILED<br>${err}</div>`;
-    if (++done === KEYS.length) document.title = 'READY';
+    if (++done === KEYS.length) document.documentElement.dataset.ready = '1';
   });
 }
 </script>
