@@ -160,13 +160,17 @@ export class VoiceCommandController extends BaseScriptComponent {
     // Preview: sentences listed in the Inspector are handled exactly as if
     // the ASR module had transcribed them. Empty in a shipping Lens.
     if (this.previewCommands && this.previewCommands.length > 0) {
-      const delayed = this.createEvent("DelayedCallbackEvent");
-      delayed.bind(() => {
-        for (let i = 0; i < this.previewCommands.length; i++) {
-          this.handleTranscript(this.previewCommands[i]);
-        }
-      });
-      delayed.reset(1.0);
+      for (let i = 0; i < this.previewCommands.length; i++) {
+        const sentence = this.previewCommands[i];
+        const delayed = this.createEvent("DelayedCallbackEvent");
+        delayed.bind(() => this.handleTranscript(sentence));
+        // Spaced out, not fired together. A spawn applies its finish and starts
+        // its scale-in from the placement callback, which lands a frame or more
+        // after the sentence is handled - so a restyle issued in the same tick
+        // is silently overwritten when that callback arrives. The gap is longer
+        // than spawnDuration, so each sentence's effect survives the next.
+        delayed.reset(1.0 + i * 1.2);
+      }
     }
 
     if (!this.asrModule) {
