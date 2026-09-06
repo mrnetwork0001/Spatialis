@@ -71,10 +71,15 @@ if (mode === "esm") {
   // header shows which code is loaded - a stale cached module looks exactly
   // like a real failure otherwise. Lives in the (gitignored) bundle dir, so
   // it can never lag behind the source the way a hand-edited constant did.
-  let sha = "dev";
-  try {
-    sha = require("child_process").execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim() || "dev";
-  } catch (e) { /* not a git checkout */ }
+  // Hosts that build from a clone often strip .git, so take the commit from the
+  // environment when they offer it and only shell out to git as a fallback.
+  let sha = (process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || "").slice(0, 7);
+  if (!sha) {
+    try {
+      sha = require("child_process").execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+    } catch (e) { /* not a git checkout */ }
+  }
+  if (!sha) sha = "dev";
   fs.writeFileSync(path.join(dir, "build-id.js"), `export const BUILD = ${JSON.stringify(sha)};\n`);
   console.log(`patch-build(esm): stamped build-id.js = ${sha}`);
 }
