@@ -190,9 +190,8 @@ export const FURNITURE_CATALOG: FurnitureSpec[] = [
   },
 ];
 
-/** Resolve a spoken phrase to a catalog key, or "" when nothing matches. */
-export function resolveFurniture(phrase: string): string {
-  const text = " " + phrase.toLowerCase() + " ";
+/** Longest-alias scan over a padded, lowercased sentence. */
+function scanForFurniture(text: string): string {
   let bestKey = "";
   let bestLen = 0;
   for (let i = 0; i < FURNITURE_CATALOG.length; i++) {
@@ -210,6 +209,40 @@ export function resolveFurniture(phrase: string): string {
     }
   }
   return bestKey;
+}
+
+/** Where a trailing "on the ..." phrase begins, or -1 when there is none. */
+function surfacePhraseAt(text: string): number {
+  const on = text.indexOf(" on ");
+  const onto = text.indexOf(" onto ");
+  if (on < 0) {
+    return onto;
+  }
+  if (onto < 0) {
+    return on;
+  }
+  return on < onto ? on : onto;
+}
+
+/**
+ * Resolve a spoken phrase to a catalog key, or "" when nothing matches.
+ *
+ * The object of "on" is the SURFACE, not the piece being placed, so the noun
+ * is resolved from what comes before that phrase. Without this, longest-alias-
+ * wins hands "put a vase on the table" to the dining table, because "table" is
+ * longer than "vase" - the wrong piece, at full confidence. A sentence with
+ * nothing placeable before the phrase falls back to the whole sentence.
+ */
+export function resolveFurniture(phrase: string): string {
+  const text = " " + phrase.toLowerCase() + " ";
+  const cut = surfacePhraseAt(text);
+  if (cut > 0) {
+    const before = scanForFurniture(text.slice(0, cut) + " ");
+    if (before) {
+      return before;
+    }
+  }
+  return scanForFurniture(text);
 }
 
 export function getFurnitureSpec(key: string): FurnitureSpec | null {

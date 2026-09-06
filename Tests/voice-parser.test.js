@@ -146,3 +146,38 @@ check("uh put a like dark wood coffee table over there", {
 check("nonsense words with no intent", {
   action: "unknown", furniture: "", material: "", color: "", placement: "auto",
 });
+
+// ---------------------------------------------------------------------------
+// "on the X" names the surface, not the piece.
+//
+// Longest-alias-wins used to read the whole sentence, so "put a vase on the
+// table" resolved to the dining table - "table" is longer than "vase" - and
+// spawned the wrong piece at full confidence. The noun is now resolved from
+// what comes before the phrase, with a fallback to the whole sentence.
+// ---------------------------------------------------------------------------
+suite("VoiceCommandController - the object of \"on\" is a surface");
+check("Put a ceramic vase on the table", {
+  action: "spawn", furniture: "vase", material: "", color: "", placement: "table",
+});
+check("Put a vase on the shelf", {
+  action: "spawn", furniture: "vase", material: "", color: "", placement: "auto",
+});
+check("Put the sofa on the rug", {
+  action: "spawn", furniture: "sofa", material: "", color: "", placement: "floor",
+});
+check("Put a plant on the coffee table", {
+  action: "spawn", furniture: "plant", material: "", color: "", placement: "auto",
+});
+// Regressions: the longer noun must still win when it is the piece itself.
+check("Put a brass table lamp on the table", {
+  action: "spawn", furniture: "tableLamp", material: "brass", color: "", placement: "table",
+});
+check("Hang a painting on the wall", {
+  action: "spawn", furniture: "artwork", material: "", color: "", placement: "wall",
+});
+check("Add a dining table", {
+  action: "spawn", furniture: "table", material: "", color: "", placement: "auto",
+});
+check("Put a rug on the floor", {
+  action: "spawn", furniture: "rug", material: "", color: "", placement: "floor",
+});
