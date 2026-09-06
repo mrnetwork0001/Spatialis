@@ -1,24 +1,13 @@
-# 👓 Spatialis - Voice & Gesture 3D Spatial Interior Design Tool for SPECS
+# Spatialis - Voice & Gesture 3D Spatial Interior Design Tool for SPECS
 
 **[Try it now - usespatialisapp.vercel.app](https://usespatialisapp.vercel.app)** - the app runs in your
 browser against a simulated room. No headset, no Lens Studio, no install.
 
-> Built for the **CLAD Summer Hackathon** by **Snap Inc. / SPECS / Lenslist** (Week 4: CREATE)
-> **Submission deadline:** September 6, 2026 @ 23:59 PT
-> **Coding agent:** Claude Code + CLAD (Closed Loop Agentic Development)
-> **Environment:** Lens Studio 5.22+ · Spectacles Project Mode · TypeScript
-> **Author:** Ifeanyichukwu Onwo (`mrnetwork0001`)
-> **License:** Apache-2.0
-
-[![CI](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml/badge.svg)](https://github.com/mrnetwork0001/Spatialis/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-161%20passing-brightgreen.svg)](Tests/)
 
 ---
 
-## 🎬 Demo
+<img width="2984" height="1700" alt="image" src="https://github.com/user-attachments/assets/f6121a7c-11c6-4788-9cd8-5e9819753a03" />
 
-![Spatialis in Lens Studio Preview](docs/lens-preview.png)
 
 *Lens Studio 5.23.2 Preview, captured through the editor's MCP server: "give me a navy velvet sofa" and "add a floating marble coffee table" spoken by the preview script, parsed, spawned and styled by the shipped code. No room surfaces in the desktop Preview, so both float.*
 
@@ -32,7 +21,7 @@ the coffee table `floating`, the lamp on a physical tabletop.*
 
 ---
 
-## 📌 Overview
+## Overview
 
 Spatialis lets you redecorate the room you are standing in. You speak, and
 furniture appears on your actual floor. You pinch, and you move it. You speak
@@ -59,7 +48,7 @@ client options on site rather than on a screen.
 
 ---
 
-## 🏗️ The four subsystems
+## The four subsystems
 
 | # | Subsystem | File | Responsibility |
 |---|---|---|---|
@@ -74,7 +63,7 @@ helpers - so no subsystem holds a direct reference to another.
 
 ---
 
-## 🎙️ What you can say
+## What you can say
 
 ```
 Spawn a Scandinavian lounge chair by the wall
@@ -99,7 +88,7 @@ two different placements.
 
 ---
 
-## ✋ What you can do with your hands
+## What you can do with your hands
 
 | Gesture | Result |
 |---|---|
@@ -114,7 +103,7 @@ makes furniture flicker between grabbed and dropped.
 
 ---
 
-## 🖥️ Try it without a headset
+## Try it without a headset
 
 Spatialis ships a **desk simulator** that runs the real subsystem code in a
 browser - the actual parser, catalog, object registry, material presets and
@@ -151,7 +140,7 @@ Speech for the ASR module; three.js for the display.
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ```bash
 git clone https://github.com/mrnetwork0001/Spatialis.git
@@ -187,7 +176,7 @@ on-device tuning.
 
 ---
 
-## 📁 Repository layout
+## Repository layout
 
 ```
 Scripts/
@@ -208,7 +197,7 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 
 ---
 
-## 📊 Status
+## Status
 
 | | |
 |---|---|
