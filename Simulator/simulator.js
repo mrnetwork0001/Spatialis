@@ -833,10 +833,8 @@ btnPlan.addEventListener("click", () => setView("plan"));
 const params = new URLSearchParams(location.search);
 if (params.get("view") === "plan") setView("plan");
 const fromUrl = params.get("cmd");
-const BOOT = fromUrl
-  ? fromUrl.split("|").map((c) => c.trim()).filter(Boolean)
-  : ["Spawn a Scandinavian lounge chair by the wall", "Add a floating marble coffee table",
-     "Put a brass table lamp on the table"];
+// The room starts empty; a ?cmd= link is the only thing that furnishes it on load.
+const BOOT = fromUrl ? fromUrl.split("|").map((c) => c.trim()).filter(Boolean) : [];
 
 const loadingEl = document.getElementById("loading");
 let report = { loaded: [], failed: CATALOG_KEYS.slice() };
@@ -861,5 +859,5 @@ requestAnimationFrame(frame);
 for (const c of BOOT) runCommand(c);
 if (!fromUrl) {
   heardEl.className = "interim";
-  heardEl.textContent = `Ready - ${BOOT.length} pieces were placed for you. Type a command, tap an example, or speak.`;
+  heardEl.textContent = "Ready - the room is empty. Type a command, tap an example, or speak.";
 }
