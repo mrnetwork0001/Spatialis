@@ -149,7 +149,7 @@ npm install        # Node 18+; the dev server below also needs Python 3
 
 npm run typecheck   # strict type check against the local API stubs (what CI runs)
 npm run typecheck:lens  # the same code against Snap's REAL API - needs Lens Studio installed
-npm test            # 161 behavioural tests across all four subsystems
+npm test            # 169 behavioural tests across all four subsystems
 npm run sim         # landing page + app on http://localhost:8777/
 ```
 
@@ -158,7 +158,7 @@ The suite covers what cannot be verified by looking through a headset:
 | Suite | Cases | Covers |
 |---|---|---|
 | `core.test.js` | 17 | Alias resolution, registry, framerate-independent damping |
-| `voice-parser.test.js` | 26 | The demo script plus the phrasings likely spoken instead |
+| `voice-parser.test.js` | 34 | The demo script plus the phrasings likely spoken instead |
 | `voice-execute.test.js` | 23 | Every execute path, debounce, wake word, and the end-to-end integration |
 | `anchor.test.js` | 9 | Floor / table / wall / ceiling classification and its bounds |
 | `anchor-placement.test.js` | 31 | Probe queue, calibration, retry, overlap, wall-adjacent, reseat |
@@ -186,9 +186,15 @@ Scripts/
   SurfaceAnchorEngine.ts       Subsystem 3 - Surface Anchor Engine
   PBRMaterialSwapper.ts        Subsystem 4 - PBR Material Swapper
 Simulator/                     browser desk simulator (real code, simulated room)
+LensProject/                   the Lens Studio project (Spectacles target), scripts synced from Scripts/
+Assets/Prefabs/                12 furniture models, centimetre-authored (m/ holds the metre set)
+brand/                         wordmark and app icon
 types/lens-studio.d.ts         local Lens Studio API stubs (CI type-checking only)
-Tests/                         161 behavioural tests + Lens runtime and SIK stubs
+Tests/                         169 behavioural tests + Lens runtime and SIK stubs
 Tools/patch-build.js           makes tsc output loadable under Node and browsers
+Tools/assemble-site.sh         assembles _site/ for a static host
+Tools/lens-editor/             wires the Lens Studio scene through the editor API over MCP
+vercel.json                    build and headers for the hosted app
 .github/workflows/ci.yml       typecheck + test + simulator build on every push
 SETUP_LENS_STUDIO.md           scene wiring and on-device tuning
 SPATIALIS_PROJECT_SPEC.md      master specification
@@ -197,27 +203,19 @@ CLAD_PROMPT_LOG.txt            full CLAD agent transcript
 
 ---
 
-## Status
+## What has not been verified
 
-| | |
-|---|---|
-| Four subsystems implemented | ✅ type-checked under `strict` |
-| Behavioural test suite | ✅ 161 passing |
-| Type-checked against Snap's real API (Lens Studio 5.23.2, `StudioLib.d.ts`) | ✅ 0 errors - `npm run typecheck:lens` |
-| Desk simulator | ✅ runs from a clone, no headset |
-| Lens Studio project (`LensProject/`, SPECS target) | ✅ created; all 5 scripts and 12 models imported and compiled by the editor |
-| Scene wiring | ✅ built through Lens Studio's MCP by `Tools/lens-editor/wire-spatialis.ts`; every input verified by read-back |
-| Runs in Lens Studio Preview | ✅ a spoken *“give me a navy velvet sofa”* spawns a blue sofa in the runtime scene; scale (210 units), materials and spacing verified; speech needs a My Lenses login in Preview; voice input uses Snap's current `AsrModule` |
-| Gestures on the runtime | ✅ exercised in Lens Studio's SPECS simulation with simulated hands: pinch grabbed the sofa, a 60 cm drag moved it 61 cm, release handed it to `reseat()` |
-| On-device pass on Spectacles | ⬜ not yet - never run on hardware; pinch *feel* untested on a real hand |
-| Demo video | ⬜ |
+Spatialis has **not run on Spectacles hardware**. It runs in Lens Studio's
+Preview on the Spectacles target, and the browser simulator hosts the same
+shipped code, but no headset has worn it.
 
-Pinch thresholds, grab radius and drag smoothing have **not** been validated on
-real hardware. They are documented, adjustable in the Inspector, and covered by
-tests for their logic - but the feel is untested.
+Pinch thresholds, grab radius and drag smoothing are covered by tests for their
+*logic* and are adjustable in the Inspector - but the *feel* is untested on a
+real hand. Surface anchoring cannot be seen in the desktop Preview either: it
+has no depth of the room, so every piece falls back to floating.
 
 ---
 
-## 📄 License
+## License
 
 Apache-2.0 - see [LICENSE](LICENSE).
