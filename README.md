@@ -1,5 +1,8 @@
 # 👓 Spatialis - Voice & Gesture 3D Spatial Interior Design Tool for SPECS
 
+**[Try it now - usespatialisapp.vercel.app](https://usespatialisapp.vercel.app)** - the app runs in your
+browser against a simulated room. No headset, no Lens Studio, no install.
+
 > Built for the **CLAD Summer Hackathon** by **Snap Inc. / SPECS / Lenslist** (Week 4: CREATE)
 > **Submission deadline:** September 6, 2026 @ 23:59 PT
 > **Coding agent:** Claude Code + CLAD (Closed Loop Agentic Development)
