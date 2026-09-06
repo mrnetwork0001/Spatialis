@@ -48,6 +48,10 @@ import { VoiceCommandController } from "./build/Scripts/VoiceCommandController.j
 import { Room3D } from "./room3d.js";
 import { BUILD } from "./build/build-id.js";
 
+// Tells the page's watchdog that the module set actually loaded; without this
+// a missing Simulator/build/ leaves the page on "loading furniture…" for ever.
+window.__spatialisBooted = true;
+
 // Inline icons from the page's sprite (see Simulator/index.html); used where text is set from JS.
 const ICON = {
   mic:   '<svg class="ico"><use href="#i-mic"/></svg>',
@@ -359,9 +363,24 @@ function frame(now) {
 
   if (canvas3d.hidden) render(); else room3d.render();
 
-  const sig = all.map((o) =>
-    `${o.id}:${o.materialKey}:${o.surface}:${o.transform.s.x.toFixed(2)}:${selectedId === o.id ? 1 : 0}`).join("|");
-  if (sig !== lastListSig) { lastListSig = sig; renderList(); }
+  // The swatch reads the live material, so the signature has to carry the
+  // colour too - without it a recolour left the swatch showing the old tint
+  // until something else changed. Quantised, so a cross-fade redraws a few
+  // times rather than every frame.
+  const sig = all.map((o) => {
+    const c = look(o);
+    const tint = `${Math.round(c.r * 16)},${Math.round(c.g * 16)},${Math.round(c.b * 16)}`;
+    return `${o.id}:${o.materialKey}:${o.surface}:${o.transform.s.x.toFixed(2)}:${selectedId === o.id ? 1 : 0}:${tint}`;
+  }).join("|");
+  if (sig !== lastListSig) {
+    lastListSig = sig;
+    renderList();
+    // "landed on" is a result, not a parsed slot: showIntent runs before the
+    // command executes, so it can only report the previous piece. Refresh it
+    // once the placement it describes has actually happened.
+    const last = SpatialisRegistry.last();
+    setSlot("s-surface", last ? statusOf(last) : "");
+  }
 
   requestAnimationFrame(frame);
 }
@@ -856,8 +875,26 @@ if (report.failed.length) {
 }
 
 requestAnimationFrame(frame);
-for (const c of BOOT) runCommand(c);
-if (!fromUrl) {
-  heardEl.className = "interim";
-  heardEl.textContent = "Ready - the room is empty. Type a command, tap an example, or speak.";
-}
+// A shared link's sentences run one at a time, with a gap between them.
+//
+// Running them in a single tick let a spawn's own placement callback - which
+// is what applies the material and starts the scale-in - land AFTER a later
+// "make it leather" or "make it twice as big", silently undoing the mutation:
+// the piece appeared, the panel showed the command parsed, and nothing changed.
+// The gap is wall-clock rather than tween state, because a spawn's animation
+// advances per frame and frames are not guaranteed: in a background tab they
+// stop entirely. 1.2s comfortably covers the 0.55s spawn and the cross-fade.
+const BOOT_GAP_MS = 1200;
+
+(async function runBoot() {
+  for (const c of BOOT) {
+    runCommand(c);
+    if (!/^look:/i.test(c.trim())) {
+      await new Promise((r) => setTimeout(r, BOOT_GAP_MS));
+    }
+  }
+  if (!fromUrl) {
+    heardEl.className = "interim";
+    heardEl.textContent = "Ready - the room is empty. Type a command, tap an example, or speak.";
+  }
+})();

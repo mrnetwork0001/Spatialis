@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The Spatialis desk simulator: the shipped Lens subsystems running in a browser against a simulated room. Speak or type, and furniture is placed, styled and anchored. No headset required.">
 <link rel="icon" type="image/png" sizes="32x32" href="../brand/spatialis-logo-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../brand/spatialis-logo-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="../brand/spatialis-logo-192.png">
@@ -12,7 +13,7 @@
     --bg:#060609; --panel:#0a0a10; --panel-2:#0e0e15; --panel-3:#12121a;
     --line:#20202b; --line-soft:#16161f; --line-2:#2a2a37;
     --grid:hsla(0,0%,100%,.032);
-    --ink:#f2f2f5; --ink-dim:#8b8b98; --ink-faint:#55555f; --label:#a5966b;
+    --ink:#f2f2f5; --ink-dim:#8b8b98; --ink-faint:#7a7a86; --label:#a5966b;
     --accent:#7ee705; --accent-dim:rgba(126,231,5,.12); --accent-deep:#0b1400;
     --violet:#a06bff; --violet-dim:rgba(160,107,255,.12);
     --real:#7ee705; --sim:#a06bff; --warn:#e5b94a;
@@ -303,7 +304,7 @@
       <h2>Command</h2>
       <p class="lead">Type what you want in the room, tap an example, or speak.</p>
       <div class="row">
-        <input type="text" id="cmd" placeholder="Tell the room what you want…" autocomplete="off">
+        <input type="text" id="cmd" aria-label="Command - what you want in the room" placeholder="Tell the room what you want…" autocomplete="off">
         <button class="mic" id="mic" title="Tap to speak" aria-label="Tap to speak"><svg class="ico"><use href="#i-mic"/></svg></button>
         <button class="primary" id="run">Run</button>
       </div>
@@ -365,14 +366,31 @@
 <script>
   // A module that throws while loading fails silently - the page just sits
   // there. Surface it in the overlay instead of showing "loading…" forever.
-  window.addEventListener("error", function (e) {
+  function failed(headline, detail, hint) {
     var el = document.getElementById("loading");
     if (!el || el.classList.contains("done")) return;
-    el.innerHTML = '<div style="max-width:460px;text-align:center;line-height:1.7">' +
-      '<b style="color:var(--warn)">The app failed to start</b><br>' +
-      '<span style="color:#9aa4b6">' + String(e.message || e.type) + '</span><br>' +
-      '<span style="color:#626d80;font-size:11px">Serve over HTTP (npm run sim), not file://</span></div>';
+    el.innerHTML = '<div style="max-width:480px;text-align:center;line-height:1.7">' +
+      '<b style="color:var(--warn)">' + headline + '</b><br>' +
+      '<span style="color:var(--ink-dim)">' + detail + '</span><br>' +
+      '<span style="color:var(--ink-faint);font-size:11px">' + hint + '</span></div>';
+  }
+  window.addEventListener("error", function (e) {
+    failed("The app failed to start", String(e.message || e.type),
+           "Serve over HTTP (npm run sim), not file://");
   });
+
+  // A nested module that 404s never reaches the handler above: a failed module
+  // fetch dispatches no window error event. That is exactly what a fresh clone
+  // hits, because Simulator/build/ is generated rather than committed. Without
+  // this watchdog the page sits on "loading furniture…" for ever with nothing
+  // in the console. simulator.js sets the flag as soon as it starts running.
+  setTimeout(function () {
+    var el = document.getElementById("loading");
+    if (!el || el.classList.contains("done") || window.__spatialisBooted) return;
+    failed("The app could not load its code",
+           "Simulator/build/ is missing or unreachable. It is generated, not committed.",
+           "Run: npm run build:web   (or npm run sim, which builds and serves)");
+  }, 9000);
 </script>
 <script type="module" src="./simulator.js"></script>
 </body>
