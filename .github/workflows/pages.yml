@@ -28,7 +28,21 @@ jobs:
       - run: npm ci
       - run: npm run build:web
       - uses: actions/configure-pages@v5
+
+      # Publish the repository minus the parts a browser never asks for. An
+      # allowlist was tried and broke the app: the page loads the Lens runtime
+      # stub from Tests/, which the list did not include. Excluding is safer -
+      # anything a page references is still there.
+      - name: Assemble the site
+        run: |
+          rsync -a --exclude '.git' --exclude 'node_modules' \
+                   --exclude 'LensProject' --exclude '.github' \
+                   --exclude '_site' ./ _site/
+          test -f _site/Simulator/build/build-id.js || { echo "the web bundle is missing"; exit 1; }
+          test -f _site/Tests/lens-runtime-stub.js || { echo "the Lens runtime stub is missing"; exit 1; }
+          du -sh _site
+
       - uses: actions/upload-pages-artifact@v3
-        with: { path: . }
+        with: { path: _site }
       - id: deployment
         uses: actions/deploy-pages@v4

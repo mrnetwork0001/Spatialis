@@ -23,8 +23,10 @@ jobs:
         run: npm ci
 
       # Strict type check of all four subsystems against the local Lens Studio
-      # API declarations. Lens Studio injects its own types in-editor, so this
-      # is the only place the source is checked outside the editor.
+      # API declarations, which stand in for the types the editor injects. The
+      # same sources are also checked against Snap's real StudioLib.d.ts by
+      # `npm run typecheck:lens`, which needs a local Lens Studio and so cannot
+      # run here.
       - name: Typecheck
         run: npm run typecheck
 
@@ -37,6 +39,12 @@ jobs:
       # it here keeps that path from rotting unnoticed.
       - name: Build simulator
         run: npm run build:web
+
+      # The Lens Studio project carries its own copies of the scripts and the
+      # metre-scale models. If they drift from the sources, the Lens and the
+      # browser stop being the same code - which is the project's central claim.
+      - name: Lens project in sync
+        run: bash Tools/sync-lens.sh --check
 
       # The simulator is plain ES modules that tsc never sees. Catch a syntax
       # error there before it ships as a page that silently fails to start.
