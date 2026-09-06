@@ -151,6 +151,33 @@ The default pinch distances suit an average adult hand. On a real wearer:
 - Pieces **hover instead of snapping** → the World Query module is missing or
   depth permission is off. Check the log for the float-only warning.
 
+### In the desktop Preview, everything floats - and that is correct
+
+Lens Studio's Preview has no scan of a real room, so World Query finds no
+surface and every piece falls back to floating in front of you. The log says so
+plainly:
+
+```
+[Spatialis:Anchor] No surface for sofa; floating it instead.
+```
+
+This is the fallback working, not a failure. A surface command still parses
+correctly - *"put a table lamp on the table"* resolves to `@table` - but with no
+table in the scene it floats like everything else. Surface anchoring can only be
+seen on Spectacles, or in the browser simulator, whose simulated room has a
+floor, walls and a table for the hit test to find.
+
+One more Preview note: refreshing Preview while a previous run is still
+transcribing logs three speech-teardown lines before the new session starts.
+
+```
+E [AsrTranscriberLancelot] update is null
+W [speech::transcribe::grpc::GrpcStreamCallback] Failure: CANCELLED
+E [speech::transcribe::grpc::GrpcStreamCallback] Pipe was already closed.
+```
+
+They are the old audio stream closing and are harmless. A cold start logs none.
+
 ---
 
 ## 6. Verifying without a headset
