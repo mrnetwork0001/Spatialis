@@ -335,7 +335,7 @@ function runCommand(text) {
 // =============================================================================
 
 let lastFrame = performance.now();
-let lastListSig = "";
+let lastListSig = null;
 
 function frame(now) {
   const dt = Math.min(0.05, (now - lastFrame) / 1000);
@@ -570,7 +570,7 @@ function select(id) {
   selectedId = id;
   const e = id === null ? null : SpatialisRegistry.byId(id);
   room3d.setSelected(e ? e.sceneObject.obj3d : null);
-  lastListSig = "";
+  lastListSig = null;
 }
 
 // =============================================================================
@@ -621,7 +621,7 @@ function endDrag() {
     o.transform.setWorldRotation(result.rotation);
     o.surface = result.surface;
     o.surfaceNormal = result.normal;
-    lastListSig = "";
+    lastListSig = null;
   });
 }
 
