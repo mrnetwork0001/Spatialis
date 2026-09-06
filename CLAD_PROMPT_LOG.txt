@@ -574,3 +574,47 @@ making the repo public, the demo video, the submission form, a device pass.
      instead of showing its empty state. The signature now starts as a
      sentinel no room can produce, which also fixes the same blank after
      "clear the room".
+
+"analyze the app end-to-end and test if everything is working and ready for
+ final review so i do demo video and submit"
+  -> Ran the deterministic suite, a fresh-clone rehearsal, a Lens Studio
+     Preview verification through the MCP server, and three independent
+     audits: every command path in the app, the links and responsive
+     behaviour of all three pages, and repository hygiene against the
+     submission requirements. The audits were told not to trust the
+     agent's own account and to report only what they observed.
+
+     Nothing blocked the repository going public: every path in all 128
+     commits was enumerated and the Lens Studio config holding a bearer
+     token was never committed.
+
+     Real defects found and fixed, each with the evidence that found it:
+
+     - "Put a vase on the table" spawned a dining table. Longest-alias-wins
+       read the whole sentence and "table" beats "vase". Fixed in the
+       shipped parser: the object of "on" is the surface, not the piece.
+       Eight regression tests, including the cases that must keep working.
+     - A shared ?cmd= link ran every sentence in one tick, so a spawn's
+       placement callback landed on top of a later "make it leather" or
+       "make it twice as big". The README's own documented example did not
+       work. The Lens had the identical bug in its Inspector preview
+       commands. Both now space their sentences out.
+     - The app sat on "loading furniture…" for ever, with nothing in the
+       console, when Simulator/build was missing - which is what a fresh
+       clone hits, because that bundle is generated rather than committed.
+       A failed nested-module fetch dispatches no error event, so the
+       existing handler never fired. A watchdog now names the cause.
+     - The catalog page was 1403px wide whatever the screen, so it was
+       unusable on a phone, and carried a test hook that renamed the tab.
+     - The docs still told anyone wiring the scene by hand to look for a
+       "Voice ML Module" field that has not existed since session 5.
+     - The Pages workflow shipped node_modules and the Lens project. The
+       first replacement broke the app by omitting the Lens runtime stub;
+       rehearsing the deploy locally caught it before it shipped.
+
+     Two lessons about verification itself. Headless Chrome starves the
+     app of animation frames, so the panel it dumps can be several seconds
+     stale: readings taken that way said a command had not run when the
+     response line proved it had. And a screenshot regenerated weeks ago
+     was still showing a control removed since - stale evidence is worse
+     than none.
