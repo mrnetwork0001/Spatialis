@@ -1,0 +1,9 @@
+# Not needed to build or serve the site. The Lens Studio project is ~9MB of
+# packages and models that only Lens Studio reads.
+node_modules
+LensProject
+_site
+.vercel
+.git
+.claude
+docs/*.mov
