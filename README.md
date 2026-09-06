@@ -35,9 +35,24 @@ Spatialis lets you redecorate the room you are standing in. You speak, and
 furniture appears on your actual floor. You pinch, and you move it. You speak
 again, and it changes material.
 
-Stand in your room and say *"Spawn a Scandinavian lounge chair by the wall"* -
+Stand in your room and say *"Put a Scandinavian lounge chair by the wall"* -
 Spatialis parses the intent, finds the wall, finds the floor in front of it,
 and stands a chair there facing into the room.
+
+### Who it is for, and the brief it answers
+
+Built for the **CLAD Summer Hackathon, week 4: Create** - *"a spatial tool that
+helps people create something faster, easier, or more intuitively."*
+
+Laying out a room today means a tape measure and a 3D planner on a laptop, and
+neither tells you whether a sofa will actually fit or suit the light in the
+room. Spatialis moves that work inside the room itself. You design at true
+scale, in place, using the two inputs Spectacles already give you: your voice
+and your hands.
+
+It is for anyone about to change a room - renters and homeowners trying
+furniture before they buy it, and interior designers or stagers showing a
+client options on site rather than on a screen.
 
 ---
 
@@ -45,7 +60,7 @@ and stands a chair there facing into the room.
 
 | # | Subsystem | File | Responsibility |
 |---|---|---|---|
-| 1 | **Voice Intent Engine** | [`Scripts/VoiceCommandController.ts`](Scripts/VoiceCommandController.ts) | VoiceML transcription → parsed intent → prefab instantiation with a scale-in animation |
+| 1 | **Voice Intent Engine** | [`Scripts/VoiceCommandController.ts`](Scripts/VoiceCommandController.ts) | ASR transcription → parsed intent → prefab instantiation with a scale-in animation |
 | 2 | **Hand Gesture Controller** | [`Scripts/SpatialGestureController.ts`](Scripts/SpatialGestureController.ts) | SPECS hand tracking: pinch, drag, two-hand rotate and scale; squeeze a held piece well below its minimum and let go to remove it (crush-to-delete). |
 | 3 | **Surface Anchor Engine** | [`Scripts/SurfaceAnchorEngine.ts`](Scripts/SurfaceAnchorEngine.ts) | World Query hit testing; classifies floor / table / wall / ceiling and snaps to it |
 | 4 | **PBR Material Swapper** | [`Scripts/PBRMaterialSwapper.ts`](Scripts/PBRMaterialSwapper.ts) | 11 finishes and 10 tints, cross-faded onto per-object material clones |
@@ -105,6 +120,7 @@ surface classification, imported from the same `Scripts/*.ts` the Lens uses.
 ```bash
 npm install
 npm run sim          # builds the web bundle and serves on :8777
+#                      needs Node 18+ and Python 3 (the dev server)
 ```
 
 Then open **http://localhost:8777/** - the landing page, with a **Launch app** button.
@@ -128,7 +144,7 @@ What is **simulated**: the room and its hit tests (World Query on device); head
 pose via the arrow keys (headset tracking); mouse drag and scroll as pinch and
 scale (SIK hand tracking - **`SpatialGestureController` does not run here**, its
 state machine is covered by tests; release does call the real `reseat()`); Web
-Speech for VoiceML; three.js for the display.
+Speech for the ASR module; three.js for the display.
 
 ---
 
@@ -137,7 +153,7 @@ Speech for VoiceML; three.js for the display.
 ```bash
 git clone https://github.com/mrnetwork0001/Spatialis.git
 cd Spatialis
-npm install
+npm install        # Node 18+; the dev server below also needs Python 3
 
 npm run typecheck   # strict type check against the local API stubs (what CI runs)
 npm run typecheck:lens  # the same code against Snap's REAL API - needs Lens Studio installed

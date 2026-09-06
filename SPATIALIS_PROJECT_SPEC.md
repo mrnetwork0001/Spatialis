@@ -7,7 +7,7 @@
 > **AI Coding Agent:** Claude Code + CLAD (Closed Loop Agentic Development)  
 > **Environment:** Lens Studio 5.22+ + SPECS Project Mode + TypeScript  
 > **License:** Apache 2.0 Open Source  
-> **Author:** Ifeanyichukwu Onwo (`mrnetwork`)  
+> **Author:** Ifeanyichukwu Onwo (`mrnetwork0001`)  
 
 ---
 

@@ -218,9 +218,6 @@ declare class WorldQueryModule extends Asset {
   createHitTestSessionWithOptions(options: HitTestSessionOptions): HitTestSession;
 }
 
-// -----------------------------------------------------------------------------
-// VoiceML
-// -----------------------------------------------------------------------------
 
 
 

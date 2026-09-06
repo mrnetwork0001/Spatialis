@@ -27,7 +27,7 @@
  *   The room and hit tests.  A 520x430cm box with one table, raycast
  *                             analytically. On device: World Query against
  *                             the real room mesh.
- *   Voice input.             Web Speech API. On device: VoiceML. The
+ *   Voice input.             Web Speech API. On device: the ASR module. The
  *                             interim/final rule is the shipped one.
  *   Hand tracking.           Mouse drag and scroll stand in for pinch-drag
  *                             and two-hand scale. SpatialGestureController is
@@ -748,7 +748,7 @@ document.getElementById("chips").innerHTML =
 document.querySelectorAll(".chip").forEach((c) =>
   c.addEventListener("click", () => runCommand(c.textContent)));
 
-// Web Speech API stands in for VoiceML. The interim/final rule is the
+// Web Speech API stands in for the ASR module. The interim/final rule is the
 // controller's own: onTranscriptionUpdate shows partials and acts only on finals.
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const mic = document.getElementById("mic");

@@ -21,7 +21,7 @@ Add these from **Asset Browser → + → …**:
 
 Then enable, under **Project Settings → Extensions / Permissions**:
 
-- **Microphone** - required, VoiceML fails silently without it.
+- **Microphone** - required, the ASR module fails silently without it.
 - **Depth / World Mesh** - required, `SurfaceAnchorEngine` reports
   `"World Query module unavailable - running in float-only mode"` without it
   and every piece will hover in front of you instead of snapping.
@@ -75,7 +75,7 @@ key has a texture assigned, it is applied on top.
 ### VoiceCommandController
 | Field | Set to |
 |---|---|
-| `Voice ML Module` | the **ASR Module** asset |
+| `Asr Module` | the **ASR Module** asset |
 | `Anchor Engine` | the `SurfaceAnchorEngine` component |
 | `Material Swapper` | the `PBRMaterialSwapper` component |
 | `Spawn Parent` | **SpatialisRoot** |

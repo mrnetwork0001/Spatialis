@@ -449,10 +449,17 @@ Result: running the shipped code where the reimplementation used to run
   npm run typecheck   -> clean (strict; against the local API stubs)
   typecheck:lens      -> clean against Snap's REAL API (Lens Studio 5.23.2
                          StudioLib.d.ts); mutation-verified
-  npm test            -> 155 passed, 0 failed (7 suites, incl. end to end)
+  npm test            -> 161 passed, 0 failed (7 suites, incl. end to end)
+                         [superseded 2026-09-05: was 155 before the crush-to-
+                         delete and table-sweep suites; see Session 6 below]
   npm run build:web   -> clean (simulator ES module bundle)
   fresh clone         -> npm ci, typecheck, test, build:web all green
   CI                  -> green on every push
+
+  Do not take this file's word for any of it. Every claim above is checkable
+  from outside: the commit history (128 commits, 2026-08-31 to 2026-09-06),
+  the CI runs under the repository's Actions tab, and a named regression test
+  for each defect described below. Clone it and run npm test.
   Lens Studio         -> 5.23.2; LensProject wired; RUNS in Preview - a spoken
                          command spawns and restyles furniture; not on device
   Simulator           -> hosts the real subsystems; verified via DOM, logs
