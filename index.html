@@ -47,7 +47,9 @@
     background:rgba(6,6,9,.82);backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
-  nav.top .wrap{display:flex;align-items:center;gap:22px;height:58px}
+  /* The header sits wider than the page column: half of whatever margin the
+     column has left, so the logo and links move out toward the edges. */
+  nav.top .wrap{display:flex;align-items:center;gap:22px;height:58px;max-width:calc(75vw + 280px)}
   .brand{display:flex;align-items:center;gap:9px;font-weight:650;letter-spacing:-.2px}
   .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);
     box-shadow:0 0 12px var(--accent)}
