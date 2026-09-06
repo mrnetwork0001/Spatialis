@@ -551,3 +551,19 @@ making the repo public, the demo video, the submission form, a device pass.
      one column with the header collapsed to logo plus a menu drawer;
      drag uses pointer events so touch works. Verified by loading the app
      in a 390px frame and reading its layout from inside.
+
+--- Session 7, 2026-09-06 ---
+
+"anytime i open the app it shows some added features ... is this normal?"
+  -> Explained: three starter commands ran on load so nobody met an empty
+     room, and they demonstrated the three anchoring paths at a glance.
+     Offered start-empty, keep-one, or leave as is.
+"start empty"
+  -> The room now opens empty with the Response line inviting the first
+     command; a ?cmd= link still furnishes it, so shared scenes and the
+     screenshots are unaffected. That exposed a real bug: an empty room's
+     list signature is the empty string, which was also the initial value,
+     so the first frame skipped the render and the list area sat blank
+     instead of showing its empty state. The signature now starts as a
+     sentinel no room can produce, which also fixes the same blank after
+     "clear the room".
