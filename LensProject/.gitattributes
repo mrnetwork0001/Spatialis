@@ -252,3 +252,20 @@ Assets/**/*.worldmesh !filter !diff !merge text eol=lf linguist-language=yaml me
 Packages/**/*.worldmesh !filter !diff !merge text eol=lf linguist-language=yaml merge=lens-studio-yaml-merge
 
 # Shipped by Lens Studio
+
+# ---------------------------------------------------------------------------
+# This repository does not use Git LFS.
+#
+# Lens Studio's generated block above marks Assets/**/* and Packages/**/* as
+# filter=lfs, but git-lfs was never initialised here: every file is committed
+# as an ordinary blob. The generated block already unsets the filter for its
+# text formats; these lines do the same for the binary ones, so a clone on a
+# machine that DOES have git-lfs installed will not run the clean filter and
+# rewrite them into pointers, which would show the whole project as modified.
+# ---------------------------------------------------------------------------
+Assets/**/*.glb !filter !diff !merge
+Assets/**/*.hdr !filter !diff !merge
+Assets/**/*.lspkg !filter !diff !merge
+Packages/**/*.glb !filter !diff !merge
+Packages/**/*.hdr !filter !diff !merge
+Packages/**/*.lspkg !filter !diff !merge
